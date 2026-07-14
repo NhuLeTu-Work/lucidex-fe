@@ -1,0 +1,139 @@
+import { useEffect, useRef } from 'react';
+import { ArrowRight, Building2, GraduationCap, Users, Upload, UserCheck, Link2, ClipboardList } from 'lucide-react';
+import type { AppContextType } from '../App';
+
+export function LandingPage({ ctx }: { ctx: AppContextType }) {
+  const { t, setPage, setRole } = ctx;
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleRolePortal = (role: 'student' | 'issuer' | 'hr' | 'admin') => {
+    setRole(role);
+    setPage(role === 'student' ? 'student' : role === 'issuer' ? 'issuer' : role === 'hr' ? 'hr' : 'admin');
+  };
+
+  return (
+    <div>
+      {/* Hero Section */}
+      <section ref={heroRef} className="relative min-h-[calc(100vh-64px)] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img src="/hero-bg.jpg" alt="" className="w-full h-full object-cover opacity-40" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, var(--ct-bg) 0%, transparent 50%, var(--ct-bg) 100%)' }} />
+        </div>
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6 py-20">
+          <BlurRevealText text={t('heroTitle')} className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" />
+          <p className="text-lg sm:text-xl mb-10 font-light" style={{ color: 'var(--ct-text-secondary)' }}>{t('heroSubtitle')}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={() => { setRole('hr'); setPage('hr'); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
+              {t('heroCTA1')}
+              <ArrowRight size={18} />
+            </button>
+            <button onClick={() => setPage('verify')} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
+              {t('heroCTA2')}
+            </button>
+          </div>
+
+          {/* Role Quick Access */}
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+            <RoleCard icon={<GraduationCap size={20} />} label={t('studentPortal')} onClick={() => handleRolePortal('student')} />
+            <RoleCard icon={<Building2 size={20} />} label={t('issuerPortal')} onClick={() => handleRolePortal('issuer')} />
+            <RoleCard icon={<Users size={20} />} label={t('hrPortal')} onClick={() => handleRolePortal('hr')} />
+            <RoleCard icon={<ClipboardList size={20} />} label={t('adminPortal')} onClick={() => handleRolePortal('admin')} />
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Pillars */}
+      <section className="py-24 px-6" style={{ background: 'var(--ct-bg)' }}>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-display text-3xl md:text-4xl text-center mb-16">{t('howItWorks')}</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <FeatureCard icon={<Building2 size={32} />} title={t('forUniversities')} desc={t('featUniDesc')} />
+            <FeatureCard icon={<GraduationCap size={32} />} title={t('forStudents')} desc={t('featStuDesc')} />
+            <FeatureCard icon={<Users size={32} />} title={t('forEmployers')} desc={t('featEmpDesc')} />
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Steps */}
+      <section className="py-24 px-6" style={{ background: 'var(--ct-surface)' }}>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-3xl md:text-4xl text-center mb-16">{t('howItWorks')}</h2>
+          <div className="space-y-12">
+            <StepRow num="01" icon={<Upload size={24} />} title={t('step1')} desc="Issuer uploads graduation data via CSV batch file." align="left" />
+            <StepRow num="02" icon={<UserCheck size={24} />} title={t('step2')} desc="Student claims their digital degree using MSSV + OTP or CCCD OCR fallback." align="right" />
+            <StepRow num="03" icon={<Link2 size={24} />} title={t('step3')} desc="HR verifies credentials via public link or HR Portal with full audit trail." align="left" />
+            <StepRow num="04" icon={<ClipboardList size={24} />} title={t('step4')} desc="Every verification is logged immutably with timestamp and identity." align="right" />
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <img src="/logo-icon.png" alt="" className="h-6 w-6" />
+            <span className="font-display text-sm">Lucidex</span>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--ct-text-secondary)' }}>{t('footerCopy')}</p>
+          <div className="flex items-center gap-1.5">
+            <span className="px-2 py-0.5 text-[10px] font-mono rounded border" style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text-secondary)' }}>{t('mockDataLabel')}</span>
+            <span className="px-2 py-0.5 text-[10px] font-mono rounded border" style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text-secondary)' }}>{t('phase1Label')}</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function BlurRevealText({ text, className }: { text: string; className?: string }) {
+  return (
+    <div className={className} style={{ perspective: '1000px' }}>
+      {text.split('').map((char, index) => (
+        <span key={index} className="inline-block" style={{
+          whiteSpace: char === ' ' ? 'pre' : undefined,
+          animation: `blurReveal 0.6s cubic-bezier(0.2, 1, 0.2, 1) ${index * 0.02}s both`,
+        }}>
+          {char === ' ' ? '\u00A0' : char}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function RoleCard({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <span style={{ color: 'var(--ct-text)' }}>{icon}</span>
+      <span className="text-xs font-medium" style={{ color: 'var(--ct-text-secondary)' }}>{label}</span>
+    </button>
+  );
+}
+
+function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <div className="p-8 rounded-2xl border transition-all hover:scale-[1.02]" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="mb-4" style={{ color: 'var(--ct-text)' }}>{icon}</div>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--ct-text-secondary)' }}>{desc}</p>
+    </div>
+  );
+}
+
+function StepRow({ num, icon, title, desc, align }: { num: string; icon: React.ReactNode; title: string; desc: string; align: 'left' | 'right' }) {
+  return (
+    <div className={`flex items-center gap-8 ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}>
+      <div className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
+        <span style={{ color: 'var(--ct-text)' }}>{icon}</span>
+      </div>
+      <div className="flex-1">
+        <span className="text-xs font-mono font-semibold mb-1 block" style={{ color: 'var(--ct-text-secondary)' }}>{num}</span>
+        <h3 className="text-xl font-semibold mb-1">{title}</h3>
+        <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{desc}</p>
+      </div>
+    </div>
+  );
+}
