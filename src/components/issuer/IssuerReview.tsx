@@ -30,7 +30,7 @@ export function IssuerReview({ t, items, onApprove, onReject }: IssuerReviewProp
             <div key={item.id} className="p-5 rounded-xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-semibold">{item.studentName}</p>
+                  <p className="font-semibold">{item.ownerName}</p>
                   <p className="text-xs font-mono opacity-60">{item.studentId}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs">
                     <span className="flex items-center gap-1">
@@ -69,7 +69,7 @@ export function IssuerReview({ t, items, onApprove, onReject }: IssuerReviewProp
               <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border opacity-60" style={{ borderColor: 'var(--ct-border)' }}>
                 <div className="flex items-center gap-3">
                   {item.status === 'approved' ? <CheckCircle size={14} className="text-green-600" /> : <XCircle size={14} className="text-red-600" />}
-                  <span className="text-sm">{item.studentName} — {item.studentId}</span>
+                  <span className="text-sm">{item.ownerName} — {item.studentId}</span>
                 </div>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                   {item.status === 'approved' ? t('approved') : t('rejected')}

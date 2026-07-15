@@ -3,7 +3,7 @@ import { useTheme } from './hooks/useTheme';
 import { useI18n } from './hooks/useI18n';
 import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut } from 'lucide-react';
 import { LandingPage } from './pages/LandingPage';
-import { StudentPortal } from './pages/StudentPortal';
+import { OwnerPortal } from './pages/OwnerPortal';
 import { IssuerPortal } from './pages/IssuerPortal';
 import { VerifierPortal } from './pages/VerifierPortal';
 import { AdminPortal } from './pages/AdminPortal';
@@ -11,8 +11,8 @@ import { VerifyLinkPage } from './pages/VerifyLinkPage';
 import { Login } from './pages/LoginPage';
 import { Register } from './pages/RegisterPage';
 
-export type UserRole = 'guest' | 'student' | 'issuer' | 'verifier' | 'admin';
-export type Page = 'landing' | 'student' | 'issuer' | 'verifier' | 'admin' | 'verify' | 'login' | 'register';
+export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin';
+export type Page = 'landing' | 'owner' | 'issuer' | 'verifier' | 'admin' | 'verify' | 'login' | 'register';
 
 export interface AppContextType {
   page: Page;
@@ -45,7 +45,7 @@ function App() {
       case 'register': return <Register ctx={ctx} />;
       case 'verify': return <VerifyLinkPage ctx={ctx} />;
       // Protected Routes: Kiểm tra quyền trước khi render Portal, nếu sai quyền ép về Login
-      case 'student': return role === 'student' ? <StudentPortal ctx={ctx} /> : <Login ctx={ctx} />;
+      case 'owner': return role === 'owner' ? <OwnerPortal ctx={ctx} /> : <Login ctx={ctx} />;
       case 'issuer': return role === 'issuer' ? <IssuerPortal ctx={ctx} /> : <Login ctx={ctx} />;
       case 'verifier': return role === 'verifier' ? <VerifierPortal ctx={ctx} /> : <Login ctx={ctx} />;
       case 'admin': return role === 'admin' ? <AdminPortal ctx={ctx} /> : <Login ctx={ctx} />;
@@ -73,7 +73,7 @@ function App() {
                 <NavBtn icon={<ShieldCheck size={16} />} label={t('verify') || 'Xác thực'} onClick={() => setPage('verify')} />
               </>
             )}
-            {role === 'student' && <PortalBadge icon={<GraduationCap size={14} />} label={t('studentPortal') || 'Cổng Sinh viên'} />}
+            {role === 'owner' && <PortalBadge icon={<GraduationCap size={14} />} label={t('OwnerPortal') || 'Cổng Sinh viên'} />}
             {role === 'issuer' && <PortalBadge icon={<Building2 size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
             {role === 'verifier' && <PortalBadge icon={<Users size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
             {role === 'admin' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('adminPortal') || 'Quản trị hệ thống'} />}

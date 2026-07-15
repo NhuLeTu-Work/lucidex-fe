@@ -11,7 +11,7 @@ export function AdminDashboard({ t, pendingCount, totalAccounts, onTabChange, ac
   
   // Đưa logic tính toán tỷ lệ tài khoản vào thẳng component này để tự động cập nhật
   const accountTypeData = [
-    { name: t('student') || 'Student', value: accounts.filter((a: any) => a.type === 'student').length },
+    { name: t('owner') || 'Owner', value: accounts.filter((a: any) => a.type === 'owner').length },
     { name: t('issuer') || 'Issuer', value: accounts.filter((a: any) => a.type === 'issuer').length },
     { name: t('verifier') || 'Verifier', value: accounts.filter((a: any) => a.type === 'verifier').length },
     { name: t('admin') || 'Admin', value: accounts.filter((a: any) => a.type === 'admin').length },

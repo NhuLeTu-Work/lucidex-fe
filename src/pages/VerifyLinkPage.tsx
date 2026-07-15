@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Clock, Building2, User, Hash, FileText } from 'lucide-react';
-import { mockCredentials, mockStudents } from '../data/mockData';
+import { mockCredentials, mockOwners } from '../data/mockData';
 import type { AppContextType } from '../App';
 
 export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
@@ -22,8 +22,8 @@ export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
           if (code.trim() === 'jkl012') return c.id === 'cred_004';
           return false;
         });
-        const student = mockStudents.find(s => s.studentId === cred?.studentId);
-        setVerifiedData({ ...cred, studentName: student?.name, major: student?.major, graduationYear: student?.graduationYear, gpa: student?.gpa, honors: student?.honors });
+        const owner = mockOwners.find(s => s.studentId === cred?.studentId);
+        setVerifiedData({ ...cred, ownerName: owner?.name, major: owner?.major, graduationYear: owner?.graduationYear, gpa: owner?.gpa, honors: owner?.honors });
         setResult('valid');
       } else if (code.trim() === 'no_consent') {
         setResult('consent_required');
@@ -81,7 +81,7 @@ export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
               <span className="font-semibold text-green-700">{t('credentialValid')}</span>
             </div>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-2"><User size={14} className="opacity-50" /> <span className="font-medium">{t('studentName')}:</span> <span className="font-semibold">{verifiedData.studentName}</span></div>
+              <div className="flex items-center gap-2"><User size={14} className="opacity-50" /> <span className="font-medium">{t('ownerName')}:</span> <span className="font-semibold">{verifiedData.ownerName}</span></div>
               <div className="flex items-center gap-2"><Building2 size={14} className="opacity-50" /> <span className="font-medium">{t('institution')}:</span> <span>CICT - Can Tho University</span></div>
               <div className="flex items-center gap-2"><FileText size={14} className="opacity-50" /> <span className="font-medium">{t('degreeType')}:</span> <span>{verifiedData.degreeType}</span></div>
               <div className="flex items-center gap-2"><Hash size={14} className="opacity-50" /> <span className="font-medium">{t('major')}:</span> <span>{verifiedData.major}</span></div>
@@ -108,7 +108,7 @@ export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
               <AlertTriangle size={20} className="text-amber-600" />
               <span className="font-semibold text-amber-700">{t('consentRequired')}</span>
             </div>
-            <p className="text-sm text-amber-700 opacity-80">{t('contactStudent')}</p>
+            <p className="text-sm text-amber-700 opacity-80">{t('contactOwner')}</p>
           </div>
         )}
       </div>

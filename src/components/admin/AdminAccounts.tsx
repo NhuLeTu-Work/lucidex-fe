@@ -21,7 +21,7 @@ export function AdminAccounts({ t, accounts }: { t: (k: string) => string, accou
         </div>
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-4 py-2.5 rounded-lg border text-sm outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
           <option value="all">{t('all') || 'All Types'}</option>
-          <option value="student">{t('student') || 'Student'}</option>
+          <option value="owner">{t('owner') || 'Owner'}</option>
           <option value="issuer">{t('issuer') || 'Issuer'}</option>
           <option value="verifier">{t('verifier') || 'Verifier'}</option>
           <option value="admin">{t('admin') || 'Admin'}</option>

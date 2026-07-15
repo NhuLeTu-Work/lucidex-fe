@@ -1,6 +1,6 @@
 import { TrendingUp, Users, Clock, Upload, ChevronRight, AlertTriangle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { monthlyVerifications, mockStudents, mockReviewQueue } from '../../data/mockData';
+import { monthlyVerifications, mockOwners, mockReviewQueue } from '../../data/mockData';
 import { StatCard } from './StatCard';
 import type { IssuerTab } from '../../types/issuer';
 
@@ -11,7 +11,7 @@ interface IssuerDashboardProps {
 }
 
 export function IssuerDashboard({ t, pendingCount, onTabChange }: IssuerDashboardProps) {
-  const activeStudents = mockStudents.filter(s => s.activated).length;
+  const activeOwners = mockOwners.filter(s => s.activated).length;
 
   return (
     <div>
@@ -20,7 +20,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange }: IssuerDashboar
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('verificationsThisMonth')} value="58" icon={<TrendingUp size={20} />} onClick={() => onTabChange('analytics')} />
-        <StatCard label={t('activeStudents')} value={activeStudents.toString()} icon={<Users size={20} />} onClick={() => {}} />
+        <StatCard label={t('activeOwners')} value={activeOwners.toString()} icon={<Users size={20} />} onClick={() => {}} />
         <StatCard label={t('pendingReviews')} value={pendingCount.toString()} icon={<Clock size={20} />} onClick={() => onTabChange('review')} />
         <StatCard label={t('uploadCSV')} value="+" icon={<Upload size={20} />} onClick={() => onTabChange('upload')} />
       </div>
@@ -60,7 +60,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange }: IssuerDashboar
             {mockReviewQueue.filter(r => r.status === 'pending').slice(0, 3).map(item => (
               <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border" style={{ borderColor: 'var(--ct-border)' }}>
                 <div>
-                  <p className="text-sm font-medium">{item.studentName}</p>
+                  <p className="text-sm font-medium">{item.ownerName}</p>
                   <p className="text-xs font-mono opacity-60">{item.studentId} — {t('confidenceScore')}: {(item.confidenceScore * 100).toFixed(0)}%</p>
                 </div>
                 <AlertTriangle size={16} className="text-amber-500" />

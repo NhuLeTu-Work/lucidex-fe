@@ -1,6 +1,6 @@
 // MOCK DATA - All data is synthetic for demonstration purposes
 
-export interface Student {
+export interface Owner {
   id: string;
   studentId: string;
   name: string;
@@ -46,7 +46,7 @@ export interface AuditEntry {
 
 export interface ReviewItem {
   id: string;
-  studentName: string;
+  ownerName: string;
   studentId: string;
   method: 'email_otp' | 'cccd_ocr';
   confidenceScore: number;
@@ -68,7 +68,7 @@ export interface VerifierOrganization {
 export interface VerifierVerifyEntry {
   id: string;
   credentialId: string;
-  studentName: string;
+  ownerName: string;
   institution: string;
   major: string;
   result: 'valid' | 'invalid';
@@ -81,7 +81,7 @@ export interface Account {
   id: string;
   name: string;
   email: string;
-  type: 'student' | 'issuer' | 'verifier' | 'admin';
+  type: 'owner' | 'issuer' | 'verifier' | 'admin';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
   lastActive: string;
@@ -102,7 +102,7 @@ export interface Account {
 export const mockAccounts: Account[] = [
   // 1. TÀI KHOẢN ADMIN & STUDENT (Active bình thường)
   { id: 'acc_001', name: 'System Admin', email: 'admin@lucidex.vn', type: 'admin', status: 'active', createdAt: '2026-01-01T00:00:00Z', lastActive: '2026-06-17T09:00:00Z' },
-  { id: 'acc_002', name: 'Nguyen Van A', email: 'b190001@student.ctu.edu.vn', type: 'student', status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
+  { id: 'acc_002', name: 'Nguyen Van A', email: 'b190001@student.ctu.edu.vn', type: 'owner', status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
 
   { id: 'iss_004', name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', type: 'issuer', status: 'active', createdAt: '2026-01-15T00:00:00Z', lastActive: '2026-06-17T08:00:00Z' },
   { id: 'vef_004', name: 'Tran Thi HR', email: 'hr@tma.com.vn', type: 'verifier', status: 'active', createdAt: '2026-04-10T00:00:00Z', lastActive: '2026-06-15T14:00:00Z' },
@@ -136,8 +136,8 @@ export const mockAccounts: Account[] = [
   },
 ];
 
-// Mock Students
-export const mockStudents: Student[] = [
+// Mock owners
+export const mockOwners: Owner[] = [
   { id: '1', studentId: 'B190001', name: 'Nguyen Van A', dob: '2001-05-15', email: 'b190001@student.ctu.edu.vn', major: 'Computer Science', graduationYear: 2024, gpa: 3.6, honors: 'Very Good', activated: true },
   { id: '2', studentId: 'B190002', name: 'Tran Thi B', dob: '2000-08-22', email: 'b190002@student.ctu.edu.vn', major: 'Software Engineering', graduationYear: 2024, gpa: 3.8, honors: 'Excellent', activated: true },
   { id: '3', studentId: 'B190003', name: 'Le Van C', dob: '2001-02-10', email: 'b190003@student.ctu.edu.vn', major: 'Information Systems', graduationYear: 2023, gpa: 3.2, honors: 'Good', activated: false },
@@ -173,9 +173,9 @@ export const mockAuditLog: AuditEntry[] = [
 
 // Mock Review Queue
 export const mockReviewQueue: ReviewItem[] = [
-  { id: 'review_001', studentName: 'Hoang Van E', studentId: 'B190005', method: 'cccd_ocr', confidenceScore: 0.72, submittedAt: '2026-06-16T10:00:00Z', status: 'pending' },
-  { id: 'review_002', studentName: 'Nguyen Thi F', studentId: 'B190006', method: 'cccd_ocr', confidenceScore: 0.65, submittedAt: '2026-06-15T14:30:00Z', status: 'pending' },
-  { id: 'review_003', studentName: 'Tran Van G', studentId: 'B190007', method: 'email_otp', confidenceScore: 0.91, submittedAt: '2026-06-14T09:00:00Z', status: 'approved' },
+  { id: 'review_001', ownerName: 'Hoang Van E', studentId: 'B190005', method: 'cccd_ocr', confidenceScore: 0.72, submittedAt: '2026-06-16T10:00:00Z', status: 'pending' },
+  { id: 'review_002', ownerName: 'Nguyen Thi F', studentId: 'B190006', method: 'cccd_ocr', confidenceScore: 0.65, submittedAt: '2026-06-15T14:30:00Z', status: 'pending' },
+  { id: 'review_003', ownerName: 'Tran Van G', studentId: 'B190007', method: 'email_otp', confidenceScore: 0.91, submittedAt: '2026-06-14T09:00:00Z', status: 'approved' },
 ];
 
 // Mock Verifier Organizations
@@ -188,10 +188,10 @@ export const mockOrganizations: VerifierOrganization[] = [
 
 // Mock Verifier Verify History
 export const mockVerifierVerifyHistory: VerifierVerifyEntry[] = [
-  { id: 'verv_001', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-15T09:30:00Z', method: 'link' },
-  { id: 'verv_002', credentialId: 'cred_002', studentName: 'Tran Thi B', institution: 'CICT - Can Tho University', major: 'Software Engineering', result: 'valid', timestamp: '2026-06-14T14:20:00Z', method: 'portal' },
-  { id: 'verv_003', credentialId: 'cred_004', studentName: 'Pham Thi D', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-09T08:15:00Z', method: 'portal' },
-  { id: 'verv_004', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-08T11:00:00Z', method: 'link' },
+  { id: 'verv_001', credentialId: 'cred_001', ownerName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-15T09:30:00Z', method: 'link' },
+  { id: 'verv_002', credentialId: 'cred_002', ownerName: 'Tran Thi B', institution: 'CICT - Can Tho University', major: 'Software Engineering', result: 'valid', timestamp: '2026-06-14T14:20:00Z', method: 'portal' },
+  { id: 'verv_003', credentialId: 'cred_004', ownerName: 'Pham Thi D', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-09T08:15:00Z', method: 'portal' },
+  { id: 'verv_004', credentialId: 'cred_001', ownerName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-08T11:00:00Z', method: 'link' },
 ];
 
 // Analytics Data
@@ -221,7 +221,7 @@ export const topMajors = [
 ];
 
 // Current logged in user (mock)
-export const currentStudent = mockStudents[0];
+export const currentOwner = mockOwners[0];
 export const currentIssuer = { name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', role: 'issuer_admin' };
 export const currentVerifier = { name: 'Tran Thi HR', email: 'hr@tma.com.vn', company: 'TMA Solutions', quotaUsed: 14, quotaTotal: 20 };
 export const currentAdmin = { name: 'System Admin', email: 'admin@credentwin.vn' };

@@ -14,7 +14,7 @@ export interface Account {
   id: string;
   name: string;
   email: string;
-  type: 'student' | 'issuer' | 'verifier' | 'admin';
+  type: 'owner' | 'issuer' | 'verifier' | 'admin';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
   lastActive: string;

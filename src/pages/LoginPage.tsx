@@ -138,7 +138,7 @@ export function Login({ ctx }: { ctx: AppContextType }) {
         setIsOtpLoading(false);
       } else {
         // Mọi chuỗi 6 số khác đều coi là hợp lệ và vào Portal
-        setRole(currentAcc.type as 'student' | 'issuer' | 'verifier' | 'admin');
+        setRole(currentAcc.type as 'owner' | 'issuer' | 'verifier' | 'admin');
         setPage(currentAcc.type);
       }
     }, 1500);

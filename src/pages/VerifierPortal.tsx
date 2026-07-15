@@ -7,7 +7,7 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { currentVerifier, mockVerifierVerifyHistory, mockCredentials, mockStudents } from '../data/mockData';
+import { currentVerifier, mockVerifierVerifyHistory, mockCredentials, mockOwners } from '../data/mockData';
 import type { AppContextType } from '../App';
 
 type VeriferTab = 'dashboard' | 'history' | 'quota' | 'verify' | 'register';
@@ -38,8 +38,8 @@ export function VerifierPortal({ ctx }: { ctx: AppContextType }) {
           if (code.trim() === 'jkl012') return c.id === 'cred_004';
           return false;
         });
-        const student = mockStudents.find(s => s.studentId === cred?.studentId);
-        setVerifiedData({ ...cred, studentName: student?.name, major: student?.major, graduationYear: student?.graduationYear, gpa: student?.gpa, honors: student?.honors });
+        const owner = mockOwners.find(s => s.studentId === cred?.studentId);
+        setVerifiedData({ ...cred, ownerName: owner?.name, major: owner?.major, graduationYear: owner?.graduationYear, gpa: owner?.gpa, honors: owner?.honors });
         setVerifyResult('valid');
         setQuotaUsed(prev => Math.min(prev + 1, 20));
       } else {
@@ -139,7 +139,7 @@ function VerifierDashboard({ t, quotaUsed, onTabChange }: { t: (k: string) => st
             <div key={h.id} className="flex items-center justify-between p-3 rounded-lg border" style={{ borderColor: 'var(--ct-border)' }}>
               <div className="flex items-center gap-3">
                 <CheckCircle size={14} className="text-green-600" />
-                <span className="text-sm">{h.studentName}</span>
+                <span className="text-sm">{h.ownerName}</span>
               </div>
               <span className="text-xs font-mono opacity-50">{new Date(h.timestamp).toLocaleDateString()}</span>
             </div>
@@ -266,7 +266,7 @@ function VerifierVerify({ t, result, verifiedData, onVerify, quotaUsed }: { t: (
           <div ref={dropZoneRef} className="drop-zone absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 p-6 rounded-xl" style={{ background: 'var(--ct-surface)' }}>
             <div className="text-center">
               <Shield size={24} className="mx-auto mb-2 opacity-30" />
-              <p className="font-semibold text-sm">{verifiedData.studentName}</p>
+              <p className="font-semibold text-sm">{verifiedData.ownerName}</p>
               <p className="text-xs opacity-60">{verifiedData.degreeType}</p>
               <p className="text-xs font-mono opacity-40 mt-1">{verifiedData.hash}</p>
             </div>
@@ -292,7 +292,7 @@ function VerifierVerify({ t, result, verifiedData, onVerify, quotaUsed }: { t: (
             <span className="font-semibold text-green-700">{t('credentialValid')}</span>
           </div>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
-            <div><span className="opacity-50">{t('studentName')}:</span> <span className="font-semibold">{verifiedData.studentName}</span></div>
+            <div><span className="opacity-50">{t('ownerName')}:</span> <span className="font-semibold">{verifiedData.ownerName}</span></div>
             <div><span className="opacity-50">{t('institution')}:</span> <span>CICT - Can Tho University</span></div>
             <div><span className="opacity-50">{t('degreeType')}:</span> <span>{verifiedData.degreeType}</span></div>
             <div><span className="opacity-50">GPA:</span> <span>{verifiedData.gpa}</span></div>
@@ -325,7 +325,7 @@ function VerifierHistory({ t }: { t: (k: string) => string }) {
             <thead>
               <tr style={{ background: 'var(--ct-bg)', borderBottom: '1px solid var(--ct-border)' }}>
                 <th className="text-left px-4 py-3 font-medium">{t('date')}</th>
-                <th className="text-left px-4 py-3 font-medium">{t('studentName')}</th>
+                <th className="text-left px-4 py-3 font-medium">{t('ownerName')}</th>
                 <th className="text-left px-4 py-3 font-medium">{t('institution')}</th>
                 <th className="text-left px-4 py-3 font-medium">{t('status')}</th>
                 <th className="text-left px-4 py-3 font-medium">{t('action')}</th>
@@ -335,7 +335,7 @@ function VerifierHistory({ t }: { t: (k: string) => string }) {
               {mockVerifierVerifyHistory.map(h => (
                 <tr key={h.id} className="border-t transition-colors hover:opacity-80" style={{ borderColor: 'var(--ct-border)' }}>
                   <td className="px-4 py-3 font-mono text-xs">{new Date(h.timestamp).toLocaleString()}</td>
-                  <td className="px-4 py-3">{h.studentName}</td>
+                  <td className="px-4 py-3">{h.ownerName}</td>
                   <td className="px-4 py-3 text-xs">{h.institution}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${h.result === 'valid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>

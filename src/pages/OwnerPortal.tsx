@@ -4,22 +4,22 @@ import {
   Plus, Trash2, ChevronRight, X, CheckCircle,
   Upload
 } from 'lucide-react';
-import { mockCredentials, mockVerifiedLinks, mockAuditLog, currentStudent } from '../data/mockData';
+import { mockCredentials, mockVerifiedLinks, mockAuditLog, currentOwner } from '../data/mockData';
 import type { AppContextType } from '../App';
 import type { VerifiedLink } from '../data/mockData';
 
-type StudentTab = 'dashboard' | 'credentials' | 'links' | 'audit' | 'consent' | 'claim';
+type OwnerTab = 'dashboard' | 'credentials' | 'links' | 'audit' | 'consent' | 'claim';
 
-export function StudentPortal({ ctx }: { ctx: AppContextType }) {
+export function OwnerPortal({ ctx }: { ctx: AppContextType }) {
   const { t } = ctx;
-  const [activeTab, setActiveTab] = useState<StudentTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<OwnerTab>('dashboard');
   const [links, setLinks] = useState<VerifiedLink[]>(mockVerifiedLinks);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [claimStep, setClaimStep] = useState<'form' | 'otp' | 'success'>('form');
   const [otpValue, setOtpValue] = useState('');
   const [showOtpMock, setShowOtpMock] = useState(false);
 
-  const sidebarItems: { id: StudentTab; label: string; icon: React.ReactNode }[] = [
+  const sidebarItems: { id: OwnerTab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'credentials', label: t('myCredentials'), icon: <FileText size={18} /> },
     { id: 'links', label: t('verifiedLinks'), icon: <Link2 size={18} /> },
@@ -54,11 +54,11 @@ export function StudentPortal({ ctx }: { ctx: AppContextType }) {
         <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
-              {currentStudent.name.charAt(0)}
+              {currentOwner.name.charAt(0)}
             </div>
             <div>
-              <p className="text-sm font-semibold">{currentStudent.name}</p>
-              <p className="text-xs font-mono opacity-60">{currentStudent.studentId}</p>
+              <p className="text-sm font-semibold">{currentOwner.name}</p>
+              <p className="text-xs font-mono opacity-60">{currentOwner.studentId}</p>
             </div>
           </div>
         </div>
@@ -83,12 +83,12 @@ export function StudentPortal({ ctx }: { ctx: AppContextType }) {
           ))}
         </div>
 
-        {activeTab === 'dashboard' && <StudentDashboard t={t} links={links} onTabChange={setActiveTab} />}
-        {activeTab === 'credentials' && <StudentCredentials t={t} />}
-        {activeTab === 'links' && <StudentLinks t={t} links={links} onRevoke={handleRevokeLink} onCreate={() => setShowCreateModal(true)} />}
-        {activeTab === 'audit' && <StudentAudit t={t} />}
-        {activeTab === 'consent' && <StudentConsent t={t} />}
-        {activeTab === 'claim' && <StudentClaim t={t} step={claimStep} setStep={setClaimStep} otpValue={otpValue} setOtpValue={setOtpValue} showOtpMock={showOtpMock} setShowOtpMock={setShowOtpMock} />}
+        {activeTab === 'dashboard' && <OwnerDashboard t={t} links={links} onTabChange={setActiveTab} />}
+        {activeTab === 'credentials' && <OwnerCredentials t={t} />}
+        {activeTab === 'links' && <OwnerLinks t={t} links={links} onRevoke={handleRevokeLink} onCreate={() => setShowCreateModal(true)} />}
+        {activeTab === 'audit' && <OwnerAudit t={t} />}
+        {activeTab === 'consent' && <OwnerConsent t={t} />}
+        {activeTab === 'claim' && <OwnerClaim t={t} step={claimStep} setStep={setClaimStep} otpValue={otpValue} setOtpValue={setOtpValue} showOtpMock={showOtpMock} setShowOtpMock={setShowOtpMock} />}
       </main>
 
       {/* Create Link Modal */}
@@ -98,13 +98,13 @@ export function StudentPortal({ ctx }: { ctx: AppContextType }) {
 }
 
 /* ========================= DASHBOARD ========================= */
-function StudentDashboard({ t, links, onTabChange }: { t: (k: string) => string; links: VerifiedLink[]; onTabChange: (t: StudentTab) => void }) {
+function OwnerDashboard({ t, links, onTabChange }: { t: (k: string) => string; links: VerifiedLink[]; onTabChange: (t: OwnerTab) => void }) {
   const activeLinks = links.filter(l => l.status === 'active').length;
-  const credCount = mockCredentials.filter(c => c.studentId === currentStudent.studentId).length;
+  const credCount = mockCredentials.filter(c => c.studentId === currentOwner.studentId).length;
 
   return (
     <div>
-      <h1 className="font-display text-2xl mb-2">{t('welcomeStudent')}</h1>
+      <h1 className="font-display text-2xl mb-2">{t('welcomeOwner')}</h1>
       <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{t('mockDataLabel')} — {t('phase1Label')}</p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -149,9 +149,9 @@ function StatCard({ label, value, icon, onClick }: { label: string; value: strin
 }
 
 /* ========================= CREDENTIALS ========================= */
-function StudentCredentials({ t }: { t: (k: string) => string }) {
-  const myCreds = mockCredentials.filter(c => c.studentId === currentStudent.studentId);
-  const student = currentStudent;
+function OwnerCredentials({ t }: { t: (k: string) => string }) {
+  const myCreds = mockCredentials.filter(c => c.studentId === currentOwner.studentId);
+  const owner = currentOwner;
 
   return (
     <div>
@@ -161,7 +161,7 @@ function StudentCredentials({ t }: { t: (k: string) => string }) {
       ) : (
         <div className="space-y-6">
           {myCreds.map(cred => (
-            <TiltCredentialCard key={cred.id} cred={cred} student={student} t={t} />
+            <TiltCredentialCard key={cred.id} cred={cred} owner={owner} t={t} />
           ))}
         </div>
       )}
@@ -169,7 +169,7 @@ function StudentCredentials({ t }: { t: (k: string) => string }) {
   );
 }
 
-function TiltCredentialCard({ cred, student, t }: { cred: any; student: any; t: (k: string) => string }) {
+function TiltCredentialCard({ cred, owner, t }: { cred: any; owner: any; t: (k: string) => string }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glareRef = useRef<HTMLDivElement>(null);
   const boundingRef = useRef({ left: 0, top: 0, width: 0, height: 0 });
@@ -223,13 +223,13 @@ function TiltCredentialCard({ cred, student, t }: { cred: any; student: any; t: 
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4 text-sm">
-          <div><span className="opacity-50">{t('studentName')}:</span> <span className="font-semibold">{student.name}</span></div>
-          <div><span className="opacity-50">{t('studentId')}:</span> <span className="font-mono">{student.studentId}</span></div>
+          <div><span className="opacity-50">{t('ownerName')}:</span> <span className="font-semibold">{owner.name}</span></div>
+          <div><span className="opacity-50">{t('studentId')}:</span> <span className="font-mono">{owner.studentId}</span></div>
           <div><span className="opacity-50">{t('degreeType')}:</span> <span>{cred.degreeType}</span></div>
-          <div><span className="opacity-50">{t('major')}:</span> <span>{student.major}</span></div>
-          <div><span className="opacity-50">{t('graduationYear')}:</span> <span>{student.graduationYear}</span></div>
-          <div><span className="opacity-50">{t('classHonors')}:</span> <span>{student.honors}</span></div>
-          <div><span className="opacity-50">GPA:</span> <span className="font-semibold">{student.gpa}</span></div>
+          <div><span className="opacity-50">{t('major')}:</span> <span>{owner.major}</span></div>
+          <div><span className="opacity-50">{t('graduationYear')}:</span> <span>{owner.graduationYear}</span></div>
+          <div><span className="opacity-50">{t('classHonors')}:</span> <span>{owner.honors}</span></div>
+          <div><span className="opacity-50">GPA:</span> <span className="font-semibold">{owner.gpa}</span></div>
           <div><span className="opacity-50">{t('issueDate')}:</span> <span>{cred.issueDate}</span></div>
         </div>
         <div className="mt-6 pt-4 border-t" style={{ borderColor: 'var(--ct-border)' }}>
@@ -242,7 +242,7 @@ function TiltCredentialCard({ cred, student, t }: { cred: any; student: any; t: 
 }
 
 /* ========================= LINKS ========================= */
-function StudentLinks({ t, links, onRevoke, onCreate }: { t: (k: string) => string; links: VerifiedLink[]; onRevoke: (id: string) => void; onCreate: () => void }) {
+function OwnerLinks({ t, links, onRevoke, onCreate }: { t: (k: string) => string; links: VerifiedLink[]; onRevoke: (id: string) => void; onCreate: () => void }) {
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
   return (
@@ -366,8 +366,8 @@ function CreateLinkModal({ t, onClose, onCreate }: { t: (k: string) => string; o
 }
 
 /* ========================= AUDIT LOG ========================= */
-function StudentAudit({ t }: { t: (k: string) => string }) {
-  const myAudit = mockAuditLog.filter(a => mockCredentials.filter(c => c.studentId === currentStudent.studentId).some(c => c.id === a.credentialId));
+function OwnerAudit({ t }: { t: (k: string) => string }) {
+  const myAudit = mockAuditLog.filter(a => mockCredentials.filter(c => c.studentId === currentOwner.studentId).some(c => c.id === a.credentialId));
 
   return (
     <div>
@@ -405,7 +405,7 @@ function StudentAudit({ t }: { t: (k: string) => string }) {
 }
 
 /* ========================= CONSENT SETTINGS ========================= */
-function StudentConsent({ t }: { t: (k: string) => string }) {
+function OwnerConsent({ t }: { t: (k: string) => string }) {
   const [defaultConsent, setDefaultConsent] = useState('per_request');
   const [autoApprove, setAutoApprove] = useState<string[]>(['TMA Solutions']);
 
@@ -463,11 +463,11 @@ function StudentConsent({ t }: { t: (k: string) => string }) {
 }
 
 /* ========================= CLAIM DEGREE ========================= */
-function StudentClaim({ t, step, setStep, otpValue, setOtpValue, showOtpMock, setShowOtpMock }: {
+function OwnerClaim({ t, step, setStep, otpValue, setOtpValue, showOtpMock, setShowOtpMock }: {
   t: (k: string) => string; step: string; setStep: (s: 'form' | 'otp' | 'success') => void;
   otpValue: string; setOtpValue: (v: string) => void; showOtpMock: boolean; setShowOtpMock: (v: boolean) => void;
 }) {
-  const [studentId, setStudentId] = useState('');
+  const [studentId, setstudentId] = useState('');
   const [dob, setDob] = useState('');
   const [showFallback, setShowFallback] = useState(false);
 
@@ -493,7 +493,7 @@ function StudentClaim({ t, step, setStep, otpValue, setOtpValue, showOtpMock, se
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('studentId')}</label>
-                <input type="text" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="B190001" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
+                <input type="text" value={studentId} onChange={e => setstudentId(e.target.value)} placeholder="B190001" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('enterDob')}</label>
