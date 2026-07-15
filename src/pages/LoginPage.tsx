@@ -138,7 +138,7 @@ export function Login({ ctx }: { ctx: AppContextType }) {
         setIsOtpLoading(false);
       } else {
         // Mọi chuỗi 6 số khác đều coi là hợp lệ và vào Portal
-        setRole(currentAcc.type as 'student' | 'issuer' | 'hr' | 'admin');
+        setRole(currentAcc.type as 'student' | 'issuer' | 'verifier' | 'admin');
         setPage(currentAcc.type);
       }
     }, 1500);
@@ -148,7 +148,7 @@ export function Login({ ctx }: { ctx: AppContextType }) {
   const getRoleIcon = (type: string) => {
     switch (type) {
       case 'admin': return <ShieldCheck size={16} />;
-      case 'hr': return <Building2 size={16} />;
+      case 'verifier': return <Building2 size={16} />;
       case 'issuer': return <Award size={16} />;
       default: return <GraduationCap size={16} />;
     }
@@ -232,7 +232,7 @@ export function Login({ ctx }: { ctx: AppContextType }) {
                 <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80" style={{ color: 'var(--ct-text)' }}>{t('demoAccounts') || 'Demo Accounts'}</h3>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {mockAccounts.filter(acc => ['acc_001', 'acc_002', 'iss_001', 'iss_002', 'iss_003', 'hr_001', 'hr_002', 'hr_003'].includes(acc.id)).map((acc) => (
+                {mockAccounts.filter(acc => ['acc_001', 'acc_002', 'iss_001', 'iss_002', 'iss_004', 'vef_001', 'vef_002', 'vef_004'].includes(acc.id)).map((acc) => (
                   <button key={acc.id} type="button" disabled={isLoading} onClick={() => handleQuickLogin(acc.email)} className="p-3 text-left rounded-xl border flex flex-col gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] group" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
                     <div className="flex items-center justify-between w-full">
                       <span className="p-1 rounded-md border text-xs opacity-70 group-hover:opacity-100 transition-opacity" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', color: 'var(--ct-text)' }}>{getRoleIcon(acc.type)}</span>

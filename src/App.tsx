@@ -5,14 +5,14 @@ import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut 
 import { LandingPage } from './pages/LandingPage';
 import { StudentPortal } from './pages/StudentPortal';
 import { IssuerPortal } from './pages/IssuerPortal';
-import { HRPortal } from './pages/HRPortal';
+import { VerifierPortal } from './pages/VerifierPortal';
 import { AdminPortal } from './pages/AdminPortal';
 import { VerifyLinkPage } from './pages/VerifyLinkPage';
 import { Login } from './pages/LoginPage';
 import { Register } from './pages/RegisterPage';
 
-export type UserRole = 'guest' | 'student' | 'issuer' | 'hr' | 'admin';
-export type Page = 'landing' | 'student' | 'issuer' | 'hr' | 'admin' | 'verify' | 'login' | 'register';
+export type UserRole = 'guest' | 'student' | 'issuer' | 'verifier' | 'admin';
+export type Page = 'landing' | 'student' | 'issuer' | 'verifier' | 'admin' | 'verify' | 'login' | 'register';
 
 export interface AppContextType {
   page: Page;
@@ -47,7 +47,7 @@ function App() {
       // Protected Routes: Kiểm tra quyền trước khi render Portal, nếu sai quyền ép về Login
       case 'student': return role === 'student' ? <StudentPortal ctx={ctx} /> : <Login ctx={ctx} />;
       case 'issuer': return role === 'issuer' ? <IssuerPortal ctx={ctx} /> : <Login ctx={ctx} />;
-      case 'hr': return role === 'hr' ? <HRPortal ctx={ctx} /> : <Login ctx={ctx} />;
+      case 'verifier': return role === 'verifier' ? <VerifierPortal ctx={ctx} /> : <Login ctx={ctx} />;
       case 'admin': return role === 'admin' ? <AdminPortal ctx={ctx} /> : <Login ctx={ctx} />;
       default: return <LandingPage ctx={ctx} />;
     }
@@ -75,7 +75,7 @@ function App() {
             )}
             {role === 'student' && <PortalBadge icon={<GraduationCap size={14} />} label={t('studentPortal') || 'Cổng Sinh viên'} />}
             {role === 'issuer' && <PortalBadge icon={<Building2 size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
-            {role === 'hr' && <PortalBadge icon={<Users size={14} />} label={t('hrPortal') || 'Cổng Doanh nghiệp'} />}
+            {role === 'verifier' && <PortalBadge icon={<Users size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
             {role === 'admin' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('adminPortal') || 'Quản trị hệ thống'} />}
           </nav>
 

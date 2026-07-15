@@ -54,7 +54,7 @@ export interface ReviewItem {
   status: 'pending' | 'approved' | 'rejected';
 }
 
-export interface HROrganization {
+export interface VerifierOrganization {
   id: string;
   name: string;
   taxId: string;
@@ -65,7 +65,7 @@ export interface HROrganization {
   licenseFile?: string;
 }
 
-export interface HRVerifyEntry {
+export interface VerifierVerifyEntry {
   id: string;
   credentialId: string;
   studentName: string;
@@ -81,7 +81,7 @@ export interface Account {
   id: string;
   name: string;
   email: string;
-  type: 'student' | 'issuer' | 'hr' | 'admin';
+  type: 'student' | 'issuer' | 'verifier' | 'admin';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
   lastActive: string;
@@ -105,8 +105,8 @@ export const mockAccounts: Account[] = [
   { id: 'acc_002', name: 'Nguyen Van A', email: 'b190001@student.ctu.edu.vn', type: 'student', status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
 
   { id: 'iss_004', name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', type: 'issuer', status: 'active', createdAt: '2026-01-15T00:00:00Z', lastActive: '2026-06-17T08:00:00Z' },
-  { id: 'hr_004', name: 'Tran Thi HR', email: 'hr@tma.com.vn', type: 'hr', status: 'active', createdAt: '2026-04-10T00:00:00Z', lastActive: '2026-06-15T14:00:00Z' },
-  { id: 'hr_005', name: 'FPT Software HR', email: 'hr@fptsoftware.ct', type: 'hr', status: 'inactive', createdAt: '2026-06-16T00:00:00Z', lastActive: '2026-06-16T08:00:00Z' },
+  { id: 'vef_004', name: 'Tran Thi HR', email: 'hr@tma.com.vn', type: 'verifier', status: 'active', createdAt: '2026-04-10T00:00:00Z', lastActive: '2026-06-15T14:00:00Z' },
+  { id: 'vef_005', name: 'FPT Software HR', email: 'hr@fptsoftware.ct', type: 'verifier', status: 'inactive', createdAt: '2026-06-16T00:00:00Z', lastActive: '2026-06-16T08:00:00Z' },
   // 2. ISSUER (3 Trạng thái)
   { 
     id: 'iss_001', name: 'ĐH Cần Thơ (Pending)', email: 'pending@ctu.edu.vn', type: 'issuer', status: 'pending', createdAt: '2026-07-09T00:00:00Z', lastActive: '',
@@ -121,17 +121,17 @@ export const mockAccounts: Account[] = [
     registrationData: { orgName: 'Đại học Cần Thơ Fake', taxCode: '0000000000', address: 'Địa chỉ giả', legalRep: 'Kẻ mạo danh', contactPhone: '0123456789', regName: 'Scammer', submittedAt: '2026-07-07T10:00:00Z', rejectedReason: 'Mã số thuế không tồn tại trên hệ thống Đăng ký kinh doanh Quốc gia.' }
   },
 
-  // 3. VERIFIER / HR (3 Trạng thái)
+  // 3. VERIFIER / Verifier (3 Trạng thái)
   { 
-    id: 'hr_001', name: 'FPT Software (Pending)', email: 'pending@fpt.com', type: 'hr', status: 'pending', createdAt: '2026-07-09T00:00:00Z', lastActive: '',
+    id: 'vef_001', name: 'FPT Software (Pending)', email: 'pending@fpt.com', type: 'verifier', status: 'pending', createdAt: '2026-07-09T00:00:00Z', lastActive: '',
     registrationData: { orgName: 'FPT Software Can Tho', taxCode: '0302161475', address: 'Số 1, Đường D1, Khu CNC', legalRep: 'Hoang Nam', contactPhone: '0901234567', regName: 'Le Thi HR', regTitle: 'HR Manager', submittedAt: '2026-07-09T15:00:00Z' }
   },
   { 
-    id: 'hr_002', name: 'FPT Software (Approved)', email: 'approved@fpt.com', type: 'hr', status: 'setup_required', createdAt: '2026-07-08T00:00:00Z', lastActive: '',
+    id: 'vef_002', name: 'FPT Software (Approved)', email: 'approved@fpt.com', type: 'verifier', status: 'setup_required', createdAt: '2026-07-08T00:00:00Z', lastActive: '',
     registrationData: { orgName: 'FPT Software Can Tho', taxCode: '0302161475', address: 'Số 1, Đường D1, Khu CNC', legalRep: 'Hoang Nam', contactPhone: '0901234567', regName: 'Le Thi HR', regTitle: 'HR Manager', submittedAt: '2026-07-08T11:00:00Z' }
   },
   { 
-    id: 'hr_003', name: 'FPT Software (Rejected)', email: 'rejected@fpt.com', type: 'hr', status: 'rejected', createdAt: '2026-07-07T00:00:00Z', lastActive: '',
+    id: 'vef_003', name: 'FPT Software (Rejected)', email: 'rejected@fpt.com', type: 'verifier', status: 'rejected', createdAt: '2026-07-07T00:00:00Z', lastActive: '',
     registrationData: { orgName: 'Công ty Ma', taxCode: '9999999999', address: 'Không rõ', legalRep: 'Vô danh', contactPhone: '0999999999', regName: 'Hacker', regTitle: 'Boss', submittedAt: '2026-07-07T14:00:00Z', rejectedReason: 'Giấy phép kinh doanh tải lên bị mờ, không thể xác thực thông tin pháp lý.' }
   },
 ];
@@ -178,20 +178,20 @@ export const mockReviewQueue: ReviewItem[] = [
   { id: 'review_003', studentName: 'Tran Van G', studentId: 'B190007', method: 'email_otp', confidenceScore: 0.91, submittedAt: '2026-06-14T09:00:00Z', status: 'approved' },
 ];
 
-// Mock HR Organizations
-export const mockOrganizations: HROrganization[] = [
+// Mock Verifier Organizations
+export const mockOrganizations: VerifierOrganization[] = [
   { id: 'org_001', name: 'FPT Software Can Tho', taxId: '0302161475', contactName: 'Nguyen Thi HR', contactEmail: 'hr@fptsoftware.ct', status: 'pending', submittedAt: '2026-06-16T08:00:00Z', licenseFile: 'business_license_fpt.pdf' },
   { id: 'org_002', name: 'TMA Solutions', taxId: '0302538231', contactName: 'Tran Van HR', contactEmail: 'hr@tma.com.vn', status: 'approved', submittedAt: '2026-06-10T10:00:00Z', licenseFile: 'business_license_tma.pdf' },
   { id: 'org_003', name: 'Viettel Can Tho', taxId: '0100109108', contactName: 'Le Thi HR', contactEmail: 'hr@viettel.ct', status: 'pending', submittedAt: '2026-06-15T14:00:00Z', licenseFile: 'business_license_viettel.pdf' },
   { id: 'org_004', name: 'iOffice', taxId: '0314394521', contactName: 'Pham Van HR', contactEmail: 'hr@ioffice.vn', status: 'rejected', submittedAt: '2026-06-12T09:00:00Z', licenseFile: 'business_license_ioffice.pdf' },
 ];
 
-// Mock HR Verify History
-export const mockHRVerifyHistory: HRVerifyEntry[] = [
-  { id: 'hrv_001', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-15T09:30:00Z', method: 'link' },
-  { id: 'hrv_002', credentialId: 'cred_002', studentName: 'Tran Thi B', institution: 'CICT - Can Tho University', major: 'Software Engineering', result: 'valid', timestamp: '2026-06-14T14:20:00Z', method: 'portal' },
-  { id: 'hrv_003', credentialId: 'cred_004', studentName: 'Pham Thi D', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-09T08:15:00Z', method: 'portal' },
-  { id: 'hrv_004', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-08T11:00:00Z', method: 'link' },
+// Mock Verifier Verify History
+export const mockVerifierVerifyHistory: VerifierVerifyEntry[] = [
+  { id: 'verv_001', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-15T09:30:00Z', method: 'link' },
+  { id: 'verv_002', credentialId: 'cred_002', studentName: 'Tran Thi B', institution: 'CICT - Can Tho University', major: 'Software Engineering', result: 'valid', timestamp: '2026-06-14T14:20:00Z', method: 'portal' },
+  { id: 'verv_003', credentialId: 'cred_004', studentName: 'Pham Thi D', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-09T08:15:00Z', method: 'portal' },
+  { id: 'verv_004', credentialId: 'cred_001', studentName: 'Nguyen Van A', institution: 'CICT - Can Tho University', major: 'Computer Science', result: 'valid', timestamp: '2026-06-08T11:00:00Z', method: 'link' },
 ];
 
 // Analytics Data
@@ -223,5 +223,5 @@ export const topMajors = [
 // Current logged in user (mock)
 export const currentStudent = mockStudents[0];
 export const currentIssuer = { name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', role: 'issuer_admin' };
-export const currentHR = { name: 'Tran Thi HR', email: 'hr@tma.com.vn', company: 'TMA Solutions', quotaUsed: 14, quotaTotal: 20 };
+export const currentVerifier = { name: 'Tran Thi HR', email: 'hr@tma.com.vn', company: 'TMA Solutions', quotaUsed: 14, quotaTotal: 20 };
 export const currentAdmin = { name: 'System Admin', email: 'admin@credentwin.vn' };

@@ -13,7 +13,7 @@ export function AdminDashboard({ t, pendingCount, totalAccounts, onTabChange, ac
   const accountTypeData = [
     { name: t('student') || 'Student', value: accounts.filter((a: any) => a.type === 'student').length },
     { name: t('issuer') || 'Issuer', value: accounts.filter((a: any) => a.type === 'issuer').length },
-    { name: t('hr') || 'Verifier', value: accounts.filter((a: any) => a.type === 'hr').length },
+    { name: t('verifier') || 'Verifier', value: accounts.filter((a: any) => a.type === 'verifier').length },
     { name: t('admin') || 'Admin', value: accounts.filter((a: any) => a.type === 'admin').length },
   ];
   const COLORS = ['#000000', '#666666', '#999999', '#cccccc'];

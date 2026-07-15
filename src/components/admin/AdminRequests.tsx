@@ -13,7 +13,7 @@ export function AdminRequests({ pendingIssuers, pendingOrgs, reqSubTab, setReqSu
         <button onClick={() => setReqSubTab('issuer' as RequestSubTab)} className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 text-[var(--ct-text)] ${reqSubTab === 'issuer' ? 'opacity-100 border-[var(--ct-text)]' : 'border-transparent opacity-50 hover:opacity-80'}`}>
           {t('tabIssuer') || 'Issuer'} ({pendingIssuers.length})
         </button>
-        <button onClick={() => setReqSubTab('hr' as RequestSubTab)} className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 text-[var(--ct-text)] ${reqSubTab === 'hr' ? 'opacity-100 border-[var(--ct-text)]' : 'border-transparent opacity-50 hover:opacity-80'}`}>
+        <button onClick={() => setReqSubTab('verifier' as RequestSubTab)} className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 text-[var(--ct-text)] ${reqSubTab === 'verifier' ? 'opacity-100 border-[var(--ct-text)]' : 'border-transparent opacity-50 hover:opacity-80'}`}>
           {t('tabOrg') || 'Organization'} ({pendingOrgs.length})
         </button>
       </div>

@@ -14,7 +14,7 @@ export interface Account {
   id: string;
   name: string;
   email: string;
-  type: 'student' | 'issuer' | 'hr' | 'admin';
+  type: 'student' | 'issuer' | 'verifier' | 'admin';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
   lastActive: string;
@@ -22,4 +22,4 @@ export interface Account {
 }
 
 export type AdminTab = 'dashboard' | 'requests' | 'accounts';
-export type RequestSubTab = 'issuer' | 'hr';
+export type RequestSubTab = 'issuer' | 'verifier';

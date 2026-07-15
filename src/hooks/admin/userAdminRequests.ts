@@ -20,7 +20,7 @@ export function useAdminRequests(t: (key: string) => string) {
     .sort((a, b) => new Date(a.registrationData!.submittedAt).getTime() - new Date(b.registrationData!.submittedAt).getTime());
     
   const pendingOrgs = pendingRequests
-    .filter(a => a.type === 'hr')
+    .filter(a => a.type === 'verifier')
     .sort((a, b) => new Date(a.registrationData!.submittedAt).getTime() - new Date(b.registrationData!.submittedAt).getTime());
 
   // Logic Duyệt (Sẽ gọi API PATCH ở đây sau này)

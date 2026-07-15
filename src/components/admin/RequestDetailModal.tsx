@@ -24,7 +24,7 @@ export function RequestDetailModal({ selectedReq, onClose, onApprove, onRejectCl
           <DetailItem label={t('lblContactPhone')||'Contact Phone'} value={selectedReq.registrationData.contactPhone} />
           <DetailItem label={t('lblContactGmail')||'Contact Gmail'} value={selectedReq.email} />
           <DetailItem label={t('lblRegName')||'Registrant Name'} value={selectedReq.registrationData.regName} />
-          {selectedReq.type === 'hr' && (
+          {selectedReq.type === 'verifier' && (
             <DetailItem label={t('lblRegTitle')||'Registrant Title'} value={selectedReq.registrationData.regTitle} />
           )}
         </div>

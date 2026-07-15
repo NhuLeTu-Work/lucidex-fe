@@ -7,24 +7,24 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { currentHR, mockHRVerifyHistory, mockCredentials, mockStudents } from '../data/mockData';
+import { currentVerifier, mockVerifierVerifyHistory, mockCredentials, mockStudents } from '../data/mockData';
 import type { AppContextType } from '../App';
 
-type HRTab = 'dashboard' | 'history' | 'quota' | 'verify' | 'register';
+type VeriferTab = 'dashboard' | 'history' | 'quota' | 'verify' | 'register';
 
-export function HRPortal({ ctx }: { ctx: AppContextType }) {
+export function VerifierPortal({ ctx }: { ctx: AppContextType }) {
   const { t } = ctx;
-  const [activeTab, setActiveTab] = useState<HRTab>('dashboard');
-  const [quotaUsed, setQuotaUsed] = useState(currentHR.quotaUsed);
+  const [activeTab, setActiveTab] = useState<VeriferTab>('dashboard');
+  const [quotaUsed, setQuotaUsed] = useState(currentVerifier.quotaUsed);
   const [verifyResult, setVerifyResult] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [verifiedData, setVerifiedData] = useState<any>(null);
 
   const sidebarItems = [
-    { id: 'dashboard' as HRTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
-    { id: 'verify' as HRTab, label: t('verifyCredential'), icon: <Search size={18} /> },
-    { id: 'history' as HRTab, label: t('verifyHistory'), icon: <History size={18} /> },
-    { id: 'quota' as HRTab, label: t('quotaPlan'), icon: <BarChart3 size={18} /> },
-    { id: 'register' as HRTab, label: t('orgRegistration'), icon: <Building2 size={18} /> },
+    { id: 'dashboard' as VeriferTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
+    { id: 'verify' as VeriferTab, label: t('verifyCredential'), icon: <Search size={18} /> },
+    { id: 'history' as VeriferTab, label: t('verifyHistory'), icon: <History size={18} /> },
+    { id: 'quota' as VeriferTab, label: t('quotaPlan'), icon: <BarChart3 size={18} /> },
+    { id: 'register' as VeriferTab, label: t('orgRegistration'), icon: <Building2 size={18} /> },
   ];
 
   const handleVerify = (code: string) => {
@@ -55,11 +55,11 @@ export function HRPortal({ ctx }: { ctx: AppContextType }) {
         <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
-              {currentHR.name.charAt(0)}
+              {currentVerifier.name.charAt(0)}
             </div>
             <div>
-              <p className="text-sm font-semibold">{currentHR.name}</p>
-              <p className="text-xs opacity-60">{currentHR.company}</p>
+              <p className="text-sm font-semibold">{currentVerifier.name}</p>
+              <p className="text-xs opacity-60">{currentVerifier.company}</p>
             </div>
           </div>
         </div>
@@ -91,28 +91,28 @@ export function HRPortal({ ctx }: { ctx: AppContextType }) {
           ))}
         </div>
 
-        {activeTab === 'dashboard' && <HRDashboard t={t} quotaUsed={quotaUsed} onTabChange={setActiveTab} />}
-        {activeTab === 'verify' && <HRVerify t={t} result={verifyResult} verifiedData={verifiedData} onVerify={handleVerify} quotaUsed={quotaUsed} />}
-        {activeTab === 'history' && <HRHistory t={t} />}
-        {activeTab === 'quota' && <HRQuota t={t} quotaUsed={quotaUsed} />}
-        {activeTab === 'register' && <HRRegister t={t} />}
+        {activeTab === 'dashboard' && <VerifierDashboard t={t} quotaUsed={quotaUsed} onTabChange={setActiveTab} />}
+        {activeTab === 'verify' && <VerifierVerify t={t} result={verifyResult} verifiedData={verifiedData} onVerify={handleVerify} quotaUsed={quotaUsed} />}
+        {activeTab === 'history' && <VerifierHistory t={t} />}
+        {activeTab === 'quota' && <VerifierQuota t={t} quotaUsed={quotaUsed} />}
+        {activeTab === 'register' && <VerifierRegister t={t} />}
       </main>
     </div>
   );
 }
 
 /* ========================= DASHBOARD ========================= */
-function HRDashboard({ t, quotaUsed, onTabChange }: { t: (k: string) => string; quotaUsed: number; onTabChange: (t: HRTab) => void }) {
+function VerifierDashboard({ t, quotaUsed, onTabChange }: { t: (k: string) => string; quotaUsed: number; onTabChange: (t: VeriferTab) => void }) {
   const remaining = 20 - quotaUsed;
 
   return (
     <div>
-      <h1 className="font-display text-2xl mb-2">{t('welcomeHR')}</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{currentHR.company} — {t('mockDataLabel')}</p>
+      <h1 className="font-display text-2xl mb-2">{t('welcomeVerifier')}</h1>
+      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{currentVerifier.company} — {t('mockDataLabel')}</p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard label={t('verificationsUsed')} value={`${quotaUsed}/20`} icon={<BarChart3 size={20} />} onClick={() => onTabChange('quota')} />
-        <StatCard label={t('verifyHistory')} value={mockHRVerifyHistory.length.toString()} icon={<History size={20} />} onClick={() => onTabChange('history')} />
+        <StatCard label={t('verifyHistory')} value={mockVerifierVerifyHistory.length.toString()} icon={<History size={20} />} onClick={() => onTabChange('history')} />
         <StatCard label={t('verifyCredential')} value="+" icon={<Search size={20} />} onClick={() => onTabChange('verify')} />
       </div>
 
@@ -135,7 +135,7 @@ function HRDashboard({ t, quotaUsed, onTabChange }: { t: (k: string) => string; 
           <button onClick={() => onTabChange('history')} className="text-xs flex items-center gap-1 opacity-60 hover:opacity-100"><ChevronRight size={12} /></button>
         </div>
         <div className="space-y-2">
-          {mockHRVerifyHistory.slice(0, 3).map(h => (
+          {mockVerifierVerifyHistory.slice(0, 3).map(h => (
             <div key={h.id} className="flex items-center justify-between p-3 rounded-lg border" style={{ borderColor: 'var(--ct-border)' }}>
               <div className="flex items-center gap-3">
                 <CheckCircle size={14} className="text-green-600" />
@@ -151,7 +151,7 @@ function HRDashboard({ t, quotaUsed, onTabChange }: { t: (k: string) => string; 
 }
 
 /* ========================= VERIFY (with drag & snap) ========================= */
-function HRVerify({ t, result, verifiedData, onVerify, quotaUsed }: { t: (k: string) => string; result: string; verifiedData: any; onVerify: (code: string) => void; quotaUsed: number }) {
+function VerifierVerify({ t, result, verifiedData, onVerify, quotaUsed }: { t: (k: string) => string; result: string; verifiedData: any; onVerify: (code: string) => void; quotaUsed: number }) {
   const [code, setCode] = useState('');
   const [showStampArea, setShowStampArea] = useState(false);
   const stampRef = useRef<HTMLDivElement>(null);
@@ -313,11 +313,11 @@ function HRVerify({ t, result, verifiedData, onVerify, quotaUsed }: { t: (k: str
 }
 
 /* ========================= HISTORY ========================= */
-function HRHistory({ t }: { t: (k: string) => string }) {
+function VerifierHistory({ t }: { t: (k: string) => string }) {
   return (
     <div>
       <h1 className="font-display text-2xl mb-6">{t('verifyHistory')}</h1>
-      {mockHRVerifyHistory.length === 0 ? (
+      {mockVerifierVerifyHistory.length === 0 ? (
         <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{t('noVerifyHistory')}</p>
       ) : (
         <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--ct-border)' }}>
@@ -332,7 +332,7 @@ function HRHistory({ t }: { t: (k: string) => string }) {
               </tr>
             </thead>
             <tbody>
-              {mockHRVerifyHistory.map(h => (
+              {mockVerifierVerifyHistory.map(h => (
                 <tr key={h.id} className="border-t transition-colors hover:opacity-80" style={{ borderColor: 'var(--ct-border)' }}>
                   <td className="px-4 py-3 font-mono text-xs">{new Date(h.timestamp).toLocaleString()}</td>
                   <td className="px-4 py-3">{h.studentName}</td>
@@ -358,7 +358,7 @@ function HRHistory({ t }: { t: (k: string) => string }) {
 }
 
 /* ========================= QUOTA ========================= */
-function HRQuota({ t, quotaUsed }: { t: (k: string) => string; quotaUsed: number }) {
+function VerifierQuota({ t, quotaUsed }: { t: (k: string) => string; quotaUsed: number }) {
   const pct = (quotaUsed / 20) * 100;
 
   return (
@@ -401,7 +401,7 @@ function HRQuota({ t, quotaUsed }: { t: (k: string) => string; quotaUsed: number
 }
 
 /* ========================= REGISTER ========================= */
-function HRRegister({ t }: { t: (k: string) => string }) {
+function VerifierRegister({ t }: { t: (k: string) => string }) {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {

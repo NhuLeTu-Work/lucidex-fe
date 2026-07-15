@@ -6,7 +6,7 @@ import {
 import { mockAccounts } from '../data/mockData';
 import type { AppContextType } from '../App';
 
-type RegistrationRole = 'student' | 'issuer' | 'hr';
+type RegistrationRole = 'student' | 'issuer' | 'verifier';
 
 export function Register({ ctx }: { ctx: AppContextType }) {
   const { t, setPage, setRole } = ctx;
@@ -127,7 +127,7 @@ export function Register({ ctx }: { ctx: AppContextType }) {
     setFieldErrors({});
 
     const missingFields: string[] = [];
-    const requiredKeys = roleType === 'hr' 
+    const requiredKeys = roleType === 'verifier' 
       ? ['orgName', 'taxCode', 'address', 'legalRep', 'email', 'phone', 'regName', 'regTitle', 'certificate']
       : ['orgName', 'taxCode', 'address', 'legalRep', 'email', 'phone', 'regName'];
 
@@ -138,7 +138,7 @@ export function Register({ ctx }: { ctx: AppContextType }) {
       } else {
         if (!bizData[key as keyof typeof bizData].trim()) {
           const fieldLabelMap: Record<string, string> = {
-            orgName: roleType === 'hr' ? 'lblOrgName' : 'lblInstName',
+            orgName: roleType === 'verifier' ? 'lblOrgName' : 'lblInstName',
             taxCode: 'lblTaxCode',
             address: 'lblAddress',
             legalRep: 'lblLegalRep',
@@ -196,7 +196,7 @@ export function Register({ ctx }: { ctx: AppContextType }) {
   const getSubtitle = () => {
     switch(roleType) {
       case 'issuer': return t('subtitleIssuer') || 'Register your institution to start issuing digital credentials.';
-      case 'hr': return t('subtitleVerifier') || 'Register your organization to verify credentials seamlessly.';
+      case 'verifier': return t('subtitleVerifier') || 'Register your organization to verify credentials seamlessly.';
       default: return t('subtitleOwner') || 'Join us to securely manage your credentials.';
     }
   };
@@ -250,7 +250,7 @@ export function Register({ ctx }: { ctx: AppContextType }) {
               >
                 <option value="student">{t('roleOwner') || 'Credential Owner'}</option>
                 <option value="issuer">{t('roleIssuer') || 'Issuer'}</option>
-                <option value="hr">{t('roleVerifier') || 'Verifier'}</option>
+                <option value="verifier">{t('roleVerifier') || 'Verifier'}</option>
               </select>
               <ChevronDown className="absolute right-3 top-2.5 opacity-50 pointer-events-none" size={16} style={{ color: 'var(--ct-text)' }}/>
             </div>
@@ -323,21 +323,21 @@ export function Register({ ctx }: { ctx: AppContextType }) {
           {/* ==================================
               FORM 2: ISSUER / VERIFIER
           ================================== */}
-          {(roleType === 'issuer' || roleType === 'hr') && !isSuccess && (
+          {(roleType === 'issuer' || roleType === 'verifier') && !isSuccess && (
             <form onSubmit={handleBizRegister} className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {renderBizField('orgName', roleType === 'hr' ? 'lblOrgName' : 'lblInstName', Building2, 'FPT Software / CTU')}
+                {renderBizField('orgName', roleType === 'verifier' ? 'lblOrgName' : 'lblInstName', Building2, 'FPT Software / CTU')}
                 {renderBizField('taxCode', 'lblTaxCode', Hash, '1234567890')}
                 {renderBizField('address', 'lblAddress', MapPin, '123 Example St, City')}
                 {renderBizField('legalRep', 'lblLegalRep', User, 'Nguyen Van A')}
                 {renderBizField('email', 'lblContactGmail', Mail, 'contact@gmail.com')}
                 {renderBizField('phone', 'lblContactPhone', Phone, '0987654321')}
                 {renderBizField('regName', 'lblRegName', User, 'Tran Thi B')}
-                {roleType === 'hr' && renderBizField('regTitle', 'lblRegTitle', Briefcase, 'HR Manager')}
+                {roleType === 'verifier' && renderBizField('regTitle', 'lblRegTitle', Briefcase, 'HR Manager')}
               </div>
 
               {/* Upload Certificate cho Verifier */}
-              {roleType === 'hr' && (
+              {roleType === 'verifier' && (
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>
                     {t('uploadCert') || 'Business registration certificate'}
@@ -407,7 +407,7 @@ export function Register({ ctx }: { ctx: AppContextType }) {
           {/* ==================================
               TRẠNG THÁI SUCCESS (ISSUER/VERIFIER)
           ================================== */}
-          {(roleType === 'issuer' || roleType === 'hr') && isSuccess && (
+          {(roleType === 'issuer' || roleType === 'verifier') && isSuccess && (
             <div className="flex flex-col items-center justify-center py-8 gap-4 animate-in zoom-in-95 duration-500 text-center">
               <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-2">
                 <CheckCircle size={32} className="text-green-600 dark:text-green-500" />

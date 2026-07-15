@@ -23,7 +23,7 @@ export function AdminAccounts({ t, accounts }: { t: (k: string) => string, accou
           <option value="all">{t('all') || 'All Types'}</option>
           <option value="student">{t('student') || 'Student'}</option>
           <option value="issuer">{t('issuer') || 'Issuer'}</option>
-          <option value="hr">{t('hr') || 'Verifier'}</option>
+          <option value="verifier">{t('verifier') || 'Verifier'}</option>
           <option value="admin">{t('admin') || 'Admin'}</option>
         </select>
       </div>
