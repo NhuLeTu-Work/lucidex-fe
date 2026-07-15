@@ -367,6 +367,36 @@ export function Register({ ctx }: { ctx: AppContextType }) {
                   {fieldErrors['certificate'] && <span className="text-[11px] text-red-500 font-medium ml-1">{fieldErrors['certificate']}</span>}
                 </div>
               )}
+              {roleType === 'issuer' && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>
+                    {t('uploadCertIssuer') || 'Business registration certificate'}
+                  </label>
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:bg-black/5 dark:hover:bg-white/5 ${fieldErrors['certificate'] ? 'border-red-500 bg-red-50/10' : ''}`}
+                    style={{ borderColor: fieldErrors['certificate'] ? '#ef4444' : 'var(--ct-border)' }}
+                  >
+                    <Upload size={24} className="opacity-40" style={{ color: 'var(--ct-text)' }} />
+                    <span className="text-sm font-medium" style={{ color: 'var(--ct-text)' }}>
+                      {certificate ? certificate.name : (t('clickToUpload') || 'Click to upload certificate')}
+                    </span>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          setCertificate(e.target.files[0]);
+                          if (fieldErrors['certificate']) setFieldErrors(prev => ({ ...prev, certificate: '' }));
+                        }
+                      }}
+                    />
+                  </div>
+                  {fieldErrors['certificate'] && <span className="text-[11px] text-red-500 font-medium ml-1">{fieldErrors['certificate']}</span>}
+                </div>
+              )}
 
               <button type="submit" disabled={isLoading} className="w-full py-3 text-sm font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>
                 {isLoading ? <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <><ShieldCheck size={16} /><span>{t('submitForReview') || 'Submit Application'}</span></>}

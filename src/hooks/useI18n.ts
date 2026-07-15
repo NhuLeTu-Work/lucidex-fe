@@ -298,6 +298,11 @@ const translations: Record<Lang, Record<string, string>> = {
     "reqReasonErr": "A reason is required.",
     "docLoadErr": "This document could not be loaded.",
     "emailSent": "Notification Email Sent",
+    "uploadCertIssuer": "Upload Establishment Decision",
+    "whatDoWeOffer": "What Lucidex Offers",
+    "lblThisIsIssuer": "This is our Issuer",
+    "lblThisIsOwner": "This is our Owner",
+    "lblThisIsVerifier": "This is our Verifier",
   },
   vi: {
     product: 'Sản phẩm',
@@ -310,7 +315,7 @@ const translations: Record<Lang, Record<string, string>> = {
     heroSubtitle: 'Bảo mật. Tức thì. Kiểm chứng được.',
     heroCTA1: 'Đăng ký Tổ chức',
     heroCTA2: 'Xác minh Bằng cấp',
-    forUniversities: 'Dành cho Trường ĐH',
+    forUniversities: 'Dành cho Trường Đại học',
     forStudents: 'Dành cho Sinh viên',
     forEmployers: 'Dành cho Nhà tuyển dụng',
     featUniDesc: 'Loại bỏ gánh nặng xác minh thủ công. Có dữ liệu thị trường lao động.',
@@ -323,7 +328,7 @@ const translations: Record<Lang, Record<string, string>> = {
     step4: 'Audit Trail Bất biến',
     footerCopy: 'CredenTwin. Mọi quyền được bảo lưu.',
     studentPortal: 'Cổng Sinh viên',
-    issuerPortal: 'Cổng Trường ĐH',
+    issuerPortal: 'Cổng Trường Đại học',
     hrPortal: 'Cổng Nhà tuyển dụng',
     adminPortal: 'Cổng Quản trị',
     dashboard: 'Bảng điều khiển',
@@ -459,7 +464,7 @@ const translations: Record<Lang, Record<string, string>> = {
     viewLicense: 'Xem',
     accounts: 'Tài khoản',
     accountType: 'Loại Tài khoản',
-    issuer: 'Trường ĐH',
+    issuer: 'Trường Đại học',
     student: 'Sinh viên',
     hr: 'Nhà tuyển dụng',
     admin: 'Quản trị',
@@ -579,7 +584,11 @@ const translations: Record<Lang, Record<string, string>> = {
     "reqReasonErr": "Bắt buộc phải nhập lý do từ chối.",
     "docLoadErr": "Không thể tải tài liệu này.",
     "emailSent": "Đã gửi Email thông báo",
-
+    "uploadCertIssuer": "Tải lên Quyết định thành lập",
+    "whatDoWeOffer": "Những Gì Lucidex Cung Cấp",
+    "lblThisIsIssuer": "Đây chính là Tổ chức cấp phát",
+    "lblThisIsOwner": "Đây chính là Chủ sở hữu",
+    "lblThisIsVerifier": "Đây chính là Nhà tuyển dụng",
   }
 };
 

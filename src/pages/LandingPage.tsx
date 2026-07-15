@@ -10,11 +10,6 @@ export function LandingPage({ ctx }: { ctx: AppContextType }) {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleRolePortal = (role: 'student' | 'issuer' | 'hr' | 'admin') => {
-    setRole(role);
-    setPage(role === 'student' ? 'student' : role === 'issuer' ? 'issuer' : role === 'hr' ? 'hr' : 'admin');
-  };
-
   return (
     <div>
       {/* Hero Section */}
@@ -35,25 +30,29 @@ export function LandingPage({ ctx }: { ctx: AppContextType }) {
               {t('heroCTA2')}
             </button>
           </div>
-
-          {/* Role Quick Access */}
-          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-            <RoleCard icon={<GraduationCap size={20} />} label={t('studentPortal')} onClick={() => handleRolePortal('student')} />
-            <RoleCard icon={<Building2 size={20} />} label={t('issuerPortal')} onClick={() => handleRolePortal('issuer')} />
-            <RoleCard icon={<Users size={20} />} label={t('hrPortal')} onClick={() => handleRolePortal('hr')} />
-            <RoleCard icon={<ClipboardList size={20} />} label={t('adminPortal')} onClick={() => handleRolePortal('admin')} />
-          </div>
         </div>
       </section>
 
       {/* Feature Pillars */}
       <section className="py-24 px-6" style={{ background: 'var(--ct-bg)' }}>
         <div className="max-w-6xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl text-center mb-16">{t('howItWorks')}</h2>
+          <h2 className="font-display text-3xl md:text-4xl text-center mb-16">{t('whatDoWeOffer')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard icon={<Building2 size={32} />} title={t('forUniversities')} desc={t('featUniDesc')} />
-            <FeatureCard icon={<GraduationCap size={32} />} title={t('forStudents')} desc={t('featStuDesc')} />
-            <FeatureCard icon={<Users size={32} />} title={t('forEmployers')} desc={t('featEmpDesc')} />
+            <FeatureCard icon={<Building2 size={32} />}
+              title={t('forUniversities')}
+              desc={t('featUniDesc')}
+              roleLabel={t('lblThisIsIssuer') || 'This is our Issuer'}
+            />
+            <FeatureCard icon={<GraduationCap size={32} />}
+              title={t('forStudents')}
+              desc={t('featStuDesc')}
+              roleLabel={t('lblThisIsOwner') || 'This is our Owner'}
+            />
+            <FeatureCard icon={<Users size={32} />}
+              title={t('forEmployers')}
+              desc={t('featEmpDesc')}
+              roleLabel={t('lblThisIsVerifier') || 'This is our Verifier'}
+            />
           </div>
         </div>
       </section>
@@ -113,12 +112,16 @@ function RoleCard({ icon, label, onClick }: { icon: React.ReactNode; label: stri
   );
 }
 
-function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+function FeatureCard({ icon, title, desc, roleLabel }: { icon: React.ReactNode; title: string; desc: string; roleLabel: string }) {
   return (
     <div className="p-8 rounded-2xl border transition-all hover:scale-[1.02]" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       <div className="mb-4" style={{ color: 'var(--ct-text)' }}>{icon}</div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-sm leading-relaxed" style={{ color: 'var(--ct-text-secondary)' }}>{desc}</p>
+      <div className="flex items-center gap-2 pt-4 border-t mt-auto" style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
+        <ArrowRight size={16} className="opacity-50" />
+        <span className="text-sm font-medium opacity-80">{roleLabel}</span>
+      </div>
     </div>
   );
 }
