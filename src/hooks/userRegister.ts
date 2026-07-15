@@ -97,7 +97,7 @@ export function useRegister(ctx: AppContextType) {
       } else {
         setOtpError(t('errorOtpInvalid') || 'Invalid OTP.');
       }
-      setIsLoading(false);
+      setIsOtpLoading(false);
     }, 800);
   };
 
