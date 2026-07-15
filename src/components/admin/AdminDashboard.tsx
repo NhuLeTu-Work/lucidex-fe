@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { monthlyVerifications } from '../../data/mockData';
-import { StatCard } from './StatCard';
+import { StatCard } from '../ui/statCard';
 
 // Nhận props 'accounts' trực tiếp thay vì nhận accountTypeData
 export function AdminDashboard({ t, pendingCount, totalAccounts, onTabChange, accounts =[] }: any) {

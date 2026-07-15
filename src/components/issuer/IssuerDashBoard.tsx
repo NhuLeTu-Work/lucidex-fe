@@ -1,7 +1,7 @@
 import { TrendingUp, Users, Clock, Upload, ChevronRight, AlertTriangle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { monthlyVerifications, mockOwners, mockReviewQueue } from '../../data/mockData';
-import { StatCard } from './StatCard';
+import { StatCard } from '../ui/statCard';
 import type { IssuerTab } from '../../types/issuer';
 
 interface IssuerDashboardProps {

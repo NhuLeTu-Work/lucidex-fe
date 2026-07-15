@@ -1,6 +1,6 @@
 import { BarChart3, History, Search, ArrowRight, ChevronRight, CheckCircle } from 'lucide-react';
 import { currentVerifier, mockVerifierVerifyHistory } from '../../data/mockData';
-import { StatCard } from './StatCard';
+import { StatCard } from '../ui/statCard';
 import type { VerifierTab } from '../../types/verifier';
 
 interface DashboardProps {
