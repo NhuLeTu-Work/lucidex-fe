@@ -3,9 +3,10 @@ import { RegistrationDataCard } from './RegistrationDataCard';
 import type { Account } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
-const navigate = useNavigate();
 
 export function RejectedStatus({ currentAcc, t }: { currentAcc: Account; t: (k: string) => string }) {
+  const navigate = useNavigate();
+  
   if (!currentAcc.registrationData) return null;
 
   return (
