@@ -5,14 +5,16 @@ import { OwnerRegisterForm } from '../components/register/OwnerRegisterForm';
 import { BusinessRegisterForm } from '../components/register/BusinessRegisterForm';
 import { SuccessStatus } from '../components/register/SuccessStatus';
 import { OtpModal } from '../components/register/OtpModal';
+import { useNavigate } from 'react-router-dom';
 
 export function Register() {
+  const navigate = useNavigate();
   const hookProps = useRegister();
   const {
     roleType, handleRoleChange, error, fieldErrors, isLoading, isSuccess,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError,
-    isOtpLoading, handleVerifyOTP, getSubtitle, email, t, setPage
+    isOtpLoading, handleVerifyOTP, getSubtitle, email, t
   } = hookProps;
 
   return (
@@ -21,13 +23,16 @@ export function Register() {
         
         <div className="p-8 rounded-2xl border shadow-xl flex flex-col gap-6 transition-all" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           
-          <RoleSelector 
-            roleType={roleType} 
-            handleRoleChange={handleRoleChange} 
-            isSuccess={isSuccess} 
-            getSubtitle={getSubtitle} 
-            t={t} 
-          />
+          {/* Đã thêm điều kiện !isSuccess để ẩn RoleSelector khi thành công */}
+          {!isSuccess && (
+            <RoleSelector 
+              roleType={roleType} 
+              handleRoleChange={handleRoleChange} 
+              isSuccess={isSuccess} 
+              getSubtitle={getSubtitle} 
+              t={t} 
+            />
+          )}
 
           {error && (
             <div className="p-3.5 rounded-xl border flex items-start gap-2.5 text-sm animate-in shake duration-300" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
@@ -52,11 +57,11 @@ export function Register() {
             />
           )}
 
-          {isSuccess && <SuccessStatus setPage={setPage} t={t} />}
+          {isSuccess && <SuccessStatus />}
 
           <div className="pt-2 text-center text-sm flex items-center justify-center gap-1.5" style={{ color: 'var(--ct-text)' }}>
             <span className="opacity-70">{t('alreadyHaveAccount') || 'Already have an account?'}</span>
-            <button type="button" onClick={() => setPage('login')} className="font-semibold hover:underline opacity-100">
+            <button type="button" onClick={() => navigate('/login')} className="font-semibold hover:underline opacity-100">
               {t('signIn') || 'Sign In'}
             </button>
           </div>
