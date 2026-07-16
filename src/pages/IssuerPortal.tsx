@@ -1,4 +1,4 @@
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
 import { useIssuerPortal } from '../hooks/issuer/userIssuerRequests';
 
 // Components
@@ -8,8 +8,8 @@ import { IssuerUpload } from '../components/issuer/IssuerUpload';
 import { IssuerReview } from '../components/issuer/IssuerReview';
 import { IssuerAnalytics } from '../components/issuer/IssuerAnalytics';
 
-export function IssuerPortal({ ctx }: { ctx: AppContextType }) {
-  const { t } = ctx;
+export function IssuerPortal() {
+  const { t } = useApp();
   const {
     activeTab, setActiveTab,
     reviewItems, uploadState,

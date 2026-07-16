@@ -1,8 +1,11 @@
 import { XCircle } from 'lucide-react';
 import { RegistrationDataCard } from './RegistrationDataCard';
 import type { Account } from '../../data/mockData';
+import { useNavigate } from 'react-router-dom';
 
-export function RejectedStatus({ currentAcc, setPage, t }: { currentAcc: Account; setPage: any; t: (k: string) => string }) {
+const navigate = useNavigate();
+
+export function RejectedStatus({ currentAcc, t }: { currentAcc: Account; t: (k: string) => string }) {
   if (!currentAcc.registrationData) return null;
 
   return (
@@ -19,7 +22,11 @@ export function RejectedStatus({ currentAcc, setPage, t }: { currentAcc: Account
         {currentAcc.registrationData.rejectedReason}
       </div>
       <RegistrationDataCard data={currentAcc.registrationData} t={t} />
-      <button onClick={() => setPage('landing')} className="mt-2 w-full py-3 text-sm font-semibold rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5" style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
+      <button
+        onClick={() => navigate('/landing')}
+        className="mt-2 w-full py-3 text-sm font-semibold rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5"
+        style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
+      >
         {t('backToHome') || 'Back to Landing Page'}
       </button>
     </div>

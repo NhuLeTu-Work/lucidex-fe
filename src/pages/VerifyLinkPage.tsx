@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Search, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Clock, Building2, User, Hash, FileText } from 'lucide-react';
 import { mockCredentials, mockOwners } from '../data/mockData';
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
+import { useNavigate } from 'react-router-dom';
 
-export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
-  const { t, setPage } = ctx;
+export function VerifyLinkPage() {
+  const { t, lang} = useApp();
+  const navigate = useNavigate();
   const [code, setCode] = useState('');
   const [result, setResult] = useState<'idle' | 'checking' | 'valid' | 'invalid' | 'consent_required'>('idle');
   const [verifiedData, setVerifiedData] = useState<any>(null);
@@ -36,9 +38,9 @@ export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-lg">
-        <button onClick={() => setPage('landing')} className="flex items-center gap-2 text-sm mb-8 transition-opacity hover:opacity-70" style={{ color: 'var(--ct-text-secondary)' }}>
+        <button onClick={() => navigate('/landing')} className="flex items-center gap-2 text-sm mb-8 transition-opacity hover:opacity-70" style={{ color: 'var(--ct-text-secondary)' }}>
           <ArrowLeft size={16} />
-          {ctx.t('cancel')}
+          {t('cancel')}
         </button>
 
         <div className="text-center mb-8">
@@ -64,7 +66,7 @@ export function VerifyLinkPage({ ctx }: { ctx: AppContextType }) {
         {/* Hint */}
         {result === 'idle' && (
           <div className="p-4 rounded-xl border text-xs" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', color: 'var(--ct-text-secondary)' }}>
-            <p className="mb-2 font-semibold">{ctx.lang === 'vi' ? 'Thu cac ma sau:' : 'Try these codes:'}</p>
+            <p className="mb-2 font-semibold">{lang === 'vi' ? 'Thu cac ma sau:' : 'Try these codes:'}</p>
             <div className="flex flex-wrap gap-2">
               {['abc123', 'def456', 'ghi789', 'jkl012', 'no_consent', 'invalid'].map(c => (
                 <button key={c} onClick={() => setCode(c)} className="px-2 py-1 rounded border text-xs font-mono hover:opacity-70 transition-opacity" style={{ borderColor: 'var(--ct-border)' }}>{c}</button>

@@ -1,4 +1,4 @@
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
 import { useOwnerPortal } from '../hooks/owner/useOwnerPortal';
 
 import { OwnerSidebarDesktop, OwnerSidebarMobile } from '../components/owner/OwnerSidebar';
@@ -10,8 +10,8 @@ import { OwnerConsent } from '../components/owner/OwnerConsent';
 import { OwnerClaim } from '../components/owner/OwnerClaim';
 import { CreateLinkModal } from '../components/owner/OwnerLinkModal';
 
-export function OwnerPortal({ ctx }: { ctx: AppContextType }) {
-  const { t } = ctx;
+export function OwnerPortal() {
+  const { t } = useApp();
   const {
     activeTab, setActiveTab,
     links, showCreateModal, setShowCreateModal,

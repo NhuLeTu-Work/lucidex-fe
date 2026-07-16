@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
 import type { AdminTab } from '../types/admin';
 import { currentAdmin } from '../data/mockData';
 
@@ -17,8 +17,8 @@ import { RequestDetailModal } from '../components/admin/RequestDetailModal';
 import { RejectReasonModal } from '../components/admin/RejectReasonModal';
 import { DocViewerModal } from '../components/admin/DocReviewerModal';
 
-export function AdminPortal({ ctx }: { ctx: AppContextType }) {
-  const { t } = ctx;
+export function AdminPortal() {
+  const { t } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
   const {

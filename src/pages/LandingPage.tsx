@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight, Building2, GraduationCap, Users, Upload, UserCheck, Link2, ClipboardList } from 'lucide-react';
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
+import { useNavigate } from 'react-router';
 
-export function LandingPage({ ctx }: { ctx: AppContextType }) {
-  const { t, setPage, setRole } = ctx;
+export function LandingPage() {
+  const { t, setRole } = useApp();
+  const navigate = useNavigate();
+
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,11 +25,11 @@ export function LandingPage({ ctx }: { ctx: AppContextType }) {
           <BlurRevealText text={t('heroTitle')} className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" />
           <p className="text-lg sm:text-xl mb-10 font-light" style={{ color: 'var(--ct-text-secondary)' }}>{t('heroSubtitle')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => { setRole('verifier'); setPage('verifier'); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
+            <button onClick={() => { setRole('verifier'); navigate('/verifier'); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
               {t('heroCTA1')}
               <ArrowRight size={18} />
             </button>
-            <button onClick={() => setPage('verify')} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
+            <button onClick={() => navigate('/verify')} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
               {t('heroCTA2')}
             </button>
           </div>

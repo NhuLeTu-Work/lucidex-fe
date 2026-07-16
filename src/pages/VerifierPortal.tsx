@@ -1,4 +1,4 @@
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
 import { useVerifierPortal } from '../hooks/verifier/userVerifierPortal';
 import { VerifierSidebarDesktop, VerifierSidebarMobile } from '../components/verifier/VerifierSidebar';
 import { VerifierDashboard } from '../components/verifier/VerifierDashboard';
@@ -7,8 +7,8 @@ import { VerifierHistory } from '../components/verifier/VerifierHistory';
 import { VerifierQuota } from '../components/verifier/VerifierQuota';
 import { VerifierRegister } from '../components/verifier/VerifierRegister';
 
-export function VerifierPortal({ ctx }: { ctx: AppContextType }) {
-  const { t } = ctx;
+export function VerifierPortal() {
+  const { t } = useApp()
   const {
     activeTab, setActiveTab,
     quotaUsed,

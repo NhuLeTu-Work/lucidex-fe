@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { mockAccounts } from '../data/mockData';
-import type { Account } from '../data/mockData';
-import type { AppContextType } from '../App';
+import { useApp } from '@/app/AppContext';
+import { useNavigate } from 'react-router-dom';
 import type { RegistrationRole, BusinessData } from '../types/register';
 
-export function useRegister(ctx: AppContextType) {
-  const { t, setPage, setRole } = ctx;
+export function useRegister() {
+  const { t, setRole } = useApp();
+  const navigate = useNavigate();
 
   // Trạng thái chung
   const [roleType, setRoleType] = useState<RegistrationRole>('owner');
@@ -91,7 +92,7 @@ export function useRegister(ctx: AppContextType) {
     setTimeout(() => {
       if (otpValue === '123456') {
         setRole('owner');
-        setPage('owner');
+        navigate('/owner')
       } else if (otpValue === '000000') {
         setOtpError(t('errorOtpExpired') || 'OTP has expired.');
       } else {
@@ -189,6 +190,6 @@ export function useRegister(ctx: AppContextType) {
     showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError, setOtpError,
-    isOtpLoading, handleOwnerRegister, handleVerifyOTP, getSubtitle, t, setPage, setRole
+    isOtpLoading, handleOwnerRegister, handleVerifyOTP, getSubtitle, t, setRole
   };
 }

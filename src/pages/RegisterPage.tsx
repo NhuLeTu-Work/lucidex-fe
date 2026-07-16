@@ -1,4 +1,3 @@
-import type { AppContextType } from '../App';
 import { AlertCircle } from 'lucide-react';
 import { useRegister } from '../hooks/userRegister';
 import { RoleSelector } from '../components/register/RoleSelector';
@@ -7,8 +6,8 @@ import { BusinessRegisterForm } from '../components/register/BusinessRegisterFor
 import { SuccessStatus } from '../components/register/SuccessStatus';
 import { OtpModal } from '../components/register/OtpModal';
 
-export function Register({ ctx }: { ctx: AppContextType }) {
-  const hookProps = useRegister(ctx);
+export function Register() {
+  const hookProps = useRegister();
   const {
     roleType, handleRoleChange, error, fieldErrors, isLoading, isSuccess,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,

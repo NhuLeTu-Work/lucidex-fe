@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { mockAccounts } from '../data/mockData';
 import type { Account } from '../data/mockData';
-import type { AppContextType } from '../App';
+import { useApp } from '../app/AppContext';
+import { useNavigate } from 'react-router-dom';
 import type { LoginView, OtpMethod } from '../types/login';
 
-export function useLogin(ctx: AppContextType) {
-  const { t, setPage, setRole } = ctx;
+export function useLogin() {
+  const { t, setRole } = useApp();
+  const navigate = useNavigate();
   
   const [view, setView] = useState<LoginView>('login');
   const [currentAcc, setCurrentAcc] = useState<Account | null>(null);
@@ -124,7 +126,7 @@ export function useLogin(ctx: AppContextType) {
         setIsOtpLoading(false);
       } else if (currentAcc) {
         setRole(currentAcc.type as 'owner' | 'issuer' | 'verifier' | 'admin');
-        setPage(currentAcc.type);
+        navigate(`/${currentAcc.type}`);
       }
     }, 1500);
   };
@@ -135,6 +137,6 @@ export function useLogin(ctx: AppContextType) {
     showPassword, setShowPassword, showSetupPwd, setShowSetupPwd,
     showConfirmPwd, setShowConfirmPwd, isSetupSuccess, otpMethod, setOtpMethod,
     otpValue, setOtpValue, otpError, setOtpError, isOtpLoading, error, isLoading,
-    handleLogin, handleQuickLogin, handleSetupAccount, handleVerify2FA, t, setPage
+    handleLogin, handleQuickLogin, handleSetupAccount, handleVerify2FA, t
   };
 }

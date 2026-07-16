@@ -1,4 +1,3 @@
-import type { AppContextType } from '../App';
 import { useLogin } from '../hooks/uselogin';
 
 // Components
@@ -8,9 +7,9 @@ import { RejectedStatus } from '../components/login/RejectedStatus';
 import { SetupPasswordForm } from '../components/login/SetupPasswordForm';
 import { TwoFactorForm } from '../components/login/TwoFactorForm';
 
-export function Login({ ctx }: { ctx: AppContextType }) {
-  const hookProps = useLogin(ctx);
-  const { view, currentAcc, setView, t, setPage } = hookProps;
+export function Login() {
+  const hookProps = useLogin();
+  const { view, currentAcc, setView, t } = hookProps;
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full flex items-center justify-center p-6 animate-in fade-in duration-500" style={{ background: 'var(--ct-bg)' }}>
@@ -23,7 +22,7 @@ export function Login({ ctx }: { ctx: AppContextType }) {
         )}
         
         {view === 'rejected' && currentAcc && (
-          <RejectedStatus currentAcc={currentAcc} setPage={setPage} t={t} />
+          <RejectedStatus currentAcc={currentAcc} t={t} />
         )}
         
         {view === 'setup' && (
