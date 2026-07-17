@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { mockAccounts } from '../data/mockData';
 import type { Account } from '../data/mockData';
 import { useApp } from '../app/AppContext';
@@ -29,19 +29,30 @@ export function useLogin() {
   
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isSwitchDisabled, setIsSwitchDisabled] = useState(false);
+  const [otpSuccessMessage, setOtpSuccessMessage] = useState('');
+  const switchTimestamps = useRef<number[]>([]); // lưu thời điểm các lần switch
+  const resendTimestamps = useRef<number[]>([]); // lưu thời điểm các lần resend
 
-  const processLogin = (userEmail: string, userPwd?: string) => {
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const timer = setInterval(() => setResendCountdown(c => Math.max(c - 1, 0)), 1000);
+    return () => clearInterval(timer);
+  }, [resendCountdown]);
+
+  const processLogin = (loginIdentifier: string, userPwd?: string) => {
     setError(null);
     setIsLoading(true);
 
     setTimeout(() => {
-      const account = mockAccounts.find(
-        acc => acc.email.toLowerCase() === userEmail.trim().toLowerCase()
-      ) as Account | undefined;
-
+      const account = mockAccounts.find(acc => 
+        acc.email.toLowerCase() === loginIdentifier.trim().toLowerCase() ||
+        (acc.username && acc.username.toLowerCase() === loginIdentifier.trim().toLowerCase())
+      );
       if (account) {
         if (account.status === 'inactive') {
-          setError(t('errorAccountInactive') || 'This account is locked.');
+          setError('errorAccountInactive');
         } else if (account.status === 'pending') {
           setCurrentAcc(account);
           setView('pending');
@@ -51,14 +62,18 @@ export function useLogin() {
         } else if (account.status === 'setup_required') {
           setCurrentAcc(account);
           setView('setup');
-        } else {
+        } else if (account.type === 'admin') {
+          setCurrentAcc(account);
+          setOtpValue('');
+          setView(account.has2FA ? 'login_2fa' : 'setup_2fa'); 
+        }else {
           setCurrentAcc(account);
           setOtpValue('');
           setOtpMethod('email');
           setView('login_2fa');
         }
       } else {
-        setError(t('errorInvalidCredentials') || 'Email or password is invalid.');
+        setError('errorInvalidCredentials');
       }
       setIsLoading(false);
     }, 800);
@@ -67,7 +82,7 @@ export function useLogin() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setError(t('errorFieldsRequired') || 'Please fill in all required fields.');
+      setError('errorFieldsRequired');
       return;
     }
     processLogin(email, password);
@@ -89,11 +104,11 @@ export function useLogin() {
     setError(null);
 
     if (setupPassword !== setupConfirm) {
-      setError(t('errorPasswordMismatch') || 'Password and Confirm Password do not match.');
+      setError('errorPasswordMismatch');
       return;
     }
     if (!validatePassword(setupPassword)) {
-      setError(t('errorWeakPassword') || 'Password must contain at least 8 characters...');
+      setError('errorWeakPassword');
       return;
     }
 
@@ -112,23 +127,69 @@ export function useLogin() {
 
   const handleVerify2FA = (e: React.FormEvent) => {
     e.preventDefault();
-    if (otpValue.length < 6) return;
-    
-    setIsOtpLoading(true);
-    setOtpError(null);
-
-    setTimeout(() => {
-      if (otpValue === '000000') {
-        setOtpError(t('errorOtpExpired') || 'OTP has expired. Please request a new code.');
-        setIsOtpLoading(false);
-      } else if (otpValue === '111111') {
-        setOtpError(t('errorOtpInvalid') || 'Invalid OTP. Please try again.');
-        setIsOtpLoading(false);
-      } else if (currentAcc) {
-        setRole(currentAcc.type as 'owner' | 'issuer' | 'verifier' | 'admin');
-        navigate(`/${currentAcc.type}`);
+    if (currentAcc?.type === 'admin') {
+      if (otpValue === '676767') {
+        setRole('admin');
+        navigate('/admin');
+      } else {
+        setOtpError('errorTotpInvalid');
       }
-    }, 1500);
+      setIsOtpLoading(false);
+    } else {
+      if (otpValue.length < 6) return;
+      
+      setIsOtpLoading(true);
+      setOtpError(null);
+      
+      setTimeout(() => {
+        if (otpValue === '000000') {
+          setOtpError('errorOtpExpired');
+          setIsOtpLoading(false);
+        } else if (otpValue === '111111') {
+          setOtpError('errorOtpInvalid');
+          setIsOtpLoading(false);
+        } else if (currentAcc) {
+          setRole(currentAcc.type as 'owner' | 'issuer' | 'verifier' | 'admin');
+          navigate(`/${currentAcc.type}`);
+        }
+      }, 1500);
+    }
+  };
+
+  const handleResendOTP = () => {
+    const now = Date.now();
+    resendTimestamps.current = resendTimestamps.current.filter(ts => now - ts < 5 * 60 * 1000);
+
+    if (resendTimestamps.current.length >= 3) {
+      setOtpSuccessMessage('');
+      setOtpError('errorTooManyAttempts');
+      return;
+    }
+
+    resendTimestamps.current.push(now);
+    setOtpError(null);
+    setOtpSuccessMessage('otpResent');
+    setResendCountdown(60);
+  };
+
+  const handleSwitchMethod = (newMethod: 'email' | 'sms') => {
+    const now = Date.now();
+    switchTimestamps.current = switchTimestamps.current.filter(ts => now - ts < 10 * 1000);
+
+    if (switchTimestamps.current.length >= 3) {
+      setIsSwitchDisabled(true);
+      setOtpSuccessMessage('');
+      setOtpError('errorSwitchCooldown');
+      setTimeout(() => { setIsSwitchDisabled(false); setOtpError(null); }, 10 * 1000);
+      return;
+    }
+
+    switchTimestamps.current.push(now);
+    setOtpMethod(newMethod);
+    setOtpValue('');
+    setOtpError(null);
+    setOtpSuccessMessage('otpResent');
+    setResendCountdown(60); // switch cũng reset countdown Resend
   };
 
   return {
@@ -137,6 +198,7 @@ export function useLogin() {
     showPassword, setShowPassword, showSetupPwd, setShowSetupPwd,
     showConfirmPwd, setShowConfirmPwd, isSetupSuccess, otpMethod, setOtpMethod,
     otpValue, setOtpValue, otpError, setOtpError, isOtpLoading, error, isLoading,
-    handleLogin, handleQuickLogin, handleSetupAccount, handleVerify2FA, t
+    handleLogin, handleQuickLogin, handleSetupAccount, handleVerify2FA, t,
+    resendCountdown, isSwitchDisabled, otpSuccessMessage, handleResendOTP, handleSwitchMethod
   };
 }

@@ -81,7 +81,9 @@ export interface Account {
   id: string;
   name: string;
   email: string;
+  username?: string;
   type: 'owner' | 'issuer' | 'verifier' | 'admin';
+  authProvider?: 'password' | 'google';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
   lastActive: string;
@@ -96,44 +98,40 @@ export interface Account {
     submittedAt: string;
     rejectedReason?: string;
   };
+  has2FA?: boolean;
 }
 
 // Thay thế mảng mockAccounts hiện tại bằng mảng này để có đủ 6 tài khoản Issuer/Verifier test các trạng thái
 export const mockAccounts: Account[] = [
   // 1. TÀI KHOẢN ADMIN & STUDENT (Active bình thường)
   { id: 'acc_001', name: 'System Admin', email: 'admin@lucidex.vn', type: 'admin', status: 'active', createdAt: '2026-01-01T00:00:00Z', lastActive: '2026-06-17T09:00:00Z' },
-  { id: 'acc_002', name: 'Nguyen Van A', email: 'b190001@student.ctu.edu.vn', type: 'owner', status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
+  { id: 'acc_002', name: 'Nguyen Van A', email: 'b190001@student.ctu.edu.vn', type: 'owner', authProvider: 'password',status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
+  { id: 'acc_003', name: 'Nguyen Van B', email: 'b190002@student.ctu.edu.vn', type: 'owner', authProvider: 'google',status: 'active', createdAt: '2026-03-01T00:00:00Z', lastActive: '2026-06-16T20:00:00Z' },
 
-  { id: 'iss_004', name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', type: 'issuer', status: 'active', createdAt: '2026-01-15T00:00:00Z', lastActive: '2026-06-17T08:00:00Z' },
-  { id: 'vef_004', name: 'Tran Thi HR', email: 'hr@tma.com.vn', type: 'verifier', status: 'active', createdAt: '2026-04-10T00:00:00Z', lastActive: '2026-06-15T14:00:00Z' },
-  { id: 'vef_005', name: 'FPT Software HR', email: 'hr@fptsoftware.ct', type: 'verifier', status: 'inactive', createdAt: '2026-06-16T00:00:00Z', lastActive: '2026-06-16T08:00:00Z' },
-  // 2. ISSUER (3 Trạng thái)
-  { 
-    id: 'iss_001', name: 'ĐH Cần Thơ (Pending)', email: 'pending@ctu.edu.vn', type: 'issuer', status: 'pending', createdAt: '2026-07-09T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'Đại học Cần Thơ', taxCode: '1800156840', address: 'Khu II, Đ. 3/2, Xuân Khánh, Ninh Kiều, Cần Thơ', legalRep: 'Tran Viet Truong', contactPhone: '02923832663', regName: 'Nguyen Van Issuer', submittedAt: '2026-07-09T14:30:00Z' }
+  { id: 'iss_001', name: 'Phong Dao tao CICT', email: 'daotao@cict.ctu.edu.vn', type: 'issuer', status: 'active', createdAt: '2026-01-15T00:00:00Z', lastActive: '2026-06-17T08:00:00Z' },
+  { id: 'vef_001', name: 'Tran Thi HR', email: 'hr@tma.com.vn', type: 'verifier', status: 'active', createdAt: '2026-04-10T00:00:00Z', lastActive: '2026-06-15T14:00:00Z' },
+  {
+    id: 'admin_new',
+    name: 'New Admin',
+    email: 'admin_new@lucidex.com',
+    type: 'admin',
+    status: 'active',
+    has2FA: false, 
+    createdAt: '2026-07-17',
+    lastActive: '2026-07-17'
   },
-  { 
-    id: 'iss_002', name: 'ĐH Cần Thơ (Approved)', email: 'approved@ctu.edu.vn', type: 'issuer', status: 'setup_required', createdAt: '2026-07-08T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'Đại học Cần Thơ', taxCode: '1800156840', address: 'Khu II, Đ. 3/2, Xuân Khánh, Cần Thơ', legalRep: 'Tran Viet Truong', contactPhone: '02923832663', regName: 'Nguyen Van Issuer', submittedAt: '2026-07-08T09:00:00Z' }
-  },
-  { 
-    id: 'iss_003', name: 'ĐH Cần Thơ (Rejected)', email: 'rejected@ctu.edu.vn', type: 'issuer', status: 'rejected', createdAt: '2026-07-07T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'Đại học Cần Thơ Fake', taxCode: '0000000000', address: 'Địa chỉ giả', legalRep: 'Kẻ mạo danh', contactPhone: '0123456789', regName: 'Scammer', submittedAt: '2026-07-07T10:00:00Z', rejectedReason: 'Mã số thuế không tồn tại trên hệ thống Đăng ký kinh doanh Quốc gia.' }
-  },
-
-  // 3. VERIFIER / Verifier (3 Trạng thái)
-  { 
-    id: 'vef_001', name: 'FPT Software (Pending)', email: 'pending@fpt.com', type: 'verifier', status: 'pending', createdAt: '2026-07-09T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'FPT Software Can Tho', taxCode: '0302161475', address: 'Số 1, Đường D1, Khu CNC', legalRep: 'Hoang Nam', contactPhone: '0901234567', regName: 'Le Thi HR', regTitle: 'HR Manager', submittedAt: '2026-07-09T15:00:00Z' }
-  },
-  { 
-    id: 'vef_002', name: 'FPT Software (Approved)', email: 'approved@fpt.com', type: 'verifier', status: 'setup_required', createdAt: '2026-07-08T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'FPT Software Can Tho', taxCode: '0302161475', address: 'Số 1, Đường D1, Khu CNC', legalRep: 'Hoang Nam', contactPhone: '0901234567', regName: 'Le Thi HR', regTitle: 'HR Manager', submittedAt: '2026-07-08T11:00:00Z' }
-  },
-  { 
-    id: 'vef_003', name: 'FPT Software (Rejected)', email: 'rejected@fpt.com', type: 'verifier', status: 'rejected', createdAt: '2026-07-07T00:00:00Z', lastActive: '',
-    registrationData: { orgName: 'Công ty Ma', taxCode: '9999999999', address: 'Không rõ', legalRep: 'Vô danh', contactPhone: '0999999999', regName: 'Hacker', regTitle: 'Boss', submittedAt: '2026-07-07T14:00:00Z', rejectedReason: 'Giấy phép kinh doanh tải lên bị mờ, không thể xác thực thông tin pháp lý.' }
-  },
+  // Tài khoản Admin 2: Đã từng đăng nhập (Đã setup 2FA)
+  {
+    id: 'admin_returning',
+    name: 'Returning Admin',
+    email: 'admin@lucidex.com',
+    type: 'admin',
+    status: 'active',
+    has2FA: true,
+    createdAt: '2026-01-01',
+    lastActive: '2026-07-17'
+  }
+  
 ];
 
 // Mock owners

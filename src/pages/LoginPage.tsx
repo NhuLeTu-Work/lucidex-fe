@@ -1,4 +1,4 @@
-import { useLogin } from '../hooks/uselogin';
+import { useLogin } from '../hooks/useLogin';
 
 // Components
 import { LoginForm } from '../components/login/LoginForm';
@@ -6,6 +6,7 @@ import { PendingStatus } from '../components/login/PendingStatus';
 import { RejectedStatus } from '../components/login/RejectedStatus';
 import { SetupPasswordForm } from '../components/login/SetupPasswordForm';
 import { TwoFactorForm } from '../components/login/TwoFactorForm';
+import { AdminGoogleAuthForm } from '../components/admin/AdminGoogleAuthForm';
 
 export function Login() {
   const hookProps = useLogin();
@@ -29,8 +30,10 @@ export function Login() {
           <SetupPasswordForm hookProps={hookProps} />
         )}
         
-        {(view === 'login_2fa' || view === 'setup_2fa') && (
-          <TwoFactorForm hookProps={hookProps} />
+        {(view === 'login_2fa' || view === 'setup_2fa') && currentAcc && (
+          currentAcc.type === 'admin' 
+            ? <AdminGoogleAuthForm hookProps={hookProps} />
+            : <TwoFactorForm hookProps={hookProps} />
         )}
 
       </div>
