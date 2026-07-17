@@ -2,12 +2,28 @@ import { Shield, AlertCircle, CheckCircle, Smartphone, Mail } from 'lucide-react
 
 export function TwoFactorForm({ hookProps }: { hookProps: any }) {
   const {
-    view, currentAcc, otpMethod, setOtpMethod, otpValue, setOtpValue,
-    otpError, setOtpError, isOtpLoading, handleVerify2FA, t
+    view,
+    currentAcc,
+    otpMethod,
+    otpValue,
+    setOtpValue,
+    otpError,
+    isOtpLoading,
+    handleVerify2FA,
+    t,
+    resendCountdown,
+    isSwitchDisabled = false,
+    otpSuccessMessage,
+    handleResendOTP,
+    handleSwitchMethod,
   } = hookProps;
+
+  const isOwner = currentAcc?.type === 'owner';
 
   return (
     <div className="p-8 rounded-2xl border shadow-xl flex flex-col gap-6 animate-in zoom-in-95" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      
+      {/* Header */}
       <div className="text-center flex flex-col gap-2">
         <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center border mb-2" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
           <Shield size={22} style={{ color: 'var(--ct-text)' }} />
@@ -23,13 +39,24 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
         </p>
       </div>
 
+      {/* Thông báo gửi lại OTP thành công (AC 1) */}
+      {otpSuccessMessage && !otpError && (
+        <div className="p-3 rounded-xl border flex items-center gap-2 text-sm text-green-600 bg-green-500/10 border-green-500 dark:text-green-400 animate-in fade-in duration-300">
+          <CheckCircle size={16} className="shrink-0" />
+          <span className="font-medium text-balance">{t(otpSuccessMessage)}</span>
+        </div>
+      )}
+
+      {/* Thông báo lỗi tổng quát / Lỗi Rate limit (AC 2) */}
       {otpError && (
         <div className="p-3 rounded-xl border flex items-center gap-2 text-sm animate-in shake" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
-          <AlertCircle size={16} /><span>{otpError}</span>
+          <AlertCircle size={16} className="shrink-0" />
+          <span className="font-medium text-balance">{t(otpError)}</span>
         </div>
       )}
 
       <form onSubmit={handleVerify2FA} className="flex flex-col gap-4">
+        {/* Input OTP */}
         <input 
           type="text" 
           value={otpValue} 
@@ -55,26 +82,34 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
           )}
         </button>
 
-        <div className="flex flex-col items-center gap-3 mt-2">
-          <button 
-            type="button" 
-            disabled={isOtpLoading}
-            onClick={() => { setOtpMethod(otpMethod === 'email' ? 'sms' : 'email'); setOtpValue(''); setOtpError(null); }}
-            className="text-xs font-semibold hover:underline flex items-center gap-1.5 transition-all disabled:opacity-40"
-            style={{ color: 'var(--ct-text)' }}
-          >
-            {otpMethod === 'email' ? <Smartphone size={14} /> : <Mail size={14} />}
-            {otpMethod === 'email' ? (t('switchToSMS') || 'Switch to SMS method') : (t('switchToEmail') || 'Switch to Email method')}
-          </button>
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <div className="flex flex-col items-center gap-1">
+        {!isOwner && (
+              <button 
+                type="button" 
+                disabled={isOtpLoading || isSwitchDisabled}
+                onClick={() => handleSwitchMethod(otpMethod === 'email' ? 'sms' : 'email')}
+                className="text-xs font-semibold hover:underline flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:no-underline"
+                style={{ color: 'var(--ct-text)' }}
+              >
+                {otpMethod === 'email' ? <Smartphone size={14} /> : <Mail size={14} />}
+                {otpMethod === 'email' ? (t('switchToSMS') || 'Switch to SMS method') : (t('switchToEmail') || 'Switch to Email method')}
+              </button>
+              
+            )}
+            </div>
 
-          <button 
+            <button 
             type="button" 
-            disabled={isOtpLoading}
-            onClick={() => { setOtpValue(''); setOtpError(null); }}
-            className="text-xs opacity-60 hover:opacity-100 hover:underline transition-all disabled:opacity-40"
-            style={{ color: 'var(--ct-text)' }}
+            disabled={isOtpLoading || resendCountdown > 0}
+            onClick={handleResendOTP}
+            className="px-4 py-2 text-xs font-medium rounded-full border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98] disabled:opacity-40 disabled:hover:bg-transparent"
+            style={{ color: 'var(--ct-text)', borderColor: 'var(--ct-text)' }}
           >
-            {t('resendOTP') || 'Didn\'t receive a code? Resend'}
+            {resendCountdown > 0 
+              ? `${t('resendOTP') || "Didn't receive a code? Resend"} (${resendCountdown}s)` 
+              : (t('resendOTP') || "Didn't receive a code? Resend")
+            }
           </button>
         </div>
       </form>

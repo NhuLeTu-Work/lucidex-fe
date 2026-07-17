@@ -72,16 +72,63 @@ export function useRegister() {
 
     setIsLoading(true);
     setTimeout(() => {
-      const emailExists = mockAccounts.some(acc => acc.email.toLowerCase() === email.trim().toLowerCase());
-      if (emailExists) {
-        setError(t('errorEmailExists') || 'This email is already registered.');
+      // Kiểm tra user có tồn tại trong mockData không
+      const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === email.trim().toLowerCase());
+      
+      if (existingUser) {
+        if (existingUser.authProvider === 'google') {
+          // AC 9: Nhập form bằng email đã đăng ký qua Google
+          setError(t('errorEmailExistsGoogle') || 'This email is already registered via Google. Please log in using Google.');
+        } else {
+          // AC 4: Nhập form bằng email đã đăng ký bằng Password
+          setError(t('errorEmailExists') || 'This email is already registered.');
+        }
         setIsLoading(false);
-        return;
+        return; // Dừng lại, không gửi OTP
       }
+
+      // Nếu email chưa tồn tại -> Thành công, mở OTP Modal
       setIsLoading(false);
       setShowOtpModal(true);
       setOtpValue('');
       setOtpError(null);
+    }, 800);
+  };
+
+  const handleGoogleRegister = () => {
+    // Giả lập OAuth popup lấy được email (để test AC, ta lấy tạm giá trị user đã nhập ở ô email)
+    const googleEmail = email.trim(); 
+    
+    if (!googleEmail) {
+      setError(t('errorFieldsRequired') || 'Please enter an email to test Google Signup.');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === googleEmail.toLowerCase());
+      
+      if (existingUser) {
+        if (existingUser.authProvider === 'password' || !existingUser.authProvider) {
+          // AC 10: Bấm nút Google nhưng email này trước đó đã đăng ký bằng Password
+          setError(t('errorEmailExistsPassword') || 'This email is already registered with a password. Please log in using your email and password.');
+          setIsLoading(false);
+          return;
+        }
+        
+        // Nếu user đã tồn tại và authProvider === 'google', thì cho đăng nhập luôn
+        setIsLoading(false);
+        setRole('owner');
+        navigate('/owner');
+        return;
+      }
+
+      // Nếu user hoàn toàn mới -> Đăng ký Google thành công (Thường OAuth Google không cần OTP nữa)
+      setIsLoading(false);
+      setRole('owner');
+      navigate('/owner');
     }, 800);
   };
 
@@ -190,6 +237,6 @@ export function useRegister() {
     showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError, setOtpError,
-    isOtpLoading, handleOwnerRegister, handleVerifyOTP, getSubtitle, t, setRole
+    isOtpLoading, handleOwnerRegister, handleGoogleRegister, handleVerifyOTP, getSubtitle, t, setRole
   };
 }

@@ -2,9 +2,17 @@ import { CheckCircle } from 'lucide-react';
 import { useApp } from '@/app/AppContext';
 import { useNavigate } from 'react-router-dom';
 
-export function SuccessStatus() {
+// Thêm interface để nhận prop roleType
+interface SuccessStatusProps {
+  roleType: string;
+}
+
+export function SuccessStatus({ roleType }: SuccessStatusProps) {
   const { t } = useApp();
   const navigate = useNavigate();
+
+  // Viết hoa chữ cái đầu tiên của role (ví dụ: "issuer" -> "Issuer")
+  const displayRole = roleType.charAt(0).toUpperCase() + roleType.slice(1);
 
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-4 animate-in zoom-in-95 duration-500 text-center">
@@ -15,7 +23,8 @@ export function SuccessStatus() {
         {t('applicationSubmitted') || 'Application Submitted'}
       </h3>
       <p className="text-sm opacity-80 max-w-sm" style={{ color: 'var(--ct-text)' }}>
-        {t('pendingReviewMsg') || 'Your registration application has been submitted successfully and is pending review.'}
+        {/* Render thông báo động dựa trên roleType */}
+        {t(`pendingReviewMsg${displayRole}`) || `Your registration for ${displayRole} application has been submitted successfully and is pending review.`}
       </p>
       <button
         onClick={() => navigate('/')}
