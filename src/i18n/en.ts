@@ -253,6 +253,8 @@ export const en: Record<string, string> = {
     
     applicationSubmitted: 'Application Submitted',
     pendingReviewMsg: 'Your registration application has been submitted successfully and is pending review.',
+    pendingReviewMsgIssuer: 'Your registration application for Issuer has been submitted successfully and is pending review.',
+    pendingReviewMsgVerifier: 'Your registration application for Verifier has been submitted successfully and is pending review.',
     returnHome: 'Return to Home',
     verify2FA: '2FA Verify',
     
@@ -267,7 +269,7 @@ export const en: Record<string, string> = {
     "backToHome": "Back to Home",
     
     "setupAccountTitle": "Set Up Your Account",
-    "setupAccountDesc": "Please set a secure password for your newly approved account.",
+    "setupAccountDesc": "Your registeration has been approved. Please set a secure password for your newly approved account.",
     "setupAccountBtn": "Complete Setup",
     "setupSuccessTitle": "Account Created!",
     "setupSuccessDesc": "Redirecting to mandatory 2FA setup...",
@@ -298,4 +300,18 @@ export const en: Record<string, string> = {
     "lblThisIsIssuer": "This is our Issuer",
     "lblThisIsOwner": "This is our Owner",
     "lblThisIsVerifier": "This is our Verifier",
+    resendIn: "Resend in",
+    otpResendSuccess: "A new code has been sent.",
+    otpRateLimitError: "Too many attempts. Please try again later.",
+    otpSwitchCooldownError: "Please wait for cooldown before switching again.",
+    otpResent: "A new code has been sent.",
+    errorTooManyAttempts: "Too many attempts. Please try again in 5 minutes.",
+    errorSwitchCooldown: "Please wait for cooldown before switching again.",
+    errorEmailExistsGoogle: "This email is already registered via Google. Please log in using Google.",
+    errorEmailExistsPassword: "This email is already registered with a password. Please log in using your email and password.",
+    setupGoogleAuthTitle: "Setup Authenticator",
+    loginGoogleAuthTitle: "Authenticator App",
+    setupGoogleAuthDesc: "Scan the QR code with your Authenticator app and enter the 6-digit code.",
+    loginGoogleAuthDesc: "Open your Authenticator app and enter the 6-digit code.",
+    errorTotpInvalid: "Invalid code or code has expired.",
 };

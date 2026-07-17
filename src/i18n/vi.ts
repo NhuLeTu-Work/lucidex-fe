@@ -237,7 +237,8 @@ export const vi: Record<string, string> = {
     fmtPhone: 'Số điện thoại Việt Nam gồm 10 chữ số',
     
     applicationSubmitted: 'Gửi yêu cầu thành công',
-    pendingReviewMsg: 'Đơn đăng ký của bạn đã được gửi thành công và đang chờ ban quản trị phê duyệt.',
+    pendingReviewMsgIssuer: 'Đơn đăng ký của bạn cho Tổ chức cấp phát đã được gửi thành công và đang chờ ban quản trị phê duyệt.',
+    pendingReviewMsgVerifier: 'Đơn đăng ký của bạn cho Doanh nghiệp/Nhà tuyển dụng đã được gửi thành công và đang chờ ban quản trị phê duyệt.',
     returnHome: 'Quay về trang chủ',
 
     "submittedAt": "Ngày nộp đơn",
@@ -251,7 +252,7 @@ export const vi: Record<string, string> = {
     "backToHome": "Quay về trang chủ",
     
     "setupAccountTitle": "Thiết lập tài khoản",
-    "setupAccountDesc": "Vui lòng thiết lập một mật khẩu an toàn cho tài khoản vừa được phê duyệt của bạn.",
+    "setupAccountDesc": "Yêu cầu tạo tài khoản của bạn đã được duyệt. Vui lòng thiết lập một mật khẩu an toàn cho tài khoản vừa được phê duyệt của bạn.",
     "setupAccountBtn": "Hoàn tất thiết lập",
     "setupSuccessTitle": "Tạo tài khoản thành công!",
     "setupSuccessDesc": "Đang chuyển hướng đến trang thiết lập 2FA bắt buộc...",
@@ -283,4 +284,18 @@ export const vi: Record<string, string> = {
     "lblThisIsIssuer": "Đây chính là Tổ chức cấp phát",
     "lblThisIsOwner": "Đây chính là Chủ sở hữu",
     "lblThisIsVerifier": "Đây chính là Nhà tuyển dụng",
+    resendIn: "Gửi lại sau",
+    otpResendSuccess: "Một mã xác thực mới vừa được gửi.",
+    otpRateLimitError: "Bạn đã thao tác quá nhiều lần. Vui lòng thử lại sau vài phút.",
+    otpSwitchCooldownError: "Vui lòng đợi reset cooldown trước khi đổi phương thức xác thực.",
+    otpResent: "Một mã xác thực mới vừa được gửi.",
+    errorTooManyAttempts: "Bạn đã thao tác quá nhiều lần. Vui lòng thử lại sau 5 phút.",
+    errorSwitchCooldown: "Vui lòng đợi reset cooldown trước khi đổi phương thức khác.",
+    errorEmailExistsGoogle: "Email này đã được đăng ký qua Google. Vui lòng đăng nhập bằng Google.",
+    errorEmailExistsPassword: "Email này đã được đăng ký bằng mật khẩu. Vui lòng đăng nhập bằng email và mật khẩu của bạn.",
+    setupGoogleAuthTitle: "Cài đặt Ứng dụng xác thực",
+    loginGoogleAuthTitle: "Ứng dụng xác thực",
+    setupGoogleAuthDesc: "Quét mã QR bằng ứng dụng Authenticator của bạn và nhập mã 6 số xuống bên dưới.",
+    loginGoogleAuthDesc: "Mở ứng dụng xác thực (ví dụ: Google Authenticator) và nhập mã 6 số xuống bên dưới.",
+    errorTotpInvalid: "Mã xác thực không hợp lệ hoặc đã hết hạn.",
 };
