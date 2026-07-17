@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight, Building2, GraduationCap, Users, Upload, UserCheck, Link2, ClipboardList } from 'lucide-react';
-import { useApp } from '../app/AppContext';
-import { useNavigate } from 'react-router';
+import { useLanding } from '../hooks/useLanding';
+import { BlurRevealText } from '../components/landing/BlurRevealText';
+import { FeatureCard } from '../components/landing/FeatureCard';
+import { StepRow } from '../components/landing/StepRow';
 
 export function LandingPage() {
-  const { t, setRole } = useApp();
-  const navigate = useNavigate();
-
+  const { t, handleVerifierClick, handleVerifyClick } = useLanding();
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,11 +25,11 @@ export function LandingPage() {
           <BlurRevealText text={t('heroTitle')} className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" />
           <p className="text-lg sm:text-xl mb-10 font-light" style={{ color: 'var(--ct-text-secondary)' }}>{t('heroSubtitle')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => { setRole('verifier'); navigate('/verifier'); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
+            <button onClick={handleVerifierClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
               {t('heroCTA1')}
               <ArrowRight size={18} />
             </button>
-            <button onClick={() => navigate('/verify')} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
+            <button onClick={handleVerifyClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
               {t('heroCTA2')}
             </button>
           </div>
@@ -41,17 +41,20 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <h2 className="font-display text-3xl md:text-4xl text-center mb-16">{t('whatDoWeOffer')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard icon={<Building2 size={32} />}
+            <FeatureCard 
+              icon={<Building2 size={32} />}
               title={t('forUniversities')}
               desc={t('featUniDesc')}
               roleLabel={t('lblThisIsIssuer') || 'This is our Issuer'}
             />
-            <FeatureCard icon={<GraduationCap size={32} />}
+            <FeatureCard 
+              icon={<GraduationCap size={32} />}
               title={t('forStudents')}
               desc={t('featStuDesc')}
               roleLabel={t('lblThisIsOwner') || 'This is our Owner'}
             />
-            <FeatureCard icon={<Users size={32} />}
+            <FeatureCard 
+              icon={<Users size={32} />}
               title={t('forEmployers')}
               desc={t('featEmpDesc')}
               roleLabel={t('lblThisIsVerifier') || 'This is our Verifier'}
@@ -87,59 +90,6 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function BlurRevealText({ text, className }: { text: string; className?: string }) {
-  return (
-    <div className={className} style={{ perspective: '1000px' }}>
-      {text.split('').map((char, index) => (
-        <span key={index} className="inline-block" style={{
-          whiteSpace: char === ' ' ? 'pre' : undefined,
-          animation: `blurReveal 0.6s cubic-bezier(0.2, 1, 0.2, 1) ${index * 0.02}s both`,
-        }}>
-          {char === ' ' ? '\u00A0' : char}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function RoleCard({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
-      <span style={{ color: 'var(--ct-text)' }}>{icon}</span>
-      <span className="text-xs font-medium" style={{ color: 'var(--ct-text-secondary)' }}>{label}</span>
-    </button>
-  );
-}
-
-function FeatureCard({ icon, title, desc, roleLabel }: { icon: React.ReactNode; title: string; desc: string; roleLabel: string }) {
-  return (
-    <div className="p-8 rounded-2xl border transition-all hover:scale-[1.02]" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
-      <div className="mb-4" style={{ color: 'var(--ct-text)' }}>{icon}</div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--ct-text-secondary)' }}>{desc}</p>
-      <div className="flex items-center gap-2 pt-4 border-t mt-auto" style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
-        <ArrowRight size={16} className="opacity-50" />
-        <span className="text-sm font-medium opacity-80">{roleLabel}</span>
-      </div>
-    </div>
-  );
-}
-
-function StepRow({ num, icon, title, desc, align }: { num: string; icon: React.ReactNode; title: string; desc: string; align: 'left' | 'right' }) {
-  return (
-    <div className={`flex items-center gap-8 ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}>
-      <div className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
-        <span style={{ color: 'var(--ct-text)' }}>{icon}</span>
-      </div>
-      <div className="flex-1">
-        <span className="text-xs font-mono font-semibold mb-1 block" style={{ color: 'var(--ct-text-secondary)' }}>{num}</span>
-        <h3 className="text-xl font-semibold mb-1">{title}</h3>
-        <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{desc}</p>
-      </div>
     </div>
   );
 }
