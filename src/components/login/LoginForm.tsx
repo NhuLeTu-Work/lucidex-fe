@@ -73,7 +73,7 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
           <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80" style={{ color: 'var(--ct-text)' }}>{t('demoAccounts') || 'Demo Accounts'}</h3>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {mockAccounts.filter(acc => ['acc_003', 'acc_002', 'iss_001', 'vef_001', 'admin_new', 'admin_returning'].includes(acc.id)).map((acc) => (
+          {mockAccounts.filter(acc => ['acc_003', 'acc_002', 'iss_001', 'vef_001', 'admin_new', 'admin_returning', 'super_admin'].includes(acc.id)).map((acc) => (
             <button key={acc.id} type="button" disabled={isLoading} onClick={() => handleQuickLogin(acc.email)} className="p-3 text-left rounded-xl border flex flex-col gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] group" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
               <div className="flex items-center justify-between w-full">
                 <span className="p-1 rounded-md border text-xs opacity-70 group-hover:opacity-100 transition-opacity" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', color: 'var(--ct-text)' }}>{getRoleIcon(acc.type)}</span>

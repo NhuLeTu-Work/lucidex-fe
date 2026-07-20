@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useI18n } from '../hooks/useI18n';
 
-export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin';
+export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin' | 'super';
 
 interface AppContextType {
   role: UserRole;

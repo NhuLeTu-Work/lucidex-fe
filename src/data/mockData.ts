@@ -82,7 +82,7 @@ export interface Account {
   name: string;
   email: string;
   username?: string;
-  type: 'owner' | 'issuer' | 'verifier' | 'admin';
+  type: 'owner' | 'issuer' | 'verifier' | 'admin' | 'super';
   authProvider?: 'password' | 'google';
   status: 'active' | 'inactive' | 'pending' | 'setup_required' | 'rejected';
   createdAt: string;
@@ -126,6 +126,16 @@ export const mockAccounts: Account[] = [
     name: 'Returning Admin',
     email: 'admin@lucidex.com',
     type: 'admin',
+    status: 'active',
+    has2FA: true,
+    createdAt: '2026-01-01',
+    lastActive: '2026-07-17'
+  },
+  {
+    id: 'super_admin',
+    name: 'Super Admin',
+    email: 'superadmin@lucidex.com',
+    type: 'super',
     status: 'active',
     has2FA: true,
     createdAt: '2026-01-01',

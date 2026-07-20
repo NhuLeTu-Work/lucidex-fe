@@ -31,7 +31,7 @@ export function Login() {
         )}
         
         {(view === 'login_2fa' || view === 'setup_2fa') && currentAcc && (
-          currentAcc.type === 'admin' 
+          currentAcc.type === 'admin' || currentAcc.type === 'super' 
             ? <AdminGoogleAuthForm hookProps={hookProps} />
             : <TwoFactorForm hookProps={hookProps} />
         )}
