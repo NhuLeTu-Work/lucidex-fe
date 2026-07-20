@@ -14,7 +14,8 @@ export function Register() {
     roleType, handleRoleChange, error, fieldErrors, isLoading, isSuccess,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError,
-    isOtpLoading, handleVerifyOTP, getSubtitle, email, t
+    isOtpLoading, handleVerifyOTP, getSubtitle, email, t,
+    isResendOtpLoading, resendMessage, handleResendOTP, resendCountdown
   } = hookProps;
 
   return (
@@ -83,6 +84,10 @@ export function Register() {
           onVerify={handleVerifyOTP} 
           onClose={() => setShowOtpModal(false)} 
           t={t} 
+          isResendOtpLoading={isResendOtpLoading}
+          resendMessage={resendMessage}
+          onResend={handleResendOTP}
+          resendCountdown={resendCountdown}
         />
       )}
     </div>

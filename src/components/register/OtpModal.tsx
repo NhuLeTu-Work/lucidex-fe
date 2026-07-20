@@ -9,9 +9,17 @@ interface OtpModalProps {
   onVerify: () => void;
   onClose: () => void;
   t: (k: string) => string;
+  isResendOtpLoading?: boolean;
+  resendMessage?: string | null;
+  resendCountdown?: number; // 1. Thêm biến nhận thời gian đếm ngược
+  onResend?: () => void;
 }
 
-export function OtpModal({ email, otpValue, setOtpValue, otpError, isOtpLoading, onVerify, onClose, t }: OtpModalProps) {
+export function OtpModal({ 
+  email, otpValue, setOtpValue, otpError, isOtpLoading, 
+  onVerify, onClose, t, 
+  isResendOtpLoading, resendMessage, resendCountdown = 0, onResend 
+}: OtpModalProps) {
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="w-full max-w-md p-8 rounded-2xl border shadow-2xl flex flex-col gap-6 animate-in zoom-in-95 duration-300 relative" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
@@ -21,7 +29,7 @@ export function OtpModal({ email, otpValue, setOtpValue, otpError, isOtpLoading,
           <X size={20} />
         </button>
 
-        {/* Header (Identical UI to TwoFactorForm) */}
+        {/* Header */}
         <div className="text-center flex flex-col gap-2 mt-2">
           <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center border mb-2" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
             <Shield size={22} style={{ color: 'var(--ct-text)' }} />
@@ -37,10 +45,18 @@ export function OtpModal({ email, otpValue, setOtpValue, otpError, isOtpLoading,
           </p>
         </div>
 
-        {/* Error Box */}
+        {/* Message Box: Hiển thị Error (đỏ) hoặc Success (xanh) */}
         {otpError && (
           <div className="p-3 rounded-xl border flex items-center gap-2 text-sm animate-in shake" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
-            <AlertCircle size={16} /><span>{otpError}</span>
+            <AlertCircle size={16} className="shrink-0" />
+            <span>{t(otpError) || otpError}</span>
+          </div>
+        )}
+        
+        {!otpError && resendMessage && (
+          <div className="p-3 rounded-xl border flex items-center gap-2 text-sm animate-in fade-in" style={{ borderColor: '#22c55e', background: 'rgba(34, 197, 94, 0.08)', color: '#16a34a' }}>
+            <CheckCircle size={16} className="shrink-0" />
+            <span>{resendMessage}</span>
           </div>
         )}
 
@@ -50,7 +66,7 @@ export function OtpModal({ email, otpValue, setOtpValue, otpError, isOtpLoading,
             type="text" 
             value={otpValue} 
             onChange={e => setOtpValue(e.target.value.replace(/[^0-9]/g, ''))} 
-            onFocus={(e) => e.target.select()} // Bôi đen text cũ khi focus lại để dễ dàng gõ đè OTP mới
+            onFocus={(e) => e.target.select()}
             placeholder="000000" 
             maxLength={6} 
             disabled={isOtpLoading}
@@ -72,15 +88,21 @@ export function OtpModal({ email, otpValue, setOtpValue, otpError, isOtpLoading,
             )}
           </button>
 
+          {/* 2. Nút Resend đã được đồng bộ UI và Logic Countdown */}
           <div className="flex flex-col items-center gap-3 mt-2">
             <button 
               type="button" 
-              disabled={isOtpLoading}
-              onClick={() => { setOtpValue(''); /* Nơi bạn có thể hook trigger resend event */ }}
-              className="text-xs opacity-60 hover:opacity-100 hover:underline transition-all disabled:opacity-40"
-              style={{ color: 'var(--ct-text)' }}
+              disabled={isOtpLoading || isResendOtpLoading || resendCountdown > 0}
+              onClick={onResend}
+              className="px-4 py-2 text-xs font-medium rounded-full border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98] disabled:opacity-40 disabled:hover:bg-transparent"
+              style={{ color: 'var(--ct-text)', borderColor: 'var(--ct-text)' }}
             >
-              {t('resendOTP') || 'Didn\'t receive a code? Resend'}
+              {isResendOtpLoading 
+                ? (t('resendingOTP') || 'Đang gửi lại...') 
+                : resendCountdown > 0 
+                  ? `${t('resendOTP') || "Didn't receive a code? Resend"} (${resendCountdown}s)`
+                  : (t('resendOTP') || "Didn't receive a code? Resend")
+              }
             </button>
           </div>
         </form>

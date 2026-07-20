@@ -298,4 +298,6 @@ export const vi: Record<string, string> = {
     setupGoogleAuthDesc: "Quét mã QR bằng ứng dụng Authenticator của bạn và nhập mã 6 số xuống bên dưới.",
     loginGoogleAuthDesc: "Mở ứng dụng xác thực (ví dụ: Google Authenticator) và nhập mã 6 số xuống bên dưới.",
     errorTotpInvalid: "Mã xác thực không hợp lệ hoặc đã hết hạn.",
+    resendingOTP: "Đang gửi lại...",
+    otpResentSuccess: "Một mã OTP mới đã được gửi đến email của bạn.",
 };

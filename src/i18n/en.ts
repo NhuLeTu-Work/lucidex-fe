@@ -314,4 +314,6 @@ export const en: Record<string, string> = {
     setupGoogleAuthDesc: "Scan the QR code with your Authenticator app and enter the 6-digit code.",
     loginGoogleAuthDesc: "Open your Authenticator app and enter the 6-digit code.",
     errorTotpInvalid: "Invalid code or code has expired.",
+    resendingOTP: "Resending...",
+    otpResentSuccess: "A new OTP has been sent to your email.",
 };

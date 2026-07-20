@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { mockAccounts } from '../data/mockData';
 import { useApp } from '@/app/AppContext';
 import { useNavigate } from 'react-router-dom';
 import type { RegistrationRole, BusinessData } from '../types/register';
 import { registerIssuerApi } from '@/api/endpoints/issuer/registerIssuerApi';
 import { registerVerifierApi } from '@/api/endpoints/verifier/registerVerifierApi';
-
+import { registerOwnerApi, verifyOwnerOtpApi, resendOwnerOtpApi } from '@/api/endpoints/owner/registerOwnerApi';
 
 export function useRegister() {
   const { t, setRole } = useApp();
@@ -25,6 +25,8 @@ export function useRegister() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isResendOtpLoading, setIsResendOtpLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   // Trạng thái Form Issuer / Verifier
   const [bizData, setBizData] = useState<BusinessData>({
@@ -43,7 +45,15 @@ export function useRegister() {
   const [otpValue, setOtpValue] = useState('');
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isOtpLoading, setIsOtpLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
+  // Thêm useEffect để tự động giảm thời gian
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setRoleType(e.target.value as RegistrationRole);
     setError(null);
@@ -56,7 +66,7 @@ export function useRegister() {
     return regex.test(pwd);
   };
 
-  const handleOwnerRegister = (e: React.FormEvent) => {
+  const handleOwnerRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -74,28 +84,39 @@ export function useRegister() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      // Kiểm tra user có tồn tại trong mockData không
-      const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === email.trim().toLowerCase());
-      
-      if (existingUser) {
-        if (existingUser.authProvider === 'google') {
-          // AC 9: Nhập form bằng email đã đăng ký qua Google
-          setError(t('errorEmailExistsGoogle') || 'This email is already registered via Google. Please log in using Google.');
-        } else {
-          // AC 4: Nhập form bằng email đã đăng ký bằng Password
-          setError(t('errorEmailExists') || 'This email is already registered.');
-        }
-        setIsLoading(false);
-        return; // Dừng lại, không gửi OTP
+    try {
+      const response = await registerOwnerApi({
+        email: email.trim(),
+        password: password,
+        confirm_password: confirmPassword, // Map biến camelCase sang snake_case của BE
+      });
+
+      if (response.success) {
+        setShowOtpModal(true);
+        setOtpValue('');
+        setOtpError(null);
+      } else {
+        setError(response.message || 'Registration failed.');
       }
 
-      // Nếu email chưa tồn tại -> Thành công, mở OTP Modal
+    } catch (err: any) {
+      // 3. Xử lý lỗi trả về (Trùng email, sai format...)
+      if (err.response) {
+        if (err.response.status === 422) {
+          setError('Dữ liệu không hợp lệ, vui lòng kiểm tra lại form.');
+        } else if (err.response.status === 400 || err.response.status === 409) {
+          // Tuỳ thuộc BE trả mã lỗi nào khi trùng Email (thường là 400 hoặc 409 Conflict)
+          // Lấy error message từ BE, nếu không có thì dùng text fallback
+          setError(err.response.data.message || t('errorEmailExists') || 'Email này đã được đăng ký.');
+        } else {
+          setError(err.response.data.message || 'Lỗi kết nối đến máy chủ.');
+        }
+      } else {
+        setError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+      }
+    } finally {
       setIsLoading(false);
-      setShowOtpModal(true);
-      setOtpValue('');
-      setOtpError(null);
-    }, 800);
+    }
   };
 
   const handleGoogleRegister = () => {
@@ -135,21 +156,75 @@ export function useRegister() {
     }, 800);
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!otpValue.trim()) return;
     setOtpError(null);
     setIsOtpLoading(true);
-    setTimeout(() => {
-      if (otpValue === '123456') {
+    try {
+      // Gọi API Verify OTP
+      const response = await verifyOwnerOtpApi({
+        email: email.trim(), // Lấy email từ state người dùng vừa điền ở bước 1
+        otp_code: otpValue.trim(),
+      });
+
+      if (response.success) {
+        // Đăng ký và kích hoạt thành công, cho phép vào trang owner
         setRole('owner');
-        navigate('/owner')
-      } else if (otpValue === '000000') {
-        setOtpError(t('errorOtpExpired') || 'OTP has expired.');
+        navigate('/owner');
       } else {
-        setOtpError(t('errorOtpInvalid') || 'Invalid OTP.');
+        setOtpError(response.message || t('errorOtpInvalid') || 'Invalid OTP.');
       }
+    } catch (err: any) {
+      if (err.response) {
+        if (err.response.status === 422) {
+          setOtpError('Mã OTP không hợp lệ.');
+        } else if (err.response.status === 400) {
+          // Xử lý các lỗi logic từ BE (ví dụ: OTP hết hạn, sai OTP...)
+          setOtpError(err.response.data.message || t('errorOtpInvalid') || 'Mã OTP không chính xác hoặc đã hết hạn.');
+        } else {
+          setOtpError('Lỗi hệ thống. Vui lòng thử lại sau.');
+        }
+      } else {
+        setOtpError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+      }
+    } finally {
       setIsOtpLoading(false);
-    }, 800);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    // Reset các thông báo cũ
+    setOtpError(null);
+    setResendMessage(null);
+    setIsResendOtpLoading(true);
+
+    try {
+      const response = await resendOwnerOtpApi({
+        email: email.trim() // Sử dụng lại state email đã lưu
+      });
+
+      if (response.success) {
+        // Thông báo thành công và xóa trắng ô nhập mã cũ
+        setResendMessage(t('otpResentSuccess') || 'A new OTP has been sent to your email.');
+        setOtpValue('');
+        setResendCountdown(60); 
+      } else {
+        setOtpError(response.message || 'Failed to resend OTP.');
+      }
+    } catch (err: any) {
+      if (err.response) {
+        if (err.response.status === 422) {
+          setOtpError('Dữ liệu không hợp lệ.');
+        } else {
+          setOtpError(err.response.data.message || 'Lỗi hệ thống. Không thể gửi lại mã.');
+        }
+      } else {
+        setOtpError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+      }
+    } finally {
+      setIsResendOtpLoading(false);
+    }
   };
 
   const handleBizChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,6 +352,10 @@ export function useRegister() {
     showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError, setOtpError,
-    isOtpLoading, handleOwnerRegister, handleGoogleRegister, handleVerifyOTP, getSubtitle, t, setRole
+    isOtpLoading, handleOwnerRegister, handleGoogleRegister, handleVerifyOTP, getSubtitle, t, setRole,
+    isResendOtpLoading,
+    resendMessage,
+    handleResendOTP,
+    resendCountdown
   };
 }

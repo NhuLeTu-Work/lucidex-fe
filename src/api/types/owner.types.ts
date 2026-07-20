@@ -26,3 +26,53 @@ export interface Owner {
   purge_after: string | null;
   restored_at: string | null;
 }
+
+// src/api/types/owner.ts
+
+// Dữ liệu truyền vào (application/json)
+export interface RegisterOwnerPayload {
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+// Dữ liệu trả về
+export interface RegisterOwnerResponse {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    status: string;
+  };
+  message: string;
+  error_code: string;
+}
+
+export interface VerifyOwnerOtpPayload {
+  email: string;
+  otp_code: string;
+}
+
+// Dữ liệu trả về khi Verify OTP thành công
+export interface VerifyOwnerOtpResponse {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    status: string; // Sẽ chuyển từ 'pending' sang 'active'
+  };
+  message: string;
+  error_code: string;
+}
+
+export interface ResendOwnerOtpPayload {
+  email: string;
+}
+
+// Dữ liệu trả về khi gửi lại OTP thành công (data: null)
+export interface ResendOwnerOtpResponse {
+  success: boolean;
+  data: null;
+  message: string;
+  error_code: string;
+}
