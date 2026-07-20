@@ -27,6 +27,7 @@ export function useRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isResendOtpLoading, setIsResendOtpLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [missingFieldKeys, setMissingFieldKeys] = useState<string[]>([]);
 
   // Trạng thái Form Issuer / Verifier
   const [bizData, setBizData] = useState<BusinessData>({
@@ -71,15 +72,15 @@ export function useRegister() {
     setError(null);
 
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError(t('errorFieldsRequired') || 'Vui lòng điền đầy đủ thông tin.');
+      setError(t('errorFieldsRequired'));
       return;
     }
     if (password !== confirmPassword) {
-      setError(t('errorPasswordMismatch') || 'Password and Confirm Password do not match.');
+      setError(t('errorPasswordMismatch'));
       return;
     }
     if (!validatePassword(password)) {
-      setError(t('errorWeakPassword') || 'Password must contain at least 8 characters...');
+      setError(t('errorWeakPassword'));
       return;
     }
 
@@ -107,7 +108,7 @@ export function useRegister() {
         } else if (err.response.status === 400 || err.response.status === 409) {
           // Tuỳ thuộc BE trả mã lỗi nào khi trùng Email (thường là 400 hoặc 409 Conflict)
           // Lấy error message từ BE, nếu không có thì dùng text fallback
-          setError(err.response.data.message || t('errorEmailExists') || 'Email này đã được đăng ký.');
+          setError(err.response.data.message || t('errorEmailExists'));
         } else {
           setError(err.response.data.message || 'Lỗi kết nối đến máy chủ.');
         }
@@ -124,7 +125,7 @@ export function useRegister() {
     const googleEmail = email.trim(); 
     
     if (!googleEmail) {
-      setError(t('errorFieldsRequired') || 'Please enter an email to test Google Signup.');
+      setError(t('errorFieldsRequired'));
       return;
     }
 
@@ -137,7 +138,7 @@ export function useRegister() {
       if (existingUser) {
         if (existingUser.authProvider === 'password' || !existingUser.authProvider) {
           // AC 10: Bấm nút Google nhưng email này trước đó đã đăng ký bằng Password
-          setError(t('errorEmailExistsPassword') || 'This email is already registered with a password. Please log in using your email and password.');
+          setError(t('errorEmailExistsPassword'));
           setIsLoading(false);
           return;
         }
@@ -173,7 +174,7 @@ export function useRegister() {
         setRole('owner');
         navigate('/owner');
       } else {
-        setOtpError(response.message || t('errorOtpInvalid') || 'Invalid OTP.');
+        setOtpError(response.message || t('errorOtpInvalid'));
       }
     } catch (err: any) {
       if (err.response) {
@@ -181,7 +182,7 @@ export function useRegister() {
           setOtpError('Mã OTP không hợp lệ.');
         } else if (err.response.status === 400) {
           // Xử lý các lỗi logic từ BE (ví dụ: OTP hết hạn, sai OTP...)
-          setOtpError(err.response.data.message || t('errorOtpInvalid') || 'Mã OTP không chính xác hoặc đã hết hạn.');
+          setOtpError(err.response.data.message || t('errorOtpInvalid'));
         } else {
           setOtpError('Lỗi hệ thống. Vui lòng thử lại sau.');
         }
@@ -206,7 +207,7 @@ export function useRegister() {
 
       if (response.success) {
         // Thông báo thành công và xóa trắng ô nhập mã cũ
-        setResendMessage(t('otpResentSuccess') || 'A new OTP has been sent to your email.');
+        setResendMessage(t('otpResentSuccess'));
         setOtpValue('');
         setResendCountdown(60); 
       } else {
@@ -238,36 +239,37 @@ export function useRegister() {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
-
-    const missingFields: string[] = [];
+    setMissingFieldKeys([]);
+    const missingKeys: string[] = [];
     const requiredKeys = roleType === 'verifier' 
       ? ['orgName', 'taxCode', 'address', 'legalRep', 'email', 'phone', 'regName', 'regTitle', 'certificate']
       : ['orgName', 'taxCode', 'address', 'legalRep', 'email', 'phone', 'regName'];
 
+    const fieldLabelMap: Record<string, string> = {
+      orgName: roleType === 'verifier' ? 'lblOrgName' : 'lblInstName',
+      taxCode: 'lblTaxCode',
+      address: 'lblAddress',
+      legalRep: 'lblLegalRep',
+      email: 'lblContactGmail',
+      phone: 'lblContactPhone',
+      regName: 'lblRegName',
+      regTitle: 'lblRegTitle',
+      certificate: 'uploadCert',
+    };
+
     requiredKeys.forEach(key => {
       if (key === 'certificate') {
-        if (!certificate) missingFields.push(t('uploadCert') || 'Business registration certificate');
-      } else {
-        if (!bizData[key as keyof BusinessData].trim()) {
-          const fieldLabelMap: Record<string, string> = {
-            orgName: roleType === 'verifier' ? 'lblOrgName' : 'lblInstName',
-            taxCode: 'lblTaxCode',
-            address: 'lblAddress',
-            legalRep: 'lblLegalRep',
-            email: 'lblContactGmail',
-            phone: 'lblContactPhone',
-            regName: 'lblRegName',
-            regTitle: 'lblRegTitle',
-          };
-          missingFields.push(t(fieldLabelMap[key]) || key);
-        }
+        if (!certificate) missingKeys.push(fieldLabelMap.certificate);
+      } else if (!bizData[key as keyof BusinessData].trim()) {
+        missingKeys.push(fieldLabelMap[key]);
       }
     });
 
-    if (missingFields.length > 0) {
-      setError(`${t('errorMissingFields') || 'Please fill in the following required field(s):'} ${missingFields.join(', ')}.`);
+    if (missingKeys.length > 0) {
+      setError('errorMissingFields');
+      setMissingFieldKeys(missingKeys);
       return;
-    }
+  }
 
     const fErrors: Record<string, string> = {};
     if (bizData.orgName.length < 3 || bizData.orgName.length > 200) {
@@ -340,14 +342,14 @@ export function useRegister() {
 
   const getSubtitle = () => {
     switch(roleType) {
-      case 'issuer': return t('subtitleIssuer') || 'Register your institution to start issuing digital credentials.';
-      case 'verifier': return t('subtitleVerifier') || 'Register your organization to verify credentials seamlessly.';
-      default: return t('subtitleOwner') || 'Join us to securely manage your credentials.';
+      case 'issuer': return t('subtitleIssuer');
+      case 'verifier': return t('subtitleVerifier');
+      default: return t('subtitleOwner');
     }
   };
 
   return {
-    roleType, handleRoleChange, error, fieldErrors, isLoading, isSuccess,
+    roleType, handleRoleChange, error, missingFieldKeys, fieldErrors, isLoading, isSuccess,
     email, setEmail, password, setPassword, confirmPassword, setConfirmPassword,
     showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,

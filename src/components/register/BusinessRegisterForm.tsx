@@ -79,7 +79,7 @@ export function BusinessRegisterForm({
             }}
           />
         </div>
-        {fieldErrors['certificate'] && <span className="text-[11px] text-red-500 font-medium ml-1">{fieldErrors['certificate']}</span>}
+        {fieldErrors['certificate'] && <span className="text-[11px] text-red-500 font-medium ml-1">{t(fieldErrors['certificate'])}</span>}
       </div>
 
       <button type="submit" disabled={isLoading} className="w-full py-3 text-sm font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>
