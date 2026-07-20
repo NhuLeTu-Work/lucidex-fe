@@ -3,6 +3,9 @@ import { mockAccounts } from '../data/mockData';
 import { useApp } from '@/app/AppContext';
 import { useNavigate } from 'react-router-dom';
 import type { RegistrationRole, BusinessData } from '../types/register';
+import { registerIssuerApi } from '@/api/endpoints/issuer/registerIssuerApi';
+import { registerVerifierApi } from '@/api/endpoints/verifier/registerVerifierApi';
+
 
 export function useRegister() {
   const { t, setRole } = useApp();
@@ -156,7 +159,7 @@ export function useRegister() {
     }
   };
 
-  const handleBizRegister = (e: React.FormEvent) => {
+  const handleBizRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
@@ -217,10 +220,47 @@ export function useRegister() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      // Chuẩn bị chung payload cho cả 2 role (để không phải viết lặp lại map dữ liệu)
+      const payload = {
+        name: bizData.orgName,
+        tax_code: bizData.taxCode,
+        address: bizData.address,
+        legal_rep_name: bizData.legalRep,
+        contact_email: bizData.email,
+        contact_phone: bizData.phone,
+        registrant_name: bizData.regName,
+        document: certificate as File, // Ép kiểu để TS không báo lỗi vì đã check null ở logic validation
+      };
+
+      let response;
+
+      // Phân luồng gọi API dựa vào RoleType
+      if (roleType === 'issuer' && certificate) {
+        response = await registerIssuerApi(payload);
+      } else if (roleType === 'verifier' && certificate) {
+        response = await registerVerifierApi(payload);
+      }
+
+      // Xử lý chung kết quả trả về
+      if (response && response.success) {
+        setIsSuccess(true);
+      } else if (response) {
+        setError(response.message || 'Registration failed. Please try again.');
+      }
+      
+    } catch (err: any) {
+      // 3. Xử lý lỗi 422 từ backend (giữ nguyên)
+      if (err.response && err.response.status === 422) {
+        setError('Dữ liệu không hợp lệ, vui lòng kiểm tra lại form.');
+        // Console.log ra để xem chi tiết lỗi 422 backend trả về
+        console.log('Validation Error Details:', err.response.data.detail);
+      } else {
+        setError(err.response?.data?.message || 'Lỗi kết nối đến máy chủ.');
+      }
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-    }, 1200);
+    }
   };
 
   const getSubtitle = () => {

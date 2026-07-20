@@ -20,7 +20,7 @@ export const vi: Record<string, string> = {
     step2: 'Sinh viên Claim Bằng cấp',
     step3: 'Doanh nghiệp xác minh qua Link',
     step4: 'Audit Trail Bất biến',
-    footerCopy: 'CredenTwin. Mọi quyền được bảo lưu.',
+    footerCopy: 'Lucidex. Mọi quyền được bảo lưu.',
     ownerPortal: 'Cổng Chủ sở hữu văn bằng',
     issuerPortal: 'Cổng Trường Đại học',
     verifierPortal: 'Cổng Nhà tuyển dụng',

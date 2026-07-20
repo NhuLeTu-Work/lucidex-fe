@@ -24,7 +24,7 @@ export const en: Record<string, string> = {
     step3: 'Organization Verifies via Link',
     step4: 'Immutable Audit Trail',
     // Footer
-    footerCopy: 'CredenTwin. All rights reserved.',
+    footerCopy: 'Lucidex. All rights reserved.',
     // Portals
     ownerPortal: 'Owner Portal',
     issuerPortal: 'Issuer Portal',
