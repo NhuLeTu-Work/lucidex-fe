@@ -41,10 +41,9 @@ export function useLogin() {
     return () => clearInterval(timer);
   }, [resendCountdown]);
 
-  const processLogin = (loginIdentifier: string, userPwd?: string) => {
+  const processLogin = (loginIdentifier: string, _userPwd?: string) => {
     setError(null);
     setIsLoading(true);
-
     setTimeout(() => {
       const account = mockAccounts.find(acc => 
         acc.email.toLowerCase() === loginIdentifier.trim().toLowerCase() ||

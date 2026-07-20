@@ -1,5 +1,4 @@
 import { X, CheckCircle, XCircle, FileSignature } from 'lucide-react';
-import type { Account } from '../../types/admin';
 
 export function RequestDetailModal({ selectedReq, onClose, onApprove, onRejectClick, onViewDoc, t }: any) {
   return (
