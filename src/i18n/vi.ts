@@ -25,6 +25,7 @@ export const vi: Record<string, string> = {
     issuerPortal: 'Cổng Trường Đại học',
     verifierPortal: 'Cổng Nhà tuyển dụng',
     adminPortal: 'Cổng Quản trị',
+    superAdminPortal: 'Cổng Quản trị cấp cao',
     dashboard: 'Bảng điều khiển',
     myCredentials: 'Bằng cấp của tôi',
     verifiedLinks: 'Link Xác minh',
@@ -198,7 +199,7 @@ export const vi: Record<string, string> = {
     
     createAccountTitle: 'Tạo tài khoản',
     createAccountSubtitle: 'Tham gia cùng chúng tôi để quản lý văn bằng an toàn.',
-    confirmPassword: 'Xác nhận mật khẩu',
+    confirmPassword: 'Mật khẩu xác thực',
     signUp: 'Đăng ký',
     signUpWithGoogle: 'Đăng ký bằng Google',
     alreadyHaveAccount: 'Đã có tài khoản?',
@@ -228,7 +229,7 @@ export const vi: Record<string, string> = {
     uploadCert: 'Tải lên Giấy phép Đăng ký Kinh doanh',
     clickToUpload: 'Nhấn để tải lên chứng từ',
     submitForReview: 'Gửi yêu cầu đăng ký',
-    
+    errorMissingCreds: 'Vui lòng điền đầy đủ email và password.',
     errorMissingFields: 'Vui lòng điền đầy đủ các trường bắt buộc sau:',
     fmtTextLength: 'Chỉ nhập văn bản từ 3-200 ký tự',
     fmtTaxCode: 'Yêu cầu chính xác 10 chữ số',
@@ -330,4 +331,5 @@ export const vi: Record<string, string> = {
     actor: 'Người thực hiện',
     target: 'Đối tượng',
     noAuditLogsFound: 'Không tìm thấy nhật ký nào.',
+    
 };

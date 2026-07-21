@@ -4,6 +4,6 @@ import type { UserRole } from '../../app/AppContext';
 
 export function ProtectedRoute({ allowedRole, children }: { allowedRole: UserRole; children: React.ReactNode }) {
   const { role } = useApp();
-  if (role !== allowedRole) return <Navigate to="/login" replace />;
+  if (role !== allowedRole) return <Navigate to="/" replace />;
   return <>{children}</>;
 }

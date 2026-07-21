@@ -3,13 +3,22 @@ import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut 
 import { useApp } from '../../app/AppContext';
 
 export function Header() {
-  const { role, setRole, t, lang, setLang, theme, toggleTheme } = useApp();
+  const { role, t, lang, setLang, theme, toggleTheme, setRole} = useApp();
   const navigate = useNavigate();
+
+  // ĐỊNH NGHĨA HÀM LOGOUT VỚI 3 BƯỚC CHUẨN MỰC
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
+    setRole('guest');
+    navigate('/'); 
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}>
       <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" onClick={() => setRole('guest')} className="flex items-center gap-3 group">
+        
+        <Link to={role === 'guest' ? '/' : `/${role}`} className="flex items-center gap-3 group">
           <img src="/logo-icon.png" alt="Lucidex" className="h-8 w-8" />
           <span className="font-display text-xl tracking-tight">Lucidex</span>
         </Link>
@@ -26,15 +35,18 @@ export function Header() {
           {role === 'issuer' && <PortalBadge icon={<Building2 size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
           {role === 'verifier' && <PortalBadge icon={<Users size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
           {role === 'admin' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('adminPortal') || 'Quản trị hệ thống'} />}
+          {role === 'super' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('superAdminPortal') || 'Quản trị hệ thống cấp cao'} />}
         </nav>
 
         <div className="flex items-center gap-2">
           <button onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-70">
             <Globe size={14} /> <span className="uppercase text-xs font-semibold">{lang}</span>
           </button>
+          
           <button onClick={toggleTheme} className="p-2 rounded-lg hover:opacity-70" title={theme === 'dark' ? t('switchLight') : t('switchDark')}>
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
+          
           <div className="flex items-center gap-1.5 ml-2 pl-3 border-l" style={{ borderColor: 'var(--ct-border)' }}>
             {role === 'guest' ? (
               <>
@@ -42,7 +54,8 @@ export function Header() {
                 <Link to="/register" className="px-4 py-2 text-sm font-semibold rounded-xl shadow-md hover:opacity-90" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>{t('Sign Up') || 'Đăng ký'}</Link>
               </>
             ) : (
-              <button onClick={() => { setRole('guest'); navigate('/'); }} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border" style={{ borderColor: 'var(--ct-border)' }}>
+              // ÁP DỤNG HÀM LOGOUT VÀO NÚT ĐĂNG XUẤT
+              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:opacity-70 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
                 <LogOut size={14} /> <span className="hidden sm:inline">{t('logout') || 'Đăng xuất'}</span>
               </button>
             )}

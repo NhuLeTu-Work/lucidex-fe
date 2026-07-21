@@ -23,13 +23,12 @@ export const en: Record<string, string> = {
     step2: 'Student Claims Credential',
     step3: 'Organization Verifies via Link',
     step4: 'Immutable Audit Trail',
-    // Footer
     footerCopy: 'Lucidex. All rights reserved.',
-    // Portals
     ownerPortal: 'Owner Portal',
     issuerPortal: 'Issuer Portal',
     verifierPortal: 'Verifier Portal',
     adminPortal: 'Admin Portal',
+    superAdminPortal: 'Super Admin Portal',
     dashboard: 'Dashboard',
     myCredentials: 'My Credentials',
     verifiedLinks: 'Verified Links',
