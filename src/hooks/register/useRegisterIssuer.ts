@@ -1,7 +1,7 @@
 // src/hooks/register/useRegisterIssuer.ts
-import { useState } from 'react';
+// import { useState } from 'react';
 import { registerIssuerApi } from '@/api/endpoints/issuer/registerIssuerApi';
-import type { RegisterState, BusinessData } from './types'; // Giữ nguyên các types cũ của bạn
+import type { RegisterState } from './types'; // Giữ nguyên các types cũ của bạn
 
 export function useRegisterIssuer(state: RegisterState, t: any) {
   const {

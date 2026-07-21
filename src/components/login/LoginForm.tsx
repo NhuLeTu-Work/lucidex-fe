@@ -1,22 +1,23 @@
-import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn, ArrowRight, ShieldCheck, Building2, Award, GraduationCap } from 'lucide-react';
-import { mockAccounts } from '../../data/mockData';
+import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn,
+  // ArrowRight, ShieldCheck, Building2, Award, GraduationCap 
+} from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 export function LoginForm({ hookProps }: { hookProps: any }) {
   const { 
     email, setEmail, password, setPassword, error, isLoading, 
-    handleLogin, handleQuickLogin, showPassword, setShowPassword, t 
+    handleLogin, showPassword, setShowPassword, t 
   } = hookProps;
   const navigate = useNavigate()
 
-  const getRoleIcon = (type: string) => {
-    switch (type) {
-      case 'admin': return <ShieldCheck size={16} />;
-      case 'verifier': return <Building2 size={16} />;
-      case 'issuer': return <Award size={16} />;
-      default: return <GraduationCap size={16} />;
-    }
-  };
+  // const getRoleIcon = (type: string) => {
+  //   switch (type) {
+  //     case 'admin': return <ShieldCheck size={16} />;
+  //     case 'verifier': return <Building2 size={16} />;
+  //     case 'issuer': return <Award size={16} />;
+  //     default: return <GraduationCap size={16} />;
+  //   }
+  // };
 
   return (
     <>
