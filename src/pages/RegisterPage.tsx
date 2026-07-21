@@ -1,5 +1,5 @@
 import { AlertCircle } from 'lucide-react';
-import { useRegister } from '../hooks/userRegister';
+import { useRegister } from '../hooks/register/userRegister';
 import { RoleSelector } from '../components/register/RoleSelector';
 import { OwnerRegisterForm } from '../components/register/OwnerRegisterForm';
 import { BusinessRegisterForm } from '../components/register/BusinessRegisterForm';
