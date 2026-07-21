@@ -76,3 +76,20 @@ export interface ResendOwnerOtpResponse {
   message: string;
   error_code: string;
 }
+
+export interface RegisterOwnerPayload {
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface RegisterOwnerResponse {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    status: string;
+  };
+  message: string;
+  error_code: string;
+}

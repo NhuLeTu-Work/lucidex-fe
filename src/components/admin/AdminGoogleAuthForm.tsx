@@ -1,10 +1,9 @@
 import { ShieldCheck, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function AdminGoogleAuthForm({ hookProps }: { hookProps: any }) {
-  const { view, otpValue, setOtpValue, otpError, isOtpLoading, handleVerify2FA, t } = hookProps;
-
-  // Giả lập 1 mã QR tĩnh cho Lần đầu
-  const mockQrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/Lucidex:Admin?secret=MOCKSECRET123&issuer=Lucidex";
+  const { view, otpValue, setOtpValue, otpError, isOtpLoading, handleVerify2FA, t,
+    qrCode, manualEntryKey
+  } = hookProps;
 
   return (
     <div className="p-8 rounded-2xl border shadow-xl flex flex-col gap-6 animate-in zoom-in-95" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
@@ -24,8 +23,21 @@ export function AdminGoogleAuthForm({ hookProps }: { hookProps: any }) {
 
       {/* CHỈ HIỂN THỊ MÃ QR KHI LÀ ADMIN ĐĂNG NHẬP LẦN ĐẦU */}
       {view === 'setup_2fa' && (
-        <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-200">
-          <img src={mockQrUrl} alt="QR Code" className="w-32 h-32" />
+        <div className="flex flex-col items-center justify-center p-5 bg-white rounded-xl border border-gray-200 gap-4 shadow-sm">
+          {/* Hình ảnh QR Code */}
+          <img src={qrCode} alt="QR Code" className="w-32 h-32" />
+          
+          {/* Mã nhập thủ công (Nếu có) */}
+          {manualEntryKey && (
+            <div className="flex flex-col items-center gap-1.5 w-full">
+              <span className="text-xs font-medium text-gray-500 text-center text-balance">
+                {t('cantScanQR') || "Can't scan the QR code? Use this setup key:"}
+              </span>
+              <code className="text-xs font-mono tracking-widest bg-gray-50 text-gray-800 px-3 py-2 rounded-lg border border-gray-100 w-full text-center break-all select-all">
+                {manualEntryKey}
+              </code>
+            </div>
+          )}
         </div>
       )}
 
