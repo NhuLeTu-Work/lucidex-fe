@@ -1,11 +1,13 @@
 import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn, ArrowRight, ShieldCheck, Building2, Award, GraduationCap } from 'lucide-react';
 import { mockAccounts } from '../../data/mockData';
+import { useNavigate } from 'react-router';
 
 export function LoginForm({ hookProps }: { hookProps: any }) {
   const { 
     email, setEmail, password, setPassword, error, isLoading, 
-    handleLogin, handleQuickLogin, showPassword, setShowPassword, t, setPage 
+    handleLogin, handleQuickLogin, showPassword, setShowPassword, t 
   } = hookProps;
+  const navigate = useNavigate()
 
   const getRoleIcon = (type: string) => {
     switch (type) {
@@ -39,7 +41,7 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
             <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>{t('emailAddress') || 'Username or email'}</label>
             <div className="relative flex items-center">
               <span className="absolute left-3.5 opacity-40" style={{ color: 'var(--ct-text)' }}><Mail size={16} /></span>
-              <input type="email" value={email} disabled={isLoading} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none transition-all focus:border-neutral-400 disabled:opacity-50" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
+              <input type="text" value={email} disabled={isLoading} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none transition-all focus:border-neutral-400 disabled:opacity-50" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
             </div>
           </div>
 
@@ -63,12 +65,12 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
 
           <div className="mt-3 text-center text-sm flex items-center justify-center gap-1.5" style={{ color: 'var(--ct-text)' }}>
             <span className="opacity-70">{t('newHere') || 'New here?'}</span>
-            <button type="button" onClick={() => setPage('register')} className="font-semibold hover:underline opacity-100">{t('createAccount') || 'Create an Account'}</button>
+            <button type="button" onClick={() => navigate('register')} className="font-semibold hover:underline opacity-100">{t('createAccount') || 'Create an Account'}</button>
           </div>
         </form>
       </div>
 
-      <div className="p-6 rounded-2xl border flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-150" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      {/* <div className="p-6 rounded-2xl border flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-150" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <div className="flex flex-col gap-0.5">
           <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80" style={{ color: 'var(--ct-text)' }}>{t('demoAccounts') || 'Demo Accounts'}</h3>
         </div>
@@ -86,7 +88,7 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
