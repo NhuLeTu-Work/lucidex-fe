@@ -1,7 +1,7 @@
 import { X, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface OtpModalProps {
-  email: string;
+  email?: string;
   otpValue: string;
   setOtpValue: (v: string) => void;
   otpError: string | null;

@@ -137,7 +137,7 @@ export function Register() {
       {/* Modal OTP (Dùng cho cả luồng Owner hoặc Invite sau khi set password thành công) */}
       {showOtpModal && (
         <OtpModal 
-          email={isInviteFlow ? setupPasswordProps.email : normalRegisterProps.email} 
+          email={normalRegisterProps.email} 
           otpValue={otpValue} 
           setOtpValue={setOtpValue} 
           otpError={otpError} 

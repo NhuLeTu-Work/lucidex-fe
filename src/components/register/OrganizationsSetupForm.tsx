@@ -1,40 +1,17 @@
-import { Mail, Lock, EyeOff, Eye, ShieldAlert, CheckCircle } from 'lucide-react';
+import { Lock, EyeOff, Eye, ShieldAlert, CheckCircle } from 'lucide-react';
 
 export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
   const {
-    email, // Nhận email từ token/backend
     password, setPassword, 
     confirmPassword, setConfirmPassword,
     showPassword, setShowPassword, 
     showConfirmPassword, setShowConfirmPassword,
-    isLoading, handleSetupPassword, // Hàm submit để gọi API setupPasswordAndRequestOtp
+    isLoading, handleSetupPassword, 
     t
   } = hookProps;
-
   return (
     <form onSubmit={handleSetupPassword} className="flex flex-col gap-4 animate-in fade-in">
-      
-      {/* Trường Email (Chỉ đọc - Không cho phép sửa) */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>
-          {t('emailAddress') || 'Email Address'}
-        </label>
-        <div className="relative flex items-center">
-          <span className="absolute left-3.5 opacity-40" style={{ color: 'var(--ct-text)' }}><Mail size={16} /></span>
-          <input 
-            type="email" 
-            value={email || ''} 
-            disabled={true} 
-            readOnly
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none opacity-70 cursor-not-allowed bg-black/5 dark:bg-white/5" 
-            style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} 
-          />
-        </div>
-        <p className="text-[11px] opacity-60 mt-1" style={{ color: 'var(--ct-text)' }}>
-          {t('emailLinkedToInvite') || 'This email is linked to your invitation and cannot be changed.'}
-        </p>
-      </div>
-      
+            
       {/* Trường Mật khẩu */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>{t('password') || 'Password'}</label>
