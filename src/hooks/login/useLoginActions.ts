@@ -19,6 +19,7 @@ export function useLoginActions(state: LoginState, t: any) {
       setIsLoading(false);
       return;
     }
+    
     try {
       // Phương pháp loại trừ: Kiểm tra xem chuỗi nhập vào có phải là Email không
       const isEmail = loginIdentifier.includes('@'); 
@@ -33,13 +34,10 @@ export function useLoginActions(state: LoginState, t: any) {
         });
 
         if (response.success) {
-          // Ép kiểu as any tạm thời nếu interface LoginAdminResponse chưa có trường role
           const { requires_totp_setup, requires_totp, setup_token, challenge_token, qr_code, manual_entry_key, role } = response.data as any;
 
-          // ĐIỂM QUAN TRỌNG: Xác định quyền thực sự (Ưu tiên lấy từ BE, nếu BE chưa có thì check tạm bằng username)
           const actualRole = role === 'super' || loginIdentifier.trim() === 'super-admin' ? 'super' : 'admin';
 
-          // Lưu type linh hoạt theo actualRole thay vì fix cứng 'admin'
           setCurrentAcc({ username: loginIdentifier.trim(), type: actualRole } as any);
           setOtpValue('');
 
@@ -55,7 +53,7 @@ export function useLoginActions(state: LoginState, t: any) {
         }
       } else {
         // ==========================================
-        // LUỒNG 2: LÀ EMAIL -> CÁC ROLE CÒN LẠI (Hiện tại gọi Owner API)
+        // LUỒNG 2: LÀ EMAIL -> CÁC ROLE CÒN LẠI
         // ==========================================
         const response = await authLoginApi({
           email: loginIdentifier.trim(),
@@ -73,16 +71,25 @@ export function useLoginActions(state: LoginState, t: any) {
       }
 
     } catch (err: any) {
+      // Cập nhật xử lý lỗi theo API document mới nhất
       if (err.response) {
-        if (err.response.status === 401 || err.response.status === 404) {
-          setError('Email hoặc mật khẩu không chính xác.');
-        } else if (err.response.status === 422) {
-          setError('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.');
+        const status = err.response.status;
+        
+        if (status === 401) {
+          setError(t('errorInvalidCredentials'));
+        } else if (status === 403) {
+          setError(t('errorInactiveAccount'));
+        } else if (status === 404) {
+          setError(t('errorAccountNotFound'));
+        } else if (status === 422) {
+          setError(t('errorInvalidData'));
         } else {
-          setError(err.response.data.message || 'Lỗi server. Vui lòng thử lại.');
+          // Bắt các lỗi server (500) hoặc các lỗi khác kèm message từ BE (nếu có)
+          setError(err.response.data?.message || t('errorServer'));
         }
       } else {
-        setError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+        // Lỗi không có response (không có mạng, sập server...)
+        setError(t('errorNetwork'));
       }
     } finally {
       setIsLoading(false);
@@ -92,7 +99,7 @@ export function useLoginActions(state: LoginState, t: any) {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setError('errorFieldsRequired');
+      setError(t('errorFieldsRequired')); // Đổi sang dùng t()
       return;
     }
     processLogin(email, password);
@@ -101,7 +108,7 @@ export function useLoginActions(state: LoginState, t: any) {
   const handleQuickLogin = (demoEmail: string) => {
     state.setEmail(demoEmail);
     state.setPassword('••••••••');
-    processLogin(demoEmail, '••••••••'); // Truyền trực tiếp pass giả lập vào hàm xử lý
+    processLogin(demoEmail, '••••••••');
   };
 
   return { processLogin, handleLogin, handleQuickLogin };
