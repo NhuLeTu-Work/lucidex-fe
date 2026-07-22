@@ -90,3 +90,15 @@ export interface GetOrganizationsParams {
   type?: OrgTypeFilter;
   status?: OrgStatusFilter;
 }
+
+export interface ApproveOrganizationResponse {
+  success: boolean;
+  data: {
+    organization_id: string;
+    organization_status: string;
+    invite_status: string;
+    invite_expires_at: string;
+    email_sent: boolean;
+  };
+  message: string;
+}

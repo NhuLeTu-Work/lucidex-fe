@@ -24,6 +24,7 @@ export const router = createBrowserRouter([
       { path: '/verifier', element: <ProtectedRoute allowedRole="verifier"><VerifierPortal /></ProtectedRoute> },
       { path: '/admin', element: <ProtectedRoute allowedRole="admin"><AdminPortal /></ProtectedRoute> },
       { path: '/super', element: <ProtectedRoute allowedRole="super"><SuperAdminPortal /></ProtectedRoute> },
+      { path: '/invite/setup-password', element: <Register /> },
     ],
   },
 ]);

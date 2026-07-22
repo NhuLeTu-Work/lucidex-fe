@@ -1,5 +1,5 @@
 import { useApp } from '@/app/AppContext';
-import { useSuperAdmin } from '../hooks/admin/userSuperAdmin';
+import { useSuperAdmin } from '../hooks/super/userSuperAdmin';
 import { useSuper } from '@/hooks/super/useSuper';
 import { SuperAdminSidebar } from '../components/super/SuperAdminSidebar';
 import { AdminAccountsTab } from '../components/super/AdminAccountsTab';
