@@ -9,6 +9,9 @@ export function LandingPage() {
   const { t, handleVerifierClick, handleVerifyClick } = useLanding();
   const heroRef = useRef<HTMLDivElement>(null);
 
+  // Kiểm tra trạng thái đăng nhập dựa trên token
+  const isAuthenticated = !!localStorage.getItem('access_token');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -22,17 +25,26 @@ export function LandingPage() {
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, var(--ct-bg) 0%, transparent 50%, var(--ct-bg) 100%)' }} />
         </div>
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6 py-20">
-          <BlurRevealText text={t('heroTitle')} className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-6" />
+          <BlurRevealText 
+            text={t('heroTitle')} 
+            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-relaxed mb-6 break-words" 
+          />
           <p className="text-lg sm:text-xl mb-10 font-light" style={{ color: 'var(--ct-text-secondary)' }}>{t('heroSubtitle')}</p>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={handleVerifierClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
-              {t('heroCTA1')}
-              <ArrowRight size={18} />
-            </button>
+            {/* Chỉ render nút heroCTA1 nếu CHƯA đăng nhập */}
+            {!isAuthenticated && (
+              <button onClick={handleVerifierClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
+                {t('heroCTA1')}
+                <ArrowRight size={18} />
+              </button>
+            )}
+            
             <button onClick={handleVerifyClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-3xl border-2 transition-all hover:scale-105" style={{ borderColor: 'var(--ct-text)', color: 'var(--ct-text)' }}>
               {t('heroCTA2')}
             </button>
           </div>
+          
         </div>
       </section>
 

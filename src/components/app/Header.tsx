@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut } from 'lucide-react';
+// Bổ sung thêm LayoutDashboard vào danh sách import
+import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut, LayoutDashboard } from 'lucide-react';
 import { useApp } from '../../app/AppContext';
 
 export function Header() {
@@ -18,8 +19,12 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}>
       <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
         
-        <Link to={role === 'guest' ? '/' : `/${role}`} className="flex items-center gap-3 group">
-          <img src="/logo-icon.png" alt="Lucidex" className="h-8 w-8" />
+        <Link to={'/'} className="flex items-center gap-3 group">
+          <img 
+            src={theme === 'dark' ? '/logo-icon-rev.png' : '/logo-icon.png'} 
+            alt="Lucidex" 
+            className="h-8 w-8 transition-all" 
+          />
           <span className="font-display text-xl tracking-tight">Lucidex</span>
         </Link>
 
@@ -47,17 +52,29 @@ export function Header() {
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           
-          <div className="flex items-center gap-1.5 ml-2 pl-3 border-l" style={{ borderColor: 'var(--ct-border)' }}>
+          <div className="flex items-center gap-2 ml-2 pl-3 border-l" style={{ borderColor: 'var(--ct-border)' }}>
             {role === 'guest' ? (
               <>
                 <Link to="/login" className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-black/5 dark:hover:bg-white/5">{t('Sign In') || 'Đăng nhập'}</Link>
                 <Link to="/register" className="px-4 py-2 text-sm font-semibold rounded-xl shadow-md hover:opacity-90" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>{t('Sign Up') || 'Đăng ký'}</Link>
               </>
             ) : (
-              // ÁP DỤNG HÀM LOGOUT VÀO NÚT ĐĂNG XUẤT
-              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:opacity-70 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
-                <LogOut size={14} /> <span className="hidden sm:inline">{t('logout') || 'Đăng xuất'}</span>
-              </button>
+              <>
+                {/* NÚT QUAY LẠI PORTAL */}
+                <Link 
+                  to={`/${role}`} 
+                  className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95" 
+                  style={{ borderColor: 'var(--ct-border)' }}
+                  title={t('goToPortal') || 'Về trang chủ Portal'}
+                >
+                  <LayoutDashboard size={16} />
+                </Link>
+
+                {/* NÚT ĐĂNG XUẤT */}
+                <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
+                  <LogOut size={14} /> <span className="hidden sm:inline">{t('logout') || 'Đăng xuất'}</span>
+                </button>
+              </>
             )}
           </div>
         </div>

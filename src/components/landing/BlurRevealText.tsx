@@ -6,18 +6,19 @@ interface BlurRevealTextProps {
 export function BlurRevealText({ text, className }: BlurRevealTextProps) {
   return (
     <div className={className} style={{ perspective: '1000px' }}>
-      {text.split('').map((char, index) => (
-        <span
-          key={index}
-          className="inline-block"
-          style={{
-            whiteSpace: char === ' ' ? 'pre' : undefined,
-            animation: `blurReveal 0.6s cubic-bezier(0.2, 1, 0.2, 1) ${index * 0.02}s both`,
-          }}
-        >
-          {char === ' ' ? '\u00A0' : char}
-        </span>
-      ))}
+      {text.split(' ').map((word, wordIndex) => (
+  <span 
+    key={wordIndex} 
+    // Thêm pb-2 (padding-bottom) hoặc py-1 để đẩy các dòng ra xa nhau một chút khi rớt dòng
+    className="inline-block whitespace-nowrap mr-[0.25em] pb-2" 
+  > 
+    {word.split('').map((char, charIndex) => (
+      <span key={charIndex} className="inline-block animate-blur">
+        {char}
+      </span>
+    ))}
+  </span>
+))}
     </div>
   );
 }
