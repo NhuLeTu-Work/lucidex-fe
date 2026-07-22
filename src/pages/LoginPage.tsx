@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/login/useLogin';
 // Components
 import { LoginForm } from '../components/login/LoginForm';
@@ -10,10 +10,10 @@ import { TwoFactorForm } from '../components/login/TwoFactorForm';
 import { AdminGoogleAuthForm } from '../components/admin/AdminGoogleAuthForm';
 
 export function Login() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const hookProps = useLogin();
   const { view, currentAcc, setView, t } = hookProps;
-  const token = localStorage.getItem('access_token');
+  // const token = localStorage.getItem('access_token');
   
   // useEffect(() => {
   //   if (token) {

@@ -9,12 +9,11 @@ export function useAdminRequests(t: (key: string) => string) {
   const [accounts, setAccounts] = useState<Account[]>(mockAccounts as Account[]);
   const [reqSubTab, setReqSubTab] = useState<RequestSubTab>('issuer');
   
-  const [selectedReq, setSelectedReq] = useState<Account | null>(null);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [docViewerOpen, setDocViewerOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false); // <-- Thêm state loading
-
+  const [selectedReq, setSelectedReq] = useState<OrganizationRecord | null>(null);
   const pendingRequests = accounts.filter(a => a.status === 'pending' && a.registrationData);
   
   const pendingIssuers = pendingRequests
@@ -71,16 +70,16 @@ export function useAdminRequests(t: (key: string) => string) {
       registrationData: { ...a.registrationData!, rejectedReason: rejectReason } 
     } : a));
     
-    const reqName = selectedReq.registrationData?.regName;
-    const orgName = selectedReq.registrationData?.orgName;
+    // const reqName = selectedReq.registrationData?.regName;
+    // const orgName = selectedReq.registrationData?.orgName;
     
     setRejectModalOpen(false);
     setSelectedReq(null);
     setRejectReason('');
     
-    toast.error(t('emailSent') || 'Email Sent', {
-      description: `Dear ${reqName}, your application for ${orgName} has been rejected. Reason: ${rejectReason}.`
-    });
+    // toast.error(t('emailSent') || 'Email Sent', {
+    //   description: `Dear ${reqName}, your application for ${orgName} has been rejected. Reason: ${rejectReason}.`
+    // });
   };
 
   return {
