@@ -47,3 +47,46 @@ export interface VerifyTotpSetupResponse {
   message: string;
   error_code: string;
 }
+
+// src/api/types/adminOrg.ts
+
+export type OrgTypeFilter = 'issuer' | 'verifier' | null;
+export type OrgStatusFilter = 'pending_review' | 'approved' | 'rejected' | null;
+
+export interface OrganizationDocument {
+  name: string;
+  url: string;
+  type: string;
+}
+
+export interface OrganizationRecord {
+  id: string;
+  type: 'issuer' | 'verifier';
+  status: 'pending_review' | 'approved' | 'rejected';
+  name: string;
+  tax_code: string;
+  address: string;
+  legal_rep_name: string;
+  contact_email: string;
+  contact_phone: string;
+  registrant_name: string;
+  registrant_title?: string | null;
+  documents: OrganizationDocument[];
+  rejection_reason?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  created_at: string;
+}
+
+export interface GetOrganizationsResponse {
+  success: boolean;
+  data: OrganizationRecord[];
+  message: string;
+  error_code?: string;
+}
+
+// Params cho query string
+export interface GetOrganizationsParams {
+  type?: OrgTypeFilter;
+  status?: OrgStatusFilter;
+}
