@@ -1,6 +1,7 @@
-import { registerIssuerApi } from '@/api/endpoints/issuer/registerIssuerApi';
-import { registerVerifierApi } from '@/api/endpoints/verifier/registerVerifierApi';
+// src/hooks/register/useBusinessRegister.ts
+import { registerOrganizationApi } from '@/api/endpoints/business/registerOrganizationApi';
 import type { RegisterState, BusinessData } from './types';
+import type { OrgType } from '../../api/types/business.types';
 
 export function useBusinessRegister(
   state: RegisterState,
@@ -25,6 +26,7 @@ export function useBusinessRegister(
     setFieldErrors({});
     setMissingFieldKeys([]);
     
+    // Validate missing fields
     const missingKeys: string[] = [];
     const requiredKeys = roleType === 'verifier' 
       ? ['orgName', 'taxCode', 'address', 'legalRep', 'email', 'phone', 'regName', 'regTitle', 'certificate']
@@ -56,6 +58,7 @@ export function useBusinessRegister(
       return;
     }
 
+    // Validate format
     const fErrors: Record<string, string> = {};
     if (bizData.orgName.length < 3 || bizData.orgName.length > 200) {
       fErrors.orgName = t('fmtTextLength') || 'Text, 3–200 characters';
@@ -66,8 +69,8 @@ export function useBusinessRegister(
     if (!/^[\p{L}\s]+$/u.test(bizData.legalRep)) {
       fErrors.legalRep = t('fmtLettersOnly') || 'Text, letters only';
     }
-    if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(bizData.email)) {
-      fErrors.email = t('fmtGmail') || 'Valid email format (e.g. name@gmail.com)';
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(bizData.email)) {
+      fErrors.email = t('fmtEmail') || 'Please enter a valid email address (e.g. name@example.com)';
     }
     if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(bizData.phone)) {
       fErrors.phone = t('fmtPhone') || '10-digit Vietnamese phone number';
@@ -94,13 +97,8 @@ export function useBusinessRegister(
         document: certificate as File,
       };
 
-      let response;
-
-      if (roleType === 'issuer' && certificate) {
-        response = await registerIssuerApi(payload);
-      } else if (roleType === 'verifier' && certificate) {
-        response = await registerVerifierApi(payload);
-      }
+      // Tối ưu hóa: Gọi chung 1 hàm duy nhất với tham số roleType ('issuer' hoặc 'verifier')
+      const response = await registerOrganizationApi(roleType as OrgType, payload);
 
       if (response && response.success) {
         setIsSuccess(true);
@@ -112,6 +110,8 @@ export function useBusinessRegister(
       if (err.response && err.response.status === 422) {
         setError('Dữ liệu không hợp lệ, vui lòng kiểm tra lại form.');
         console.log('Validation Error Details:', err.response.data.detail);
+      } else if (err.response?.status === 400 || err.response?.status === 409) {
+        setError(err.response?.data?.message || 'Tổ chức này đã đăng ký hoặc thông tin bị trùng lặp.');
       } else {
         setError(err.response?.data?.message || 'Lỗi kết nối đến máy chủ.');
       }
