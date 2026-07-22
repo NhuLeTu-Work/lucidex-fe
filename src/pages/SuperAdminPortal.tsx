@@ -1,6 +1,6 @@
 import { useApp } from '@/app/AppContext';
 import { useSuperAdmin } from '../hooks/admin/userSuperAdmin';
-import { useAdminAccounts } from '@/hooks/super/useAdminAccount';
+import { useSuper } from '@/hooks/super/useSuper';
 import { SuperAdminSidebar } from '../components/super/SuperAdminSidebar';
 import { AdminAccountsTab } from '../components/super/AdminAccountsTab';
 import { AuditLogTab } from '../components/super/AuditLogTab';
@@ -11,17 +11,18 @@ export function SuperAdminPortal() {
 
   // 1. Hook cũ: Chỉ còn quản lý Tab, hiển thị danh sách và Confirm Modal
   const {
-    activeTab, setActiveTab, accounts, auditLogs,
+    activeTab, setActiveTab, auditLogs,
     confirmState, setConfirmState, openConfirm, executeAction
   } = useSuperAdmin();
 
   // 2. Hook mới: Chuyên phụ trách việc gọi API Create Admin và quản lý state của Credentials Modal
   const {
-    // isCreating,
+    accounts, 
+    isCreating,
     newAdminCredentials,
     handleCreateAdmin,
     closeCreateModal
-  } = useAdminAccounts(t);
+  } = useSuper(t);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
@@ -32,8 +33,8 @@ export function SuperAdminPortal() {
           <AdminAccountsTab 
             t={t}
             accounts={accounts} 
-            openConfirm={openConfirm} 
-            // Gắn hàm tạo API vào nút bấm (bạn có thể truyền thêm isCreating vào Tab này để làm hiệu ứng xoay xoay loading nếu muốn)
+            isCreating={isCreating} 
+            openConfirm={openConfirm}
             onOpenCreate={handleCreateAdmin} 
           />
         )}

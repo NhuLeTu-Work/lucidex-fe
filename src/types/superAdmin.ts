@@ -24,3 +24,11 @@ export interface ConfirmModalState {
   actionType: 'resetTotp' | 'resetPassword' | 'lock' | 'delete' | null;
   targetId: string | null;
 }
+
+export interface UIAdminAccount {
+  id: string;
+  username: string;
+  role: string;
+  locked: boolean;
+  totpEnabled: boolean;
+}
