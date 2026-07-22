@@ -6,7 +6,7 @@ interface OtpModalProps {
   setOtpValue: (v: string) => void;
   otpError: string | null;
   isOtpLoading: boolean;
-  onVerify: () => void;
+  onVerify: (e: React.FormEvent) => void;
   onClose: () => void;
   t: (k: string) => string;
   isResendOtpLoading?: boolean;
@@ -61,7 +61,7 @@ export function OtpModal({
         )}
 
         {/* Form Verify */}
-        <form onSubmit={(e) => { e.preventDefault(); onVerify(); }} className="flex flex-col gap-4">
+        <form onSubmit={onVerify} className="flex flex-col gap-4">
           <input 
             type="text" 
             value={otpValue} 

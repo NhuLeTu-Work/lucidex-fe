@@ -93,3 +93,21 @@ export interface RegisterOwnerResponse {
   message: string;
   error_code: string;
 }
+
+// src/api/types/owner.ts
+
+export interface VerifyOwnerOtpPayload {
+  email: string;
+  otp_code: string;
+}
+
+export interface VerifyOwnerOtpResponse {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    status: string; // Thường sẽ là 'active' sau khi verify thành công
+  };
+  message: string;
+  error_code: string;
+}

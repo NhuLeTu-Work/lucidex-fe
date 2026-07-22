@@ -8,6 +8,7 @@ import { usePasswordValidation } from './usePasswordValidation';
 import { useOtp } from './useOtp';
 import { useOwnerRegister } from './useOwnerRegister';
 import { useBusinessRegister } from './useBusinessRegister';
+import { useOwnerRegisterOtp } from './useOwnerRegisterOtp';
 
 export function useRegister() {
   const { t, setRole } = useApp();
@@ -21,6 +22,7 @@ export function useRegister() {
   const { handleVerifyOTP, handleResendOTP } = useOtp(state, t, setRole, navigate);
   const { handleOwnerRegister, handleGoogleRegister } = useOwnerRegister(state, validatePassword, t, setRole, navigate);
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state, t);
+  const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate);
 
   // Các hàm tiện ích bổ sung
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -74,6 +76,7 @@ export function useRegister() {
     setOtpError: state.setOtpError,
     isOtpLoading: state.isOtpLoading,
     
+    handleOwnerRegisterOtp,
     handleOwnerRegister,
     handleGoogleRegister,
     handleVerifyOTP,
