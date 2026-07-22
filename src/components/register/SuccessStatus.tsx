@@ -12,8 +12,8 @@ export function SuccessStatus({ roleType }: SuccessStatusProps) {
   const navigate = useNavigate();
 
   // Viết hoa chữ cái đầu tiên của role (ví dụ: "issuer" -> "Issuer")
-  const displayRole = roleType.charAt(0).toUpperCase() + roleType.slice(1);
-
+  const safeRole = roleType || ''; 
+  const displayRole = safeRole ? safeRole.charAt(0).toUpperCase() + safeRole.slice(1) : '';
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-4 animate-in zoom-in-95 duration-500 text-center">
       <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-2">
@@ -24,7 +24,11 @@ export function SuccessStatus({ roleType }: SuccessStatusProps) {
       </h3>
       <p className="text-sm opacity-80 max-w-sm" style={{ color: 'var(--ct-text)' }}>
         {/* Render thông báo động dựa trên roleType */}
-        {t(`pendingReviewMsg${displayRole}`) || `Your registration for ${displayRole} application has been submitted successfully and is pending review.`}
+        {/* {t(`pendingReviewMsg${displayRole}`) || `Your registration for ${displayRole} application has been submitted successfully and is pending review.`} */}
+        {displayRole 
+           ? (t(`pendingReviewMsg${displayRole}`) || `Your registration for ${displayRole} application has been submitted successfully and is pending review.`)
+           : (t('registrationSuccess') || 'Your registration has been submitted successfully.')
+        }
       </p>
       <button
         onClick={() => navigate('/')}
