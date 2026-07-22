@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { setupPasswordAndRequestOtp } from '@/api/endpoints/business/setupPasswordApi';
+import { setupPasswordAndRequestOtp, verifyInviteOtp } from '@/api/endpoints/business/setupPasswordApi';
 import type { OrgType } from '@/api/types/business.types';
+import { toast } from 'sonner';
 
 // Thêm tham số emailUrl vào hook (để lấy từ link invite)
-export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl: string = '') {
+export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl: string = '', onSuccess: () => void) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
@@ -40,6 +41,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
 
       if (response.success) {
         setIsSuccess(true);
+        onSuccess();
         // Lưu ý: Thường lúc này bạn sẽ mở Modal OTP lên (tùy vào logic UI của bạn)
       } else {
         setError(response.message || 'Có lỗi xảy ra.');
@@ -55,16 +57,39 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     }
   };
 
-  // === Bổ sung hàm handleVerifyOtp (Hiện tại đang mock, sau này có API OTP thì lắp vào) ===
-  const handleVerifyOtp = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent, otpValue: string) => {
     e.preventDefault();
+
+    if (!otpValue || otpValue.length !== 6) {
+      toast.error('Vui lòng nhập đủ 6 số OTP.');
+      return;
+    }
+
     setIsLoading(true);
-    // TODO: Gắn API Verify OTP của Issuer/Verifier vào đây
-    setTimeout(() => {
+    try {
+      const response = await verifyInviteOtp(orgType, {
+        invite_token: inviteToken,
+        otp_code: otpValue,
+      });
+
+      if (response.success) {
+        toast.success(response.message || 'Xác thực tài khoản thành công! Đang chuyển hướng...');
+        
+        // Đóng modal và chuyển hướng về trang đăng nhập
+        setTimeout(() => {
+          window.location.href = '/login'; 
+        }, 1500);
+      }
+    } catch (err: any) {
+      // Xử lý lỗi trả về (OTP sai, hết hạn...)
+      if (err.response?.status === 422) {
+        toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
+      } else {
+        toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi xác thực OTP.');
+      }
+    } finally {
       setIsLoading(false);
-      alert('Xác thực OTP thành công! Đang chuyển hướng...');
-      window.location.href = '/login'; 
-    }, 1000);
+    }
   };
 
   return {

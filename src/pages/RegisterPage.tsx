@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom'; // Thêm useSearchParams
 
@@ -29,8 +28,12 @@ export function Register() {
   const normalRegisterProps = useRegister();
   
   // 3. Khởi tạo Hook Setup Password (Chỉ dùng khi có token)
-  const setupPasswordProps = useSetupPassword(inviteToken || '', inviteType || 'issuer', inviteEmail);
-
+  const setupPasswordProps = useSetupPassword(
+    inviteToken || '', 
+    inviteType || 'issuer', 
+    inviteEmail,
+    () => setShowOtpModal(true) // <--- Bước này giúp display OTP Modal
+  );
   // Trích xuất các props cần thiết cho giao diện chung
   const {
     roleType, handleRoleChange, missingFieldKeys, fieldErrors, 
@@ -44,13 +47,6 @@ export function Register() {
   const error = isInviteFlow ? setupPasswordProps.error : normalRegisterProps.error;
   const isLoading = isInviteFlow ? setupPasswordProps.isLoading : normalRegisterProps.isLoading;
   const isSuccess = isInviteFlow ? setupPasswordProps.isSuccess : normalRegisterProps.isSuccess;
-
-  // 4. Bắt lỗi ngay nếu link invite bị thiếu type hợp lệ
-  useEffect(() => {
-    if (isInviteFlow && (!inviteType || (inviteType !== 'issuer' && inviteType !== 'verifier'))) {
-      setupPasswordProps.setError(t('invalidInviteLink') || 'Link lời mời không hợp lệ hoặc thiếu thông tin tổ chức.');
-    }
-  }, [isInviteFlow, inviteType, setupPasswordProps, t]);
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full flex items-center justify-center p-6 animate-in fade-in duration-500" style={{ background: 'var(--ct-bg)' }}>
@@ -146,7 +142,13 @@ export function Register() {
           setOtpValue={setOtpValue} 
           otpError={otpError} 
           isOtpLoading={isOtpLoading} 
-          onVerify={isInviteFlow ? setupPasswordProps.handleVerifyOtp : handleOwnerRegisterOtp} 
+          onVerify={(e) => {
+            if (isInviteFlow) {
+              setupPasswordProps.handleVerifyOtp(e, otpValue); // Truyền thêm otpValue
+            } else {
+              handleOwnerRegisterOtp(e);
+            }
+          }}
           onClose={() => setShowOtpModal(false)} 
           t={t} 
           isResendOtpLoading={isResendOtpLoading}

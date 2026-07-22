@@ -1,6 +1,9 @@
 // src/api/endpoints/business/setupPasswordApi.ts
 import { apiClient } from '../../api'; // Trỏ đến cấu hình axios của bạn
-import type { OrgType, SetupPasswordPayload, SetupPasswordResponse } from '../../types/business.types';
+import type { OrgType, SetupPasswordPayload, SetupPasswordResponse,
+  VerifyOtpPayload,      // <-- Import type mới
+  VerifyOtpResponse
+ } from '../../types/business.types';
 
 export const setupPasswordAndRequestOtp = async (
   type: OrgType,
@@ -12,5 +15,16 @@ export const setupPasswordAndRequestOtp = async (
     payload
   );
   
+  return response.data;
+};
+
+export const verifyInviteOtp = async (
+  type: OrgType,
+  payload: VerifyOtpPayload
+): Promise<VerifyOtpResponse> => {
+  const response = await apiClient.post<VerifyOtpResponse>(
+    `/api/v1/${type}/invites/verify-otp`,
+    payload
+  );
   return response.data;
 };

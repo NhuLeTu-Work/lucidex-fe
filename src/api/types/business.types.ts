@@ -35,3 +35,15 @@ export interface SetupPasswordResponse {
   message: string;
   error_code?: string;
 }
+
+export interface VerifyOtpPayload {
+  invite_token: string;
+  otp_code: string;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  data: string;
+  message: string;
+  error_code?: string;
+}
