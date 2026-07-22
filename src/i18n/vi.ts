@@ -336,4 +336,5 @@ export const vi: Record<string, string> = {
     errorServer: 'Lỗi máy chủ. Vui lòng thử lại sau.',
     errorNetwork: 'Lỗi mạng. Không thể kết nối đến máy chủ.',
     errorAccountNotFound: 'Tài khoản không tồn tại.',
+    cantScanQR: "Không quét được QR? Hãy nhập mã này.", 
 };

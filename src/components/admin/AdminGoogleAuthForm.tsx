@@ -31,7 +31,7 @@ export function AdminGoogleAuthForm({ hookProps }: { hookProps: any }) {
           {manualEntryKey && (
             <div className="flex flex-col items-center gap-1.5 w-full">
               <span className="text-xs font-medium text-gray-500 text-center text-balance">
-                {t('cantScanQR') || "Can't scan the QR code? Use this setup key:"}
+                {t('cantScanQR')}
               </span>
               <code className="text-xs font-mono tracking-widest bg-gray-50 text-gray-800 px-3 py-2 rounded-lg border border-gray-100 w-full text-center break-all select-all">
                 {manualEntryKey}
