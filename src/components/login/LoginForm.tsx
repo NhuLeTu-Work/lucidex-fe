@@ -66,7 +66,7 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
 
           <div className="mt-3 text-center text-sm flex items-center justify-center gap-1.5" style={{ color: 'var(--ct-text)' }}>
             <span className="opacity-70">{t('newHere') || 'New here?'}</span>
-            <button type="button" onClick={() => navigate('register')} className="font-semibold hover:underline opacity-100">{t('createAccount') || 'Create an Account'}</button>
+            <button type="button" onClick={() => navigate('/register')} className="font-semibold hover:underline opacity-100">{t('createAccount')}</button>
           </div>
         </form>
       </div>
