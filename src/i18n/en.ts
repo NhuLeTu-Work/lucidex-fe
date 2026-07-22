@@ -346,4 +346,9 @@ export const en: Record<string, string> = {
     actor: 'Actor',
     target: 'Target',
     noAuditLogsFound: 'No audit logs found.',
+    errorInactiveAccount: 'Account is not active.',
+    errorInvalidData: 'Invalid data format. Please check again.',
+    errorServer: 'Server error. Please try again later.',
+    errorNetwork: 'Network error. Unable to connect to the server.',
+    errorAccountNotFound: 'Account does not exist.',
 };

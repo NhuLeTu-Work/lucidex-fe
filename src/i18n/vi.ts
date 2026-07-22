@@ -331,5 +331,9 @@ export const vi: Record<string, string> = {
     actor: 'Người thực hiện',
     target: 'Đối tượng',
     noAuditLogsFound: 'Không tìm thấy nhật ký nào.',
-    
+    errorInactiveAccount: 'Tài khoản của bạn chưa được kích hoạt.',
+    errorInvalidData: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.',
+    errorServer: 'Lỗi máy chủ. Vui lòng thử lại sau.',
+    errorNetwork: 'Lỗi mạng. Không thể kết nối đến máy chủ.',
+    errorAccountNotFound: 'Tài khoản không tồn tại.',
 };
