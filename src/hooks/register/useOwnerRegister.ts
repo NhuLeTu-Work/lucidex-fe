@@ -10,17 +10,23 @@ export function useOwnerRegister(
   navigate: any
 ) {
   const {
-    email, password, confirmPassword,
+    fullName, email, password, confirmPassword,
     setError, setIsLoading, setShowOtpModal,
-    setOtpValue, setOtpError
+    setOtpValue, setOtpError,
   } = state;
 
   const handleOwnerRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError(t('errorFieldsRequired'));
+      return;
+    }
+
+    const nameRegex = /^[\p{L}\s]+$/u;
+    if (!nameRegex.test(fullName.trim())) {
+      setError(t('errorInvalidName') || 'Full name must contain only letters and spaces.');
       return;
     }
     if (password !== confirmPassword) {
@@ -35,6 +41,7 @@ export function useOwnerRegister(
     setIsLoading(true);
     try {
       const response = await registerOwnerApi({
+        full_name: fullName.trim(),
         email: email.trim(),
         password: password,
         confirm_password: confirmPassword,

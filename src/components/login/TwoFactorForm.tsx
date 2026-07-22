@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Shield, AlertCircle, CheckCircle, Smartphone, Mail } from 'lucide-react';
 
 export function TwoFactorForm({ hookProps }: { hookProps: any }) {
@@ -20,6 +21,24 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
 
   const isOwner = currentAcc?.type === 'owner';
 
+  // Thêm state để kiểm soát hiển thị message
+  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+
+  // Thêm useEffect để tự động ẩn sau 30s (30000ms)
+  useEffect(() => {
+    if (otpSuccessMessage && !otpError) {
+      setShowSuccessMsg(true);
+      const timer = setTimeout(() => {
+        setShowSuccessMsg(false);
+      }, 30000); 
+
+      // Cleanup function để xoá timer nếu component unmount hoặc message thay đổi
+      return () => clearTimeout(timer);
+    } else {
+      setShowSuccessMsg(false);
+    }
+  }, [otpSuccessMessage, otpError]);
+
   return (
     <div className="p-8 rounded-2xl border shadow-xl flex flex-col gap-6 animate-in zoom-in-95" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       
@@ -39,8 +58,8 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
         </p>
       </div>
 
-      {/* Thông báo gửi lại OTP thành công (AC 1) */}
-      {otpSuccessMessage && !otpError && (
+      {/* Thông báo gửi lại OTP thành công (AC 1) - Đã cập nhật điều kiện render */}
+      {showSuccessMsg && (
         <div className="p-3 rounded-xl border flex items-center gap-2 text-sm text-green-600 bg-green-500/10 border-green-500 dark:text-green-400 animate-in fade-in duration-300">
           <CheckCircle size={16} className="shrink-0" />
           <span className="font-medium text-balance">{t(otpSuccessMessage)}</span>

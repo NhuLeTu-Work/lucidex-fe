@@ -1,16 +1,39 @@
-import { Mail, Lock, EyeOff, Eye, ShieldAlert, UserPlus } from 'lucide-react';
+import { Mail, Lock, EyeOff, Eye, ShieldAlert, UserPlus, User } from 'lucide-react';
 
 export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
   const {
+    fullName, setFullName, // Thêm state fullName
     email, setEmail, password, setPassword, confirmPassword, setConfirmPassword,
     showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
     isLoading, handleOwnerRegister, 
-    handleGoogleRegister, // Bổ sung hàm này từ Hook để xử lý logic check Auth cho AC 10
+    handleGoogleRegister,
     t
   } = hookProps;
 
   return (
     <form onSubmit={handleOwnerRegister} className="flex flex-col gap-4 animate-in fade-in">
+      {/* Trường Full Name Mới Thêm */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>
+          {t('fullName') || 'Full Name'}
+        </label>
+        <div className="relative flex items-center">
+          <span className="absolute left-3.5 opacity-40" style={{ color: 'var(--ct-text)' }}>
+            <User size={16} />
+          </span>
+          <input 
+            type="text" 
+            value={fullName} 
+            disabled={isLoading} 
+            // Có thể chặn nhập số/ký tự đặc biệt ngay khi type hoặc để hiển thị lỗi sau khi submit
+            onChange={e => setFullName(e.target.value)} 
+            placeholder="John Doe" 
+            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border outline-none transition-all focus:border-neutral-400 disabled:opacity-50" 
+            style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} 
+          />
+        </div>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>
           {t('emailAddress') || 'Email Address'}
@@ -28,6 +51,7 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
           />
         </div>
       </div>
+      
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>{t('password') || 'Password'}</label>
         <div className="relative flex items-center">
@@ -46,6 +70,7 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
           </button>
         </div>
       </div>
+      
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold uppercase tracking-wider opacity-70" style={{ color: 'var(--ct-text)' }}>{t('confirmPassword') || 'Confirm Password'}</label>
         <div className="relative flex items-center">
@@ -65,7 +90,6 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
         </div>
       </div>
       
-      {/* Nút đăng ký Form (Trigger AC 4 và AC 9) */}
       <button type="submit" disabled={isLoading} className="w-full mt-2 py-3 text-sm font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>
         {isLoading ? <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <><UserPlus size={16} /><span>{t('signUp') || 'Sign Up'}</span></>}
       </button>
@@ -76,7 +100,6 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
         <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
       </div>
 
-      {/* Nút đăng ký Google (Trigger AC 10) */}
       <button 
         type="button" 
         disabled={isLoading} 

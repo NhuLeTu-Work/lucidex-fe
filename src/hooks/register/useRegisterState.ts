@@ -38,7 +38,7 @@ export function useRegisterState() {
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isOtpLoading, setIsOtpLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
-
+  const [fullName, setFullName] = useState('');
   return {
     roleType, setRoleType,
     error, setError,
@@ -53,6 +53,7 @@ export function useRegisterState() {
     showConfirmPassword, setShowConfirmPassword,
     isResendOtpLoading, setIsResendOtpLoading,
     resendMessage, setResendMessage,
+    fullName, setFullName,
     missingFieldKeys, setMissingFieldKeys,
     bizData, setBizData,
     showOtpModal, setShowOtpModal,
