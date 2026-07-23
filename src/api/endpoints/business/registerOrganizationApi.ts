@@ -3,7 +3,7 @@ import { apiClient } from '../../api'; // Đảm bảo đường dẫn này kh�
 import type { OrgType, RegisterOrgPayload, RegisterOrgResponse } from '../../types/business.types';
 
 export const registerOrganizationApi = async (
-  type: OrgType,
+  roleType: OrgType,
   payload: RegisterOrgPayload
 ): Promise<RegisterOrgResponse> => {
   const formData = new FormData();
@@ -14,7 +14,7 @@ export const registerOrganizationApi = async (
   });
 
   const response = await apiClient.post<RegisterOrgResponse>(
-    `/api/v1/${type}/register`,
+    `/api/v1/${roleType}/register`,
     formData,
     {
       headers: {

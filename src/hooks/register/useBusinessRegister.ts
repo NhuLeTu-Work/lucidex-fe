@@ -86,19 +86,27 @@ export function useBusinessRegister(
 
     setIsLoading(true);
     try {
-      const payload = {
-        name: bizData.orgName,
-        tax_code: bizData.taxCode,
-        address: bizData.address,
-        legal_rep_name: bizData.legalRep,
-        contact_email: bizData.email,
-        contact_phone: bizData.phone,
-        registrant_name: bizData.regName,
-        document: certificate as File,
-      };
+      // 1. CHUYỂN ĐỔI SANG FORMDATA Ở ĐÂY
+      const formData = new FormData();
+      formData.append('name', bizData.orgName);
+      formData.append('tax_code', bizData.taxCode);
+      formData.append('address', bizData.address);
+      formData.append('legal_rep_name', bizData.legalRep);
+      formData.append('contact_email', bizData.email);
+      formData.append('contact_phone', bizData.phone);
+      formData.append('registrant_name', bizData.regName);
+      
+      // Nếu role verifier có yêu cầu thêm registrant_title, bạn có thể append thêm ở đây
+      // if (roleType === 'verifier' && bizData.regTitle) {
+      //   formData.append('registrant_title', bizData.regTitle);
+      // }
 
-      // Tối ưu hóa: Gọi chung 1 hàm duy nhất với tham số roleType ('issuer' hoặc 'verifier')
-      const response = await registerOrganizationApi(roleType as OrgType, payload);
+      if (certificate) {
+        formData.append('document', certificate);
+      }
+
+      // 2. Ép kiểu formData (as any) để tránh TypeScript báo lỗi nếu hàm cũ đang định nghĩa nhận vào object
+      const response = await registerOrganizationApi(roleType as OrgType, formData as any);
 
       if (response && response.success) {
         setIsSuccess(true);
