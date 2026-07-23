@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router'; // Hoặc 'react-router-dom' tùy setup của bạn
 import { ArrowRight, Building2, GraduationCap, Users, Upload, UserCheck, Link2, ClipboardList } from 'lucide-react';
 import { useLanding } from '../hooks/useLanding';
 import { BlurRevealText } from '../components/landing/BlurRevealText';
@@ -8,13 +9,23 @@ import { StepRow } from '../components/landing/StepRow';
 export function LandingPage() {
   const { t, handleVerifierClick, handleVerifyClick } = useLanding();
   const heroRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  // Kiểm tra trạng thái đăng nhập dựa trên token
-  const isAuthenticated = !!localStorage.getItem('access_token');
+  const [isBtnHidden, setIsBtnHidden] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Xử lý sự kiện click nút Hero CTA 1
+  const onHeroCTA1Click = () => {
+    const isSuccess = handleVerifierClick();
+    if (isSuccess) {
+      setIsBtnHidden(true);
+    } else {
+      navigate('/register'); 
+    }
+  };
 
   return (
     <div>
@@ -32,9 +43,12 @@ export function LandingPage() {
           <p className="text-lg sm:text-xl mb-10 font-light" style={{ color: 'var(--ct-text-secondary)' }}>{t('heroSubtitle')}</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {/* Chỉ render nút heroCTA1 nếu CHƯA đăng nhập */}
-            {!isAuthenticated && (
-              <button onClick={handleVerifierClick} className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" style={{ background: '#000' }}>
+            {!isBtnHidden && (
+              <button 
+                onClick={onHeroCTA1Click} 
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-3xl transition-all hover:scale-105" 
+                style={{ background: '#000' }}
+              >
                 {t('heroCTA1')}
                 <ArrowRight size={18} />
               </button>

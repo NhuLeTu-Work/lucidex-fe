@@ -6,7 +6,7 @@ export const en: Record<string, string> = {
     login: 'Login',
     logout: 'Logout',
     // Hero
-    heroTitle: 'THE NEW STANDARD FOR DIGITAL CREDENTIALS.',
+    heroTitle: 'THE NEW STANDARD FOR DIGITAL CREDENTIALS',
     heroSubtitle: 'Secure. Instant. Auditable.',
     heroCTA1: 'Register Organization',
     heroCTA2: 'Verify a Credential',

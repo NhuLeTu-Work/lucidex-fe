@@ -5,7 +5,7 @@ export const vi: Record<string, string> = {
     register: 'Đăng ký',
     login: 'Đăng nhập',
     logout: 'Đăng xuất',
-    heroTitle: 'TIÊU CHUẨN MỚI CHO BẰNG CẤP SỐ.',
+    heroTitle: 'TIÊU CHUẨN MỚI CHO BẰNG CẤP SỐ',
     heroSubtitle: 'Bảo mật. Tức thì. Kiểm chứng được.',
     heroCTA1: 'Đăng ký Tổ chức',
     heroCTA2: 'Xác minh Bằng cấp',

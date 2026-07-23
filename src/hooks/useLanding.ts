@@ -2,12 +2,16 @@ import { useApp } from '../app/AppContext';
 import { useNavigate } from 'react-router';
 
 export function useLanding() {
-  const { t, setRole } = useApp();
+  const { t } = useApp();
   const navigate = useNavigate();
 
   const handleVerifierClick = () => {
-    setRole('verifier');
-    navigate('/verifier');
+    const token = localStorage.getItem('access_token');
+
+    if (token) 
+      return true;
+
+   return false;
   };
 
   const handleVerifyClick = () => {
