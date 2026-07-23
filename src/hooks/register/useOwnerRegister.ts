@@ -1,4 +1,3 @@
-import { mockAccounts } from '../../data/mockData';
 import { registerOwnerApi } from '@/api/endpoints/owner/registerOwnerApi';
 import type { RegisterState } from './types';
 
@@ -6,16 +5,16 @@ export function useOwnerRegister(
   state: RegisterState,
   validatePassword: (pwd: string) => boolean,
   t: any,
-  setRole: any,
-  navigate: any
+  // setRole: any,
+  // navigate: any
 ) {
-  const {
-    fullName, email, password, confirmPassword,
-    setError, setIsLoading, setShowOtpModal,
-    setOtpValue, setOtpError,
-  } = state;
-
+  
   const handleOwnerRegister = async (e: React.FormEvent) => {
+    const {
+      fullName, email, password, confirmPassword,
+      setError, setIsLoading, setShowOtpModal,
+      setOtpValue, setOtpError,
+    } = state;
     e.preventDefault();
     setError(null);
 
@@ -72,38 +71,40 @@ export function useOwnerRegister(
     }
   };
 
-  const handleGoogleRegister = () => {
-    const googleEmail = email.trim(); 
+  // const handleGoogleRegister = () => {
+  //   const googleEmail = email.trim(); 
     
-    if (!googleEmail) {
-      setError(t('errorFieldsRequired'));
-      return;
-    }
+  //   if (!googleEmail) {
+  //     setError(t('errorFieldsRequired'));
+  //     return;
+  //   }
 
-    setError(null);
-    setIsLoading(true);
+  //   setError(null);
+  //   setIsLoading(true);
 
-    setTimeout(() => {
-      const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === googleEmail.toLowerCase());
+  //   setTimeout(() => {
+  //     const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === googleEmail.toLowerCase());
       
-      if (existingUser) {
-        if (existingUser.authProvider === 'password' || !existingUser.authProvider) {
-          setError(t('errorEmailExistsPassword'));
-          setIsLoading(false);
-          return;
-        }
+  //     if (existingUser) {
+  //       if (existingUser.authProvider === 'password' || !existingUser.authProvider) {
+  //         setError(t('errorEmailExistsPassword'));
+  //         setIsLoading(false);
+  //         return;
+  //       }
         
-        setIsLoading(false);
-        setRole('owner');
-        navigate('/owner');
-        return;
-      }
+  //       setIsLoading(false);
+  //       setRole('owner');
+  //       navigate('/owner');
+  //       return;
+  //     }
 
-      setIsLoading(false);
-      setRole('owner');
-      navigate('/owner');
-    }, 800);
+  //     setIsLoading(false);
+  //     setRole('owner');
+  //     navigate('/owner');
+  //   }, 800);
+  // };
+
+  return { handleOwnerRegister,
+    // handleGoogleRegister
   };
-
-  return { handleOwnerRegister, handleGoogleRegister };
 }

@@ -20,7 +20,11 @@ export function useRegister() {
 
   // Khởi tạo các handlers
   const { handleVerifyOTP, handleResendOTP } = useOtp(state, t, setRole, navigate);
-  const { handleOwnerRegister, handleGoogleRegister } = useOwnerRegister(state, validatePassword, t, setRole, navigate);
+  const { handleOwnerRegister,
+    // handleGoogleRegister
+  } = useOwnerRegister(state, validatePassword, t,
+    // setRole, navigate
+  );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state, t);
   const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate);
 
@@ -50,6 +54,8 @@ export function useRegister() {
     isLoading: state.isLoading,
     isSuccess: state.isSuccess,
     
+    fullName: state.fullName,
+    setFullName: state.setFullName,
     email: state.email,
     setEmail: state.setEmail,
     password: state.password,
@@ -78,7 +84,7 @@ export function useRegister() {
     
     handleOwnerRegisterOtp,
     handleOwnerRegister,
-    handleGoogleRegister,
+    // handleGoogleRegister,
     handleVerifyOTP,
     getSubtitle,
     t,
