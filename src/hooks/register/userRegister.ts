@@ -30,7 +30,7 @@ export function useRegister() {
     // setRole, navigate
   );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state, t);
-  const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate);
+  const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate, setRole);
 
   // Các hàm tiện ích bổ sung
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

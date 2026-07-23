@@ -4,7 +4,8 @@ import { toast } from 'sonner'; // Hoặc thư viện toast bạn đang dùng
 export function useOwnerRegisterOtp(
   state: any, // Thay 'any' bằng 'RegisterState' nếu bạn đã định nghĩa
   t: (key: string) => string,
-  navigate: any
+  navigate: any, 
+  setRole: any
 ) {
   const {
     email,
@@ -47,6 +48,7 @@ export function useOwnerRegisterOtp(
         toast.success(t('registerSuccess') || 'Xác thực thành công! Đang chuyển hướng...');
         
         // 4. Chuyển hướng thẳng vào trang Owner
+        setRole('owner')
         navigate('/owner');
       } else {
         setOtpError('errorOtpInvalid');
