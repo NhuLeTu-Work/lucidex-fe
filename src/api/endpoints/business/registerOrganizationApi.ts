@@ -1,24 +1,23 @@
 // src/api/endpoints/business/registerOrganizationApi.ts
-import { apiClient } from '../../api'; // Đảm bảo đường dẫn này khớp với instance axios của bạn
-import type { OrgType, RegisterOrgPayload, RegisterOrgResponse } from '../../types/business.types';
+import { apiClient } from '../../api'; 
+import type { OrgType, RegisterOrgResponse } from '../../types/business.types';
 
+// Bạn có thể giữ RegisterOrgPayload nếu thích, 
+// nhưng chuẩn nhất là khai báo payload có kiểu là FormData
 export const registerOrganizationApi = async (
   roleType: OrgType,
-  payload: RegisterOrgPayload
+  payload: FormData // <-- Đổi kiểu dữ liệu nhận vào thành FormData
 ): Promise<RegisterOrgResponse> => {
-  const formData = new FormData();
   
-  // Tự động append tất cả các trường vào FormData
-  Object.entries(payload).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
-
+  // KHÔNG CẦN Object.entries() nữa vì payload truyền vào đã là FormData hoàn chỉnh rồi
+  
   const response = await apiClient.post<RegisterOrgResponse>(
     `/api/v1/${roleType}/register`,
-    formData,
+    payload, // <-- Ném thẳng payload vào đây
     {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        // Ghi đè thành undefined để Axios tự động xử lý multipart/form-data và boundary
+        'Content-Type': undefined,
       },
     }
   );

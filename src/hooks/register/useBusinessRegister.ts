@@ -58,25 +58,39 @@ export function useBusinessRegister(
       return;
     }
 
-    // Validate format
+    // ==========================================
+    // 1. KIỂM TRA FORMAT (Đồng bộ với Backend)
+    // ==========================================
     const fErrors: Record<string, string> = {};
-    if (bizData.orgName.length < 3 || bizData.orgName.length > 200) {
-      fErrors.orgName = t('fmtTextLength') || 'Text, 3–200 characters';
+
+    if (bizData.orgName.length < 1 || bizData.orgName.length > 200) {
+      fErrors.orgName = t('fmtTextLength') || 'Text, 1–200 characters';
     }
-    if (!/^\d{10}$/.test(bizData.taxCode)) {
-      fErrors.taxCode = t('fmtTaxCode') || 'Exactly 10 digits';
+    
+    if (!/^\d{10}(?:-\d{3})?$/.test(bizData.taxCode.trim())) {
+      fErrors.taxCode = t('fmtTaxCode') || 'Exactly 10 digits or 13 with dash';
     }
-    if (!/^[\p{L}\s]+$/u.test(bizData.legalRep)) {
-      fErrors.legalRep = t('fmtLettersOnly') || 'Text, letters only';
+    
+    if (bizData.address.length < 1 || bizData.address.length > 500) {
+      fErrors.address = t('fmtAddressLength') || 'Text, 1–500 characters';
     }
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(bizData.email)) {
-      fErrors.email = t('fmtEmail') || 'Please enter a valid email address (e.g. name@example.com)';
+    
+    if (bizData.legalRep.length < 1 || bizData.legalRep.length > 200) {
+      fErrors.legalRep = t('fmtTextLength') || 'Text, 1–200 characters';
     }
-    if (!/^(0[3|5|7|8|9])+([0-9]{8})$/.test(bizData.phone)) {
+    
+    const emailRegex = /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,62}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z]{2,})+$/;
+    if (!emailRegex.test(bizData.email.trim())) {
+      fErrors.email = t('fmtEmail') || 'Please enter a valid email address';
+    }
+    
+    const normalizedPhone = bizData.phone.replace(/[\s.()]/g, '');
+    if (!/^0(?:3|5|7|8|9)\d{8}$/.test(normalizedPhone)) {
       fErrors.phone = t('fmtPhone') || '10-digit Vietnamese phone number';
     }
-    if (!/^[\p{L}\s]+$/u.test(bizData.regName)) {
-      fErrors.regName = t('fmtLettersOnly') || 'Text, letters only';
+    
+    if (bizData.regName.length < 1 || bizData.regName.length > 200) {
+      fErrors.regName = t('fmtTextLength') || 'Text, 1–200 characters';
     }
 
     if (Object.keys(fErrors).length > 0) {
@@ -85,29 +99,32 @@ export function useBusinessRegister(
     }
 
     setIsLoading(true);
+    
     try {
-      // 1. CHUYỂN ĐỔI SANG FORMDATA Ở ĐÂY
+      // ==========================================
+      // 2. TẠO PAYLOAD VÀ MAP KEY (Trường hợp A)
+      // ==========================================
       const formData = new FormData();
       formData.append('name', bizData.orgName);
-      formData.append('tax_code', bizData.taxCode);
+      formData.append('tax_code', bizData.taxCode.trim());
       formData.append('address', bizData.address);
       formData.append('legal_rep_name', bizData.legalRep);
-      formData.append('contact_email', bizData.email);
-      formData.append('contact_phone', bizData.phone);
+      formData.append('contact_email', bizData.email.trim());
+      formData.append('contact_phone', normalizedPhone); // Gửi số điện thoại đã làm sạch
       formData.append('registrant_name', bizData.regName);
       
-      // Nếu role verifier có yêu cầu thêm registrant_title, bạn có thể append thêm ở đây
-      // if (roleType === 'verifier' && bizData.regTitle) {
-      //   formData.append('registrant_title', bizData.regTitle);
-      // }
+      // Nếu role verifier có yêu cầu thêm registrant_title
+      if (roleType === 'verifier' && bizData.regTitle) {
+        formData.append('registrant_title', bizData.regTitle);
+      }
 
       if (certificate) {
         formData.append('document', certificate);
       }
 
-      // 2. Ép kiểu formData (as any) để tránh TypeScript báo lỗi nếu hàm cũ đang định nghĩa nhận vào object
+      // Gửi API với FormData
       const response = await registerOrganizationApi(roleType as OrgType, formData as any);
-
+      console.log("eeeeeeeeeeeee", response)
       if (response && response.success) {
         setIsSuccess(true);
       } else if (response) {
