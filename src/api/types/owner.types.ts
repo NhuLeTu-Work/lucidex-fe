@@ -65,18 +65,6 @@ export interface VerifyOwnerOtpResponse {
   error_code: string;
 }
 
-export interface ResendOwnerOtpPayload {
-  email: string;
-}
-
-// Dữ liệu trả về khi gửi lại OTP thành công (data: null)
-export interface ResendOwnerOtpResponse {
-  success: boolean;
-  data: null;
-  message: string;
-  error_code: string;
-}
-
 export interface RegisterOwnerPayload {
   full_name: string;
   email: string;

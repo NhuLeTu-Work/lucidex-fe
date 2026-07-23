@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { X, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface OtpModalProps {
@@ -11,7 +12,7 @@ interface OtpModalProps {
   t: (k: string) => string;
   isResendOtpLoading?: boolean;
   resendMessage?: string | null;
-  resendCountdown?: number; // 1. Thêm biến nhận thời gian đếm ngược
+  resendCountdown?: number; 
   onResend?: () => void;
 }
 
@@ -20,6 +21,25 @@ export function OtpModal({
   onVerify, onClose, t, 
   isResendOtpLoading, resendMessage, resendCountdown = 0, onResend 
 }: OtpModalProps) {
+  
+  // State kiểm soát hiển thị message thành công
+  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+
+  // Tự động ẩn thông báo sau 30s
+  useEffect(() => {
+    if (resendMessage && !otpError) {
+      setShowSuccessMsg(true);
+      const timer = setTimeout(() => {
+        setShowSuccessMsg(false);
+      }, 30000); 
+
+      // Cleanup function
+      return () => clearTimeout(timer);
+    } else {
+      setShowSuccessMsg(false);
+    }
+  }, [resendMessage, otpError]);
+
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="w-full max-w-md p-8 rounded-2xl border shadow-2xl flex flex-col gap-6 animate-in zoom-in-95 duration-300 relative" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
@@ -53,7 +73,8 @@ export function OtpModal({
           </div>
         )}
         
-        {!otpError && resendMessage && (
+        {/* Đã tích hợp logic tự động ẩn thông báo thành công */}
+        {showSuccessMsg && resendMessage && (
           <div className="p-3 rounded-xl border flex items-center gap-2 text-sm animate-in fade-in" style={{ borderColor: '#22c55e', background: 'rgba(34, 197, 94, 0.08)', color: '#16a34a' }}>
             <CheckCircle size={16} className="shrink-0" />
             <span>{resendMessage}</span>
@@ -69,7 +90,7 @@ export function OtpModal({
             onFocus={(e) => e.target.select()}
             placeholder="000000" 
             maxLength={6} 
-            disabled={isOtpLoading}
+            disabled={isOtpLoading || isResendOtpLoading}
             autoFocus
             className="w-full px-4 py-3 rounded-xl border text-xl text-center font-mono tracking-[0.5em] outline-none focus:border-neutral-400 transition-all disabled:opacity-50" 
             style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} 
@@ -77,7 +98,7 @@ export function OtpModal({
 
           <button 
             type="submit"
-            disabled={isOtpLoading || otpValue.length < 6}
+            disabled={isOtpLoading || isResendOtpLoading || otpValue.length < 6}
             className="w-full py-3 text-sm font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2" 
             style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}
           >
@@ -88,7 +109,7 @@ export function OtpModal({
             )}
           </button>
 
-          {/* 2. Nút Resend đã được đồng bộ UI và Logic Countdown */}
+          {/* Nút Resend */}
           <div className="flex flex-col items-center gap-3 mt-2">
             <button 
               type="button" 

@@ -16,8 +16,6 @@ export function useRegisterState() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isResendOtpLoading, setIsResendOtpLoading] = useState(false);
-  const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [missingFieldKeys, setMissingFieldKeys] = useState<string[]>([]);
 
   // Trạng thái Form Issuer / Verifier
@@ -51,8 +49,6 @@ export function useRegisterState() {
     confirmPassword, setConfirmPassword,
     showPassword, setShowPassword,
     showConfirmPassword, setShowConfirmPassword,
-    isResendOtpLoading, setIsResendOtpLoading,
-    resendMessage, setResendMessage,
     fullName, setFullName,
     missingFieldKeys, setMissingFieldKeys,
     bizData, setBizData,

@@ -3,7 +3,6 @@ import { apiClient } from '../../api';
 import type {
   RegisterOwnerPayload, RegisterOwnerResponse,
   VerifyOwnerOtpPayload, VerifyOwnerOtpResponse,
-  ResendOwnerOtpPayload, ResendOwnerOtpResponse
 } from '../../types/owner.types';
 
 export const registerOwnerApi = async (payload: RegisterOwnerPayload): Promise<RegisterOwnerResponse> => {
@@ -14,10 +13,5 @@ export const registerOwnerApi = async (payload: RegisterOwnerPayload): Promise<R
 
 export const verifyOwnerOtpApi = async (payload: VerifyOwnerOtpPayload): Promise<VerifyOwnerOtpResponse> => {
   const response = await apiClient.post<VerifyOwnerOtpResponse>('/api/v1/owner/verify-otp', payload);
-  return response.data;
-};
-
-export const resendOwnerOtpApi = async (payload: ResendOwnerOtpPayload): Promise<ResendOwnerOtpResponse> => {
-  const response = await apiClient.post<ResendOwnerOtpResponse>('/api/v1/owner/resend-otp', payload);
   return response.data;
 };

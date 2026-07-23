@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { verifyOwnerOtpApi, resendOwnerOtpApi } from '@/api/endpoints/owner/registerOwnerApi';
+import { verifyOwnerOtpApi } from '@/api/endpoints/owner/registerOwnerApi';
 import type { RegisterState } from './types';
+import { useResendOtp } from '../business/usehandleResendOtp';
 
 export function useOtp(
   state: RegisterState,
@@ -8,25 +8,33 @@ export function useOtp(
   setRole: any,
   navigate: any
 ) {
+  // 1. Chỉ lấy những state cần thiết cho việc Verify từ cấu trúc RegisterState cũ
   const {
-    resendCountdown, setResendCountdown,
-    otpValue, setOtpError, setIsOtpLoading,
-    email, setResendMessage, setIsResendOtpLoading,
-    setOtpValue
+    otpValue, setOtpError, setIsOtpLoading, email
   } = state;
 
-  useEffect(() => {
-    if (resendCountdown > 0) {
-      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendCountdown, setResendCountdown]);
+  // 2. Khởi tạo Hook Resend độc lập (Hook này đã bao trọn gói loading, đếm ngược, message)
+  const { 
+    isResendOtpLoading, 
+    resendCountdown, 
+    resendMessage, 
+    triggerResend 
+  } = useResendOtp(t);
 
+  // 3. Hàm bọc lại logic Resend để truyền ra UI
+  const handleResendOTP = () => {
+    // Truyền email và hàm setOtpError vào triggerResend để hook tự lo gọi API và xử lý lỗi
+    triggerResend(email, setOtpError);
+  };
+
+  // 4. Giữ nguyên logic Verify OTP hiện tại của bạn
   const handleVerifyOTP = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!otpValue.trim()) return;
+    
     setOtpError(null);
     setIsOtpLoading(true);
+    
     try {
       const response = await verifyOwnerOtpApi({
         email: email.trim(),
@@ -56,37 +64,12 @@ export function useOtp(
     }
   };
 
-  const handleResendOTP = async () => {
-    setOtpError(null);
-    setResendMessage(null);
-    setIsResendOtpLoading(true);
-
-    try {
-      const response = await resendOwnerOtpApi({
-        email: email.trim()
-      });
-
-      if (response.success) {
-        setResendMessage(t('otpResentSuccess'));
-        setOtpValue('');
-        setResendCountdown(60); 
-      } else {
-        setOtpError(response.message || 'Failed to resend OTP.');
-      }
-    } catch (err: any) {
-      if (err.response) {
-        if (err.response.status === 422) {
-          setOtpError('Dữ liệu không hợp lệ.');
-        } else {
-          setOtpError(err.response.data.message || 'Lỗi hệ thống. Không thể gửi lại mã.');
-        }
-      } else {
-        setOtpError('Lỗi mạng. Không thể kết nối đến máy chủ.');
-      }
-    } finally {
-      setIsResendOtpLoading(false);
-    }
+  // 5. Trả về cả các hàm xử lý lẫn các state hiển thị (Loading, Đếm ngược, Thông báo) để UI sử dụng
+  return { 
+    handleVerifyOTP, 
+    handleResendOTP,
+    isResendOtpLoading,
+    resendCountdown,
+    resendMessage
   };
-
-  return { handleVerifyOTP, handleResendOTP };
 }
