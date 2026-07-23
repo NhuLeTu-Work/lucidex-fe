@@ -352,5 +352,5 @@ export const en: Record<string, string> = {
     errorNetwork: 'Network error. Unable to connect to the server.',
     errorAccountNotFound: 'Account does not exist.',
     cantScanQR: "Can't scan the QR code? Use this setup key", 
-  "errorInvalidSession": "Invalid or expired session.",
+    "errorInvalidSession": "Invalid or expired session.",
 };

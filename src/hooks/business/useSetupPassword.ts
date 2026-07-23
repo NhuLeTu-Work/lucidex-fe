@@ -14,7 +14,8 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
   // === Bổ sung các state còn thiếu ===
   const [error, setError] = useState<string | null>(null);
   const [email] = useState<string>(emailUrl); // Email lấy từ tham số URL
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null); // Reset lỗi mỗi lần submit
@@ -96,9 +97,13 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     password, setPassword,
     confirmPassword, setConfirmPassword,
     isLoading, isSuccess,
-    error, setError, // <-- Export error
-    email,           // <-- Export email
+    error, setError, 
+    email,           
     handleSetupPassword,
-    handleVerifyOtp  // <-- Export hàm verify OTP
+    handleVerifyOtp,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
   };
 }
