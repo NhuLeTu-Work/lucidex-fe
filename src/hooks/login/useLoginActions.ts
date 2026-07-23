@@ -2,7 +2,7 @@ import { authLoginApi } from '@/api/endpoints/authentication/loginApi';
 import { loginAdminApi } from '@/api/endpoints/admin/loginAdmin';
 import type { LoginState } from './types';
 
-export function useLoginActions(state: LoginState, t: any) {
+export function useLoginActions(state: LoginState) {
   const {
     setError, setIsLoading, setCurrentAcc, setOtpValue,
     setSetupToken, setQrCode, setManualEntryKey, setView,
@@ -15,7 +15,7 @@ export function useLoginActions(state: LoginState, t: any) {
     setIsLoading(true);
 
     if (!loginIdentifier || !userPwd) {
-      setError(t('errorMissingCreds'));
+      setError('errorMissingCreds');
       setIsLoading(false);
       return;
     }
@@ -76,20 +76,20 @@ export function useLoginActions(state: LoginState, t: any) {
         const status = err.response.status;
         
         if (status === 401) {
-          setError(t('errorInvalidCredentials'));
+          setError('errorInvalidCredentials');
         } else if (status === 403) {
-          setError(t('errorInactiveAccount'));
+          setError('errorInactiveAccount');
         } else if (status === 404) {
-          setError(t('errorAccountNotFound'));
+          setError('errorAccountNotFound');
         } else if (status === 422) {
-          setError(t('errorInvalidData'));
+          setError('errorInvalidData');
         } else {
           // Bắt các lỗi server (500) hoặc các lỗi khác kèm message từ BE (nếu có)
-          setError(t('errorServer'));
+          setError('errorServer');
         }
       } else {
         // Lỗi không có response (không có mạng, sập server...)
-        setError(t('errorNetwork'));
+        setError('errorNetwork');
       }
     } finally {
       setIsLoading(false);
@@ -99,7 +99,7 @@ export function useLoginActions(state: LoginState, t: any) {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setError(t('errorFieldsRequired')); // Đổi sang dùng t()
+      setError('errorFieldsRequired'); // Đổi sang dùng t()
       return;
     }
     processLogin(email, password);
