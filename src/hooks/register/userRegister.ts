@@ -26,9 +26,7 @@ export function useRegister() {
     resendCountdown, 
     resendMessage 
   } = useOtp(state, t, setRole, navigate);
-  const { handleOwnerRegister,
-    // handleGoogleRegister
-  } = useOwnerRegister(state, validatePassword, t,
+  const { handleOwnerRegister } = useOwnerRegister(state, validatePassword, t,
     // setRole, navigate
   );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state, t);
@@ -90,7 +88,6 @@ export function useRegister() {
     
     handleOwnerRegisterOtp,
     handleOwnerRegister,
-    // handleGoogleRegister,
     handleVerifyOTP,
     getSubtitle,
     t,

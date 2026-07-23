@@ -71,40 +71,5 @@ export function useOwnerRegister(
     }
   };
 
-  // const handleGoogleRegister = () => {
-  //   const googleEmail = email.trim(); 
-    
-  //   if (!googleEmail) {
-  //     setError(t('errorFieldsRequired'));
-  //     return;
-  //   }
-
-  //   setError(null);
-  //   setIsLoading(true);
-
-  //   setTimeout(() => {
-  //     const existingUser = mockAccounts.find(acc => acc.email.toLowerCase() === googleEmail.toLowerCase());
-      
-  //     if (existingUser) {
-  //       if (existingUser.authProvider === 'password' || !existingUser.authProvider) {
-  //         setError(t('errorEmailExistsPassword'));
-  //         setIsLoading(false);
-  //         return;
-  //       }
-        
-  //       setIsLoading(false);
-  //       setRole('owner');
-  //       navigate('/owner');
-  //       return;
-  //     }
-
-  //     setIsLoading(false);
-  //     setRole('owner');
-  //     navigate('/owner');
-  //   }, 800);
-  // };
-
-  return { handleOwnerRegister,
-    // handleGoogleRegister
-  };
+  return { handleOwnerRegister};
 }

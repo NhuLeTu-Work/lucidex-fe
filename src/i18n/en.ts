@@ -353,4 +353,7 @@ export const en: Record<string, string> = {
     errorAccountNotFound: 'Account does not exist.',
     cantScanQR: "Can't scan the QR code? Use this setup key", 
     "errorInvalidSession": "Invalid or expired session.",
+    errorPasswordAccountOauth: "This email is registered with a password. Please log in using your email and password.",
+    errorInvalidGoogleToken: "Invalid or expired Google token. Please log in again.",
+    errorGoogleEmailNotVerified: "Google email is not verified. Please verify your email before continuing.",
 };

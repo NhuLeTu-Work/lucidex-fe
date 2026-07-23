@@ -337,5 +337,8 @@ export const vi: Record<string, string> = {
     errorNetwork: 'Lỗi mạng. Không thể kết nối đến máy chủ.',
     errorAccountNotFound: 'Tài khoản không tồn tại.',
     cantScanQR: "Không quét được QR? Hãy nhập mã này.", 
-  "errorInvalidSession": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.",
+    "errorInvalidSession": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.",
+    errorPasswordAccountOauth: "Email này đã đăng ký bằng mật khẩu. Vui lòng đăng nhập bằng email và mật khẩu.",
+    errorInvalidGoogleToken: "Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
+    errorGoogleEmailNotVerified: "Email Google chưa được xác minh. Vui lòng xác minh email trước khi tiếp tục.",
 };

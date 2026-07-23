@@ -2,11 +2,13 @@ import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn,
   // ArrowRight, ShieldCheck, Building2, Award, GraduationCap 
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { GoogleLogin } from '@react-oauth/google';
 
 export function LoginForm({ hookProps }: { hookProps: any }) {
   const { 
     email, setEmail, password, setPassword, error, isLoading, 
-    handleLogin, showPassword, setShowPassword, t 
+    handleLogin, showPassword, setShowPassword, t, 
+    handleGoogleAuth
   } = hookProps;
   const navigate = useNavigate()
 
@@ -70,6 +72,27 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
           </div>
         </form>
       </div>
+
+      <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
+            <span className="shrink-0 px-3 text-xs font-semibold uppercase tracking-wider opacity-40" style={{ color: 'var(--ct-text)' }}>{t('or') || 'or'}</span>
+            <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
+          </div>
+
+          <div className="flex justify-center w-full">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                if (credentialResponse.credential) {
+                  handleGoogleAuth(credentialResponse.credential);
+                }
+              }}
+              onError={() => {
+                // Bạn có thể xử lý khi user tắt popup hiển thị Google hoặc lỗi mạng
+                console.log('Login Failed');
+              }}
+              useOneTap
+            />
+          </div>
 
       {/* <div className="p-6 rounded-2xl border flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-150" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <div className="flex flex-col gap-0.5">

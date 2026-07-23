@@ -35,7 +35,7 @@ export function useLogin() {
   // ==============================================
 
   // Khởi tạo các logic handlers
-  const { processLogin, handleLogin, handleQuickLogin } = useLoginActions(state);
+  const { processLogin, handleLogin, handleQuickLogin, handleGoogleAuth} = useLoginActions(state, navigate, setRole);
   const { handleSetupAccount } = useSetupAccount(state);
   
   // Lưu ý: Mình không lấy handleResendOTP từ useLoginOtp cũ nữa, chỉ lấy verify và switch
@@ -76,9 +76,9 @@ export function useLogin() {
     handleQuickLogin,
     handleSetupAccount,
     handleVerify2FA,
+    handleGoogleAuth,
     t,
 
-    // 👇 CÁC BIẾN EXPORT MỚI TỪ USE_RESEND_OTP 👇
     isResendOtpLoading,
     resendCountdown,
     resendMessage,

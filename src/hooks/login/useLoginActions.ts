@@ -1,8 +1,9 @@
 import { authLoginApi } from '@/api/endpoints/authentication/loginApi';
 import { loginAdminApi } from '@/api/endpoints/admin/loginAdmin';
+import { googleAuthApi } from '@/api/endpoints/owner/googleAuthApi';
 import type { LoginState } from './types';
 
-export function useLoginActions(state: LoginState) {
+export function useLoginActions(state: LoginState, navigate?: any, setRole?: any,) {
   const {
     setError, setIsLoading, setCurrentAcc, setOtpValue,
     setSetupToken, setQrCode, setManualEntryKey, setView,
@@ -111,5 +112,41 @@ export function useLoginActions(state: LoginState) {
     processLogin(demoEmail, '••••••••');
   };
 
-  return { processLogin, handleLogin, handleQuickLogin };
+  const handleGoogleAuth = async (credential: string) => {
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await googleAuthApi(credential);
+
+      if (response.success && response.data.access_token) {
+        // Lưu Token
+        localStorage.setItem('access_token', response.data.access_token);
+        if (response.data.refresh_token) {
+          localStorage.setItem('refresh_token', response.data.refresh_token);
+        }
+        
+        // Thiết lập Role và Chuyển hướng
+        setRole('owner');
+        navigate('/owner');
+      }
+    } catch (err: any) {
+      const errorCode = err.response?.data?.error_code;
+      
+      // Ánh xạ error_code từ BE thành translation key
+      if (errorCode === 'PASSWORD_ACCOUNT_OAUTH_LOGIN_NOT_ALLOWED') {
+        setError('errorPasswordAccountOauth');
+      } else if (errorCode === 'INVALID_GOOGLE_TOKEN') {
+        setError('errorInvalidGoogleToken');
+      } else if (errorCode === 'GOOGLE_EMAIL_NOT_VERIFIED') {
+        setError('errorGoogleEmailNotVerified');
+      } else {
+        setError('errorServer');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { processLogin, handleLogin, handleQuickLogin, handleGoogleAuth };
 }
