@@ -1,6 +1,6 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/registerOwnerApi';
 import type { RegisterState } from './types';
-import { useResendOtp } from '../business/usehandleResendOtp';
+import { useResendOtp } from '../business/useHandleResendOtp';
 
 export function useOtp(
   state: RegisterState,

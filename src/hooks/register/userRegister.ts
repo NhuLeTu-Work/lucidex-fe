@@ -19,7 +19,13 @@ export function useRegister() {
   const { validatePassword } = usePasswordValidation();
 
   // Khởi tạo các handlers
-  const { handleVerifyOTP } = useOtp(state, t, setRole, navigate);
+  const { 
+    handleVerifyOTP, 
+    handleResendOTP, 
+    isResendOtpLoading, 
+    resendCountdown, 
+    resendMessage 
+  } = useOtp(state, t, setRole, navigate);
   const { handleOwnerRegister,
     // handleGoogleRegister
   } = useOwnerRegister(state, validatePassword, t,
@@ -90,8 +96,9 @@ export function useRegister() {
     t,
     setRole,
     
-    isResendOtpLoading: state.isResendOtpLoading,
-    resendMessage: state.resendMessage,
-    resendCountdown: state.resendCountdown
+    handleResendOTP,           
+    isResendOtpLoading,        
+    resendMessage,             
+    resendCountdown,
   };
 }

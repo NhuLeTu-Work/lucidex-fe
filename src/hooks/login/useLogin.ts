@@ -5,7 +5,7 @@ import { useLoginState } from './useLoginState';
 import { useLoginActions } from './useLoginActions';
 import { useSetupAccount } from './useSetupAccount';
 import { useLoginOtp } from './useLoginOtp';
-import { useResendOtp } from '../business/usehandleResendOtp';
+import { useResendOtp } from '../business/useHandleResendOtp';
 
 export function useLogin() {
   const { t, setRole } = useApp();

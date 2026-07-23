@@ -85,7 +85,7 @@ export function useLoginActions(state: LoginState, t: any) {
           setError(t('errorInvalidData'));
         } else {
           // Bắt các lỗi server (500) hoặc các lỗi khác kèm message từ BE (nếu có)
-          setError(err.response.data?.message || t('errorServer'));
+          setError(t('errorServer'));
         }
       } else {
         // Lỗi không có response (không có mạng, sập server...)
