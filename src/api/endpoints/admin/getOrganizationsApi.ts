@@ -6,7 +6,10 @@ export const getOrganizationsApi = async (
   params?: GetOrganizationsParams
 ): Promise<GetOrganizationsResponse> => {
   const response = await apiClient.get<GetOrganizationsResponse>('/api/v1/admin/organizations/list', {
-    params: params, // Gắn query parameters vào request
+    params: { 
+      ...params, 
+      _t: new Date().getTime() // Đảm bảo trình duyệt không bao giờ cache URL này
+    }, 
   });
   
   return response.data;

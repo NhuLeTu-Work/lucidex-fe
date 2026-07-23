@@ -39,9 +39,10 @@ export function useAdminOrganizations(
     }
   }, [typeFilter, statusFilter]); // Chạy lại hàm nếu filter thay đổi
 
-  // Tự động fetch data khi component mount hoặc khi filter thay đổi
   useEffect(() => {
     fetchOrganizations();
+    const interval = setInterval(fetchOrganizations, 1000); // 15s
+    return () => clearInterval(interval);
   }, [fetchOrganizations]);
 
   return {

@@ -6,16 +6,18 @@ import type { OrganizationRecord } from '@/api/types/admin.types';
 export function AdminRequests({ 
   pendingIssuers, 
   pendingOrgs, 
-  isLoading, // <-- Nhận thêm prop isLoading từ component mẹ
+  isLoading,
   reqSubTab, 
   setReqSubTab, 
   onSelectReq, 
   t 
 }: any) {
-  // Dự phòng an toàn (fallback) bằng [] để tránh lỗi .length khi dữ liệu chưa load kịp
   const safeIssuers = pendingIssuers || [];
   const safeOrgs = pendingOrgs || [];
   const currentList = reqSubTab === 'issuer' ? safeIssuers : safeOrgs;
+
+  // Chỉ coi là "loading lần đầu" khi đang loading VÀ chưa có data gì cả
+  const isInitialLoading = isLoading && currentList.length === 0;
 
   return (
     <div className="animate-in fade-in">
@@ -37,9 +39,8 @@ export function AdminRequests({
         </button>
       </div>
 
-      <div className="space-y-3">
-        {/* Hiển thị hiệu ứng Loading nếu đang lấy dữ liệu từ server */}
-        {isLoading ? (
+      <div className="space-y-3 relative">
+        {isInitialLoading ? (
           <div className="flex flex-col items-center justify-center py-12 opacity-50 text-[var(--ct-text)]">
             <Loader2 className="animate-spin mb-2" size={24} />
             <span className="text-sm">{t('loadingRequests') || 'Loading requests...'}</span>
@@ -47,24 +48,23 @@ export function AdminRequests({
         ) : currentList.length === 0 ? (
           <p className="text-sm opacity-60 italic text-[var(--ct-text)]">{t('noPendingReq') || 'No pending requests.'}</p>
         ) : (
-          currentList.map((req: OrganizationRecord) => (
-            <div 
-              key={req.id} 
-              onClick={() => onSelectReq(req)} 
-              className="p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all hover:scale-[1.01] border-[var(--ct-border)] bg-[var(--ct-surface)]"
-            >
-              <div>
-                {/* Thay thế req.registrationData.orgName thành req.name (chuẩn Backend) */}
-                <h3 className="font-semibold text-sm mb-1 text-[var(--ct-text)]">{req.name}</h3>
-                
-                {/* Thay thế req.registrationData.submittedAt thành req.created_at (chuẩn Backend) */}
-                <p className="text-xs opacity-60 font-mono text-[var(--ct-text)]">
-                  {t('submittedAt') || 'Submitted'}: {new Date(req.created_at).toLocaleString()}
-                </p>
+          <>
+            {currentList.map((req: OrganizationRecord) => (
+              <div 
+                key={req.id} 
+                onClick={() => onSelectReq(req)} 
+                className="p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all hover:scale-[1.01] border-[var(--ct-border)] bg-[var(--ct-surface)]"
+              >
+                <div>
+                  <h3 className="font-semibold text-sm mb-1 text-[var(--ct-text)]">{req.name}</h3>
+                  <p className="text-xs opacity-60 font-mono text-[var(--ct-text)]">
+                    {t('submittedAt') || 'Submitted'}: {new Date(req.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <ChevronRight size={16} className="opacity-40 text-[var(--ct-text)]" />
               </div>
-              <ChevronRight size={16} className="opacity-40 text-[var(--ct-text)]" />
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
     </div>
