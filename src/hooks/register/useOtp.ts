@@ -45,7 +45,7 @@ export function useOtp(
         setRole('owner');
         navigate('/owner');
       } else {
-        setOtpError(response.message || t('errorOtpInvalid'));
+        setOtpError('errorOtpInvalid');
       }
     } catch (err: any) {
       if (err.response) {

@@ -39,7 +39,7 @@ export function useLogin() {
   const { handleSetupAccount } = useSetupAccount(state);
   
   // Lưu ý: Mình không lấy handleResendOTP từ useLoginOtp cũ nữa, chỉ lấy verify và switch
-  const { handleVerify2FA, handleSwitchMethod } = useLoginOtp(state, t, setRole, navigate);
+  const { handleVerify2FA, handleSwitchMethod } = useLoginOtp(state, setRole, navigate);
 
   return {
     view: state.view,

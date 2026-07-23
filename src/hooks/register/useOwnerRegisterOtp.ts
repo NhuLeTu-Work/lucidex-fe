@@ -47,7 +47,7 @@ export function useOwnerRegisterOtp(
           } 
         });
       } else {
-        setOtpError(response.message || t('errorOtpInvalid') || 'Mã xác thực không chính xác.');
+        setOtpError('errorOtpInvalid');
       }
     } catch (err: any) {
       if (err.response) {

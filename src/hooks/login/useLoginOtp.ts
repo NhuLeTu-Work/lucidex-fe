@@ -4,7 +4,6 @@ import type { LoginState } from './types';
 import { verifyOtpLoginApi } from '@/api/endpoints/authentication/verifyOtpLoginApi';
 export function useLoginOtp(
   state: LoginState,
-  t: any,
   setRole: any,
   navigate: any
 ) {
@@ -41,7 +40,8 @@ export function useLoginOtp(
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
           } else {
-            setOtpError(response.message || t('errorOtpInvalid'));
+            // SỬA Ở ĐÂY: Bỏ t(), lưu thẳng chuỗi message của BE hoặc dùng key
+            setOtpError('errorOtpInvalid');
           }
         } 
         
@@ -57,13 +57,15 @@ export function useLoginOtp(
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
           } else {
-            setOtpError(response.message || t('errorOtpInvalid'));
+            // SỬA Ở ĐÂY
+            setOtpError('errorOtpInvalid');
           }
         } 
         
         // Bắt lỗi rỗng nếu state bị mất do reload hoặc lỗi logic
         else {
-          setOtpError('Phiên đăng nhập không hợp lệ hoặc đã hết hạn.');
+          // SỬA Ở ĐÂY: Dùng key thay vì chuỗi tiếng Việt
+          setOtpError('errorInvalidSession'); 
         }
       }
       
@@ -71,7 +73,8 @@ export function useLoginOtp(
       else if(currentAcc?.type === 'owner') {
         
         if (!tempOtpToken) {
-          setOtpError('Phiên xác thực không hợp lệ hoặc đã hết hạn.');
+          // SỬA Ở ĐÂY: Dùng key thay vì chuỗi tiếng Việt
+          setOtpError('errorInvalidSession');
           setIsOtpLoading(false);
           return;
         }
@@ -92,26 +95,29 @@ export function useLoginOtp(
           }
 
           // 3. Phân quyền và điều hướng
-          // Theo schema trả về 'owner_id', nên hiện tại coi như đây là Owner
-          // (Sau này nếu BE trả về trường 'role' riêng, bạn có thể linh hoạt setRole(response.data.role))
           setRole('owner');
           navigate('/owner');
 
         } else {
-          setOtpError(response.message || t('errorOtpInvalid'));
+          // SỬA Ở ĐÂY
+          setOtpError('errorOtpInvalid');
         }
       }
     } catch (err: any) {
       if (err.response) {
         if (err.response.status === 422) {
-          setOtpError('Mã OTP không hợp lệ hoặc sai định dạng.');
+          // SỬA Ở ĐÂY
+          setOtpError('errorInvalidData');
         } else if (err.response.status === 400 || err.response.status === 401) {
-          setOtpError(err.response.data.message || 'Mã xác thực không chính xác.');
+          // SỬA Ở ĐÂY
+          setOtpError('errorOtpInvalid');
         } else {
-          setOtpError('Lỗi máy chủ. Vui lòng thử lại sau.');
+          // SỬA Ở ĐÂY
+          setOtpError('errorServer');
         }
       } else {
-        setOtpError('Lỗi kết nối mạng.');
+        // SỬA Ở ĐÂY
+        setOtpError('errorNetwork');
       }
     } finally {
       setIsOtpLoading(false);
