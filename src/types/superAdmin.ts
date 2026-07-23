@@ -1,4 +1,4 @@
-export type SuperAdminTab = 'accounts' | 'audit';
+export type SuperAdminTab = 'accounts' | 'audit' | 'admin_requests';
 
 export interface AdminAccount {
   id: string;

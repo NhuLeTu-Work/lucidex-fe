@@ -1,4 +1,4 @@
-import { Users, ClipboardList, ShieldAlert } from 'lucide-react';
+import { Users, ClipboardList, ShieldAlert, FileSignature } from 'lucide-react';
 import type { SuperAdminTab } from '../../types/superAdmin';
 
 interface SuperAdminSidebarProps {
@@ -10,6 +10,7 @@ interface SuperAdminSidebarProps {
 export function SuperAdminSidebar({ activeTab, setActiveTab, t }: SuperAdminSidebarProps) {
   const items = [
     { id: 'accounts' as SuperAdminTab, label: t('adminAccounts') || 'Admin Accounts', icon: <Users size={18} /> },
+    { id: 'admin_requests' as SuperAdminTab, label: t('adminResetRequests') || 'Admin Reset Requests', icon: <FileSignature size={18} /> },
     { id: 'audit' as SuperAdminTab, label: t('systemAuditLog') || 'System Audit Log', icon: <ClipboardList size={18} /> },
   ];
 

@@ -5,6 +5,7 @@ import { SuperAdminSidebar } from '../components/super/SuperAdminSidebar';
 import { AdminAccountsTab } from '../components/super/AdminAccountsTab';
 import { AuditLogTab } from '../components/super/AuditLogTab';
 import { CreateAdminModal } from '../components/super/CreateAdminModal';
+import { AdminResetRequestTab } from '../components/super/AdminResetRequests';
 
 export function SuperAdminPortal() {
   const { t } = useApp();
@@ -39,6 +40,7 @@ export function SuperAdminPortal() {
           />
         )}
         {activeTab === 'audit' && <AuditLogTab t={t} logs={auditLogs} />}
+        {activeTab === 'admin_requests' && <AdminResetRequestTab t={t} />}
       </main>
 
       {/* 3. Modal Tạo Admin: Bật lên khi có kết quả credentials trả về từ API */}
