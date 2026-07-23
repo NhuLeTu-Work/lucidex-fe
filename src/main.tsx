@@ -7,7 +7,7 @@ import { router } from './app/router'
 import { GoogleOAuthProvider } from '@react-oauth/google'; // 1. Import Provider
 
 // 2. Lấy Client ID từ biến môi trường (.env) hoặc dán trực tiếp string vào đây (khuyên dùng .env)
-const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
