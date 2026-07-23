@@ -22,7 +22,6 @@ export function useGetAdmins(t: any) {
       }));
 
       setAccounts(mappedAccounts);
-      console.log(mappedAccounts)
     } catch (error: any) {
       toast.error(t('errorFetchAdmins') || 'Không thể tải danh sách tài khoản Admin.');
     } finally {
