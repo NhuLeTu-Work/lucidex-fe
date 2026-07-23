@@ -35,7 +35,7 @@ export function useLogin() {
   // ==============================================
 
   // Khởi tạo các logic handlers
-  const { processLogin, handleLogin, handleQuickLogin } = useLoginActions(state, t);
+  const { processLogin, handleLogin, handleQuickLogin } = useLoginActions(state);
   const { handleSetupAccount } = useSetupAccount(state);
   
   // Lưu ý: Mình không lấy handleResendOTP từ useLoginOtp cũ nữa, chỉ lấy verify và switch
