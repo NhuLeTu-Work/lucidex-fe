@@ -1,7 +1,5 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/verifyOwnerOtpApi';
-
-// (Tùy chọn) Bạn có thể import type RegisterState nếu đang dùng chung 1 file types.ts
-// import type { RegisterState } from './types';
+import { toast } from 'sonner'; // Hoặc thư viện toast bạn đang dùng
 
 export function useOwnerRegisterOtp(
   state: any, // Thay 'any' bằng 'RegisterState' nếu bạn đã định nghĩa
@@ -19,7 +17,7 @@ export function useOwnerRegisterOtp(
   const handleOwnerRegisterOtp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate nhanh mã OTP (Thường là 4 hoặc 6 số)
+    // Validate nhanh mã OTP
     if (!otpValue || otpValue.trim().length < 4) {
       setOtpError(t('errorOtpInvalid') || 'Vui lòng nhập đầy đủ mã OTP.');
       return;
@@ -36,16 +34,20 @@ export function useOwnerRegisterOtp(
 
       const response = await verifyOwnerOtpApi(payload);
 
-      if (response.success) {
-        // 1. Tắt Modal OTP
+      if (response.success && response.data) {
+        // 1. Lưu token vào localStorage
+        const { access_token, refresh_token } = response.data;
+        if (access_token) localStorage.setItem('access_token', access_token);
+        if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
+
+        // 2. Tắt Modal OTP
         setShowOtpModal(false);
         
-        // 2. Chuyển hướng người dùng về trang Đăng nhập kèm State (để hiện Toast thông báo bên trang Login nếu muốn)
-        navigate('/login', { 
-          state: { 
-            message: t('registerSuccess') || 'Đăng ký thành công! Vui lòng đăng nhập.' 
-          } 
-        });
+        // 3. Hiển thị thông báo thành công
+        toast.success(t('registerSuccess') || 'Xác thực thành công! Đang chuyển hướng...');
+        
+        // 4. Chuyển hướng thẳng vào trang Owner
+        navigate('/owner');
       } else {
         setOtpError('errorOtpInvalid');
       }
@@ -66,11 +68,7 @@ export function useOwnerRegisterOtp(
     }
   };
 
-  // Nếu sau này bạn làm thêm API Resend OTP cho Owner, bạn có thể viết hàm handleResendOTP ở đây luôn
-  // const handleResendOTP = async () => { ... }
-
   return { 
     handleOwnerRegisterOtp 
-    // handleResendOTP
   };
 }

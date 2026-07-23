@@ -53,13 +53,15 @@ export interface VerifyOwnerOtpPayload {
   otp_code: string;
 }
 
-// Dữ liệu trả về khi Verify OTP thành công
 export interface VerifyOwnerOtpResponse {
   success: boolean;
   data: {
     id: string;
     email: string;
-    status: string; // Sẽ chuyển từ 'pending' sang 'active'
+    status: string;
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
   };
   message: string;
   error_code: string;
@@ -78,24 +80,6 @@ export interface RegisterOwnerResponse {
     id: string;
     email: string;
     status: string;
-  };
-  message: string;
-  error_code: string;
-}
-
-// src/api/types/owner.ts
-
-export interface VerifyOwnerOtpPayload {
-  email: string;
-  otp_code: string;
-}
-
-export interface VerifyOwnerOtpResponse {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-    status: string; // Thường sẽ là 'active' sau khi verify thành công
   };
   message: string;
   error_code: string;
