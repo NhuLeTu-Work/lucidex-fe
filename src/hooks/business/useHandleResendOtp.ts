@@ -6,10 +6,8 @@ export function useResendOtp(t: any) {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   
-  // Dùng useRef để giữ lại lịch sử các lần bấm resend (không bị mất khi component re-render)
   const resendTimestamps = useRef<number[]>([]);
 
-  // Xử lý đếm ngược (Countdown timer)
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
     if (resendCountdown > 0) {
@@ -22,10 +20,12 @@ export function useResendOtp(t: any) {
     };
   }, [resendCountdown]);
 
-  // Hàm trigger dùng chung (Nhận vào email và hàm set error của form hiện tại)
-  const triggerResend = useCallback(async (
-    email: string | undefined | null, 
-    setExternalError: (msg: string | null) => void // Hàm setOtpError từ component gọi nó
+  // THAY ĐỔI: Thêm tham số `token` vào hàm
+  const triggerResend = useCallback(
+  async (
+    email: string | undefined | null,
+    setExternalError: (msg: string | null) => void,
+    token?: string | null,
   ) => {
     if (!email) {
       setExternalError(t('errorMissingEmail') || 'Không tìm thấy email để gửi lại OTP.');
@@ -42,17 +42,22 @@ export function useResendOtp(t: any) {
       return;
     }
 
-    // Bắt đầu gọi API
     setIsResendOtpLoading(true);
     setResendMessage(null);
-    setExternalError(null); // Xoá lỗi cũ trên UI
+    setExternalError(null);
 
     try {
-      const response = await resendOtpApi({ email: email.trim() });
+      // THAY ĐỔI: Thêm token vào payload gửi lên API
+      const payload = { 
+        email: email.trim(),
+        ...(token && { token: token.trim() }) // Gắn token nếu có
+      };
+
+      const response = await resendOtpApi(payload);
       
       if (response.success) {
         resendTimestamps.current.push(now);
-        setResendCountdown(60); // Bắt đầu đếm ngược 60s
+        setResendCountdown(60);
         setResendMessage(t('otpResent') || 'Đã gửi lại mã OTP mới!');
       }
     } catch (err: any) {
@@ -62,7 +67,7 @@ export function useResendOtp(t: any) {
       if (status === 404) {
         errorMessage = t('errorAccountNotFound') || 'Tài khoản không tồn tại.';
       } else if (status === 422) {
-        errorMessage = t('errorInvalidEmail') || 'Email không hợp lệ.';
+        errorMessage = t('errorInvalidEmail') || 'Dữ liệu yêu cầu không hợp lệ (Kiểm tra lại email hoặc token).';
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       }
@@ -78,6 +83,6 @@ export function useResendOtp(t: any) {
     resendCountdown,
     resendMessage,
     triggerResend,
-    setResendMessage // Export ra ngoài lỡ cần tắt thông báo chủ động
+    setResendMessage
   };
 }
