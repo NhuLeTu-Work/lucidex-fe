@@ -10,7 +10,7 @@ import { useAdminOrganizations } from '../hooks/admin/useGetOrganizations'; // <
 import { AdminSidebarDesktop, AdminSidebarMobile } from '../components/admin/AdminSidebar';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { AdminRequests } from '../components/admin/AdminRequests';
-import { AdminAccounts } from '../components/admin/AdminAccounts';
+import { AdminAccount } from '../components/admin/AdminAccout';
 
 // Modals
 import { RequestDetailModal } from '../components/admin/RequestDetailModal';
@@ -86,7 +86,7 @@ export function AdminPortal() {
           />
         )}
         
-        {activeTab === 'accounts' && <AdminAccounts t={t} accounts={accounts} />}
+         {activeTab === 'settings' && <AdminAccount t={t}/>}
       </main>
 
       {/* ========================================== */}

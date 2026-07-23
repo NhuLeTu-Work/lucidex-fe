@@ -21,5 +21,5 @@ export interface Account {
   registrationData?: RegistrationData;
 }
 
-export type AdminTab = 'dashboard' | 'requests' | 'accounts';
+export type AdminTab = 'dashboard' | 'requests' | 'settings';
 export type RequestSubTab = 'issuer' | 'verifier';
