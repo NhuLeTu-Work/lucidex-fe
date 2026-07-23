@@ -1,24 +1,17 @@
-import { useState } from 'react';
-import { KeyRound, Smartphone, CheckCircle, Send } from 'lucide-react';
+import { KeyRound, Smartphone, CheckCircle, Send, AlertCircle } from 'lucide-react';
+import { useAdminAccountSettings } from '../../hooks/admin/useAdminAccountSettings';
 
 export function AdminAccount({ t }: { t?: (key: string) => string }) {
-  // Mockup states
-  const [loadingType, setLoadingType] = useState<'password' | 'totp' | null>(null);
-  const [requestedPassword, setRequestedPassword] = useState(false);
-  const [requestedTotp, setRequestedTotp] = useState(false);
+  const {
+    loadingType,
+    requestedPassword,
+    requestedTotp,
+    errorKey,
+    handleRequestPasswordReset,
+    handleRequestTotpReset
+  } = useAdminAccountSettings();
 
-  // Fallback t()
   const translate = (key: string) => (t ? t(key) : key);
-
-  // Mockup function để gửi request
-  const handleRequest = (type: 'password' | 'totp') => {
-    setLoadingType(type);
-    setTimeout(() => {
-      setLoadingType(null);
-      if (type === 'password') setRequestedPassword(true);
-      if (type === 'totp') setRequestedTotp(true);
-    }, 1200);
-  };
 
   return (
     <div className="animate-in fade-in max-w-4xl">
@@ -28,8 +21,15 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
         </h1>
       </div>
 
+      {/* Hiển thị lỗi toàn cục nếu API fail */}
+      {errorKey && (
+        <div className="mb-6 p-3.5 rounded-xl border flex items-start gap-2.5 text-sm animate-in shake duration-300" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
+          <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <span className="font-medium text-balance">{translate(errorKey)}</span>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2">
-        
         {/* Card 1: Request Reset Password */}
         <div className="p-6 rounded-2xl border flex flex-col gap-4 border-[var(--ct-border)] bg-[var(--ct-surface)] hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors">
           <div className="flex items-center gap-3 text-[var(--ct-text)]">
@@ -44,7 +44,7 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
           </p>
           
           <button 
-            onClick={() => handleRequest('password')}
+            onClick={handleRequestPasswordReset}
             disabled={requestedPassword || loadingType !== null}
             className={`mt-2 py-3 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
               requestedPassword 
@@ -76,7 +76,7 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
           </p>
           
           <button 
-            onClick={() => handleRequest('totp')}
+            onClick={handleRequestTotpReset}
             disabled={requestedTotp || loadingType !== null}
             className={`mt-2 py-3 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
               requestedTotp 
@@ -93,7 +93,6 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
             )}
           </button>
         </div>
-
       </div>
     </div>
   );
