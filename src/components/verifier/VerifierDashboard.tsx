@@ -1,22 +1,25 @@
 import { BarChart3, History, Search, ArrowRight, ChevronRight, CheckCircle } from 'lucide-react';
-import { currentVerifier, mockVerifierVerifyHistory } from '../../data/mockData';
+import { mockVerifierVerifyHistory } from '../../data/mockData';
 import { StatCard } from '../ui/statCard';
 import type { VerifierTab } from '../../types/verifier';
+import type { UserProfile } from '../../api/types/auth.types';
 
 interface DashboardProps {
   t: (k: string) => string;
   quotaUsed: number;
   onTabChange: (t: VerifierTab) => void;
+  userProfile: UserProfile | null;
 }
 
-export function VerifierDashboard({ t, quotaUsed, onTabChange }: DashboardProps) {
+export function VerifierDashboard({ t, quotaUsed, onTabChange, userProfile }: DashboardProps) {
   const remaining = 20 - quotaUsed;
 
   return (
     <div>
       <h1 className="font-display text-2xl mb-2">{t('welcomeVerifier')}</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{currentVerifier.company} — {t('mockDataLabel')}</p>
-
+      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>
+        {userProfile?.organization_name || userProfile?.full_name} — {t('mockDataLabel')}
+      </p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard label={t('verificationsUsed')} value={`${quotaUsed}/20`} icon={<BarChart3 size={20} />} onClick={() => onTabChange('quota')} />
         <StatCard label={t('verifyHistory')} value={mockVerifierVerifyHistory.length.toString()} icon={<History size={20} />} onClick={() => onTabChange('history')} />

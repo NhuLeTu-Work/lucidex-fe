@@ -413,5 +413,7 @@ export const en: Record<string, string> = {
     "cooldown24h": "Please wait 24h since last request",
     "requestSentSuccess": "Your request has been sent successfully.",
     fmtInstNameLength: "Name must be between 2 and 255 characters",
-    fmtNameLettersOnly: "Letters and spaces only, 2-255 characters"
+    fmtNameLettersOnly: "Letters and spaces only, 2-255 characters",
+    "errorSessionExpired": "Session expired or invalid token. Please log in again.",
+    "errorFetchProfile": "Failed to load user profile information."
 };

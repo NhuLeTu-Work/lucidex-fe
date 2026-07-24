@@ -1,21 +1,29 @@
 import { FileText, Link2, ClipboardList, Award, Plus, Settings, ChevronRight } from 'lucide-react';
-import { mockCredentials, mockAuditLog, currentOwner } from '../../data/mockData';
+import { mockCredentials, mockAuditLog } from '../../data/mockData'; // Giữ lại mock cho phần credentials chưa có API
 import type { OwnerTab, VerifiedLink } from '../../types/owner';
+import type { UserProfile } from '../../api/types/auth.types';
+
 
 interface OwnerDashboardProps {
   t: (k: string) => string;
   links: VerifiedLink[];
   onTabChange: (t: OwnerTab) => void;
+  userProfile: UserProfile | null; // Nhận userProfile từ cha truyền xuống
 }
 
-export function OwnerDashboard({ t, links, onTabChange }: OwnerDashboardProps) {
+export function OwnerDashboard({ t, links, onTabChange, userProfile }: OwnerDashboardProps) {
   const activeLinks = links.filter(l => l.status === 'active').length;
-  const credCount = mockCredentials.filter(c => c.studentId === currentOwner.studentId).length;
+  // Giả định sử dụng userProfile để lọc credentials
+  const credCount = mockCredentials.filter(c => c.studentId === userProfile?.actor_id).length;
 
   return (
     <div>
-      <h1 className="font-display text-2xl mb-2">{t('welcomeOwner')}</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{t('mockDataLabel')} — {t('phase1Label')}</p>
+      <h1 className="font-display text-2xl mb-2">
+        {t('welcomeOwner')} {userProfile?.full_name || ''}
+      </h1>
+      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>
+        {userProfile?.email} — {t('phase1Label')}
+      </p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('myCredentials')} value={credCount.toString()} icon={<FileText size={20} />} onClick={() => onTabChange('credentials')} />

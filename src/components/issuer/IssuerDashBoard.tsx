@@ -3,20 +3,28 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { monthlyVerifications, mockOwners, mockReviewQueue } from '../../data/mockData';
 import { StatCard } from '../ui/statCard';
 import type { IssuerTab } from '../../types/issuer';
+import type { UserProfile } from '../../api/types/auth.types'; // Import type từ bước trước
 
 interface IssuerDashboardProps {
   t: (k: string) => string;
   pendingCount: number;
   onTabChange: (t: IssuerTab) => void;
+  userProfile: UserProfile | null; // Nhận userProfile từ component cha
 }
 
-export function IssuerDashboard({ t, pendingCount, onTabChange }: IssuerDashboardProps) {
+export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: IssuerDashboardProps) {
+  // Giữ lại mock data cho phần biểu đồ và danh sách nếu chưa có API tương ứng
   const activeOwners = mockOwners.filter(s => s.activated).length;
 
   return (
     <div>
-      <h1 className="font-display text-2xl mb-2">{t('welcomeIssuer')}</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{t('mockDataLabel')} — {t('phase1Label')}</p>
+      {/* Hiển thị Tên tổ chức thật từ API */}
+      <h1 className="font-display text-2xl mb-2">
+        {t('welcomeIssuer')} {userProfile?.organization_name || ''}
+      </h1>
+      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>
+        {userProfile?.email} — {t('phase1Label')}
+      </p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('verificationsThisMonth')} value="58" icon={<TrendingUp size={20} />} onClick={() => onTabChange('analytics')} />
