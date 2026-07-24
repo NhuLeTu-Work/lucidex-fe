@@ -30,7 +30,7 @@ export function useAdminResetRequests() {
             accountId: acc.id,
             username: acc.username,
             type: 'password',
-            timestamp: acc.password_reset_requested_at,
+            timestamp: acc.password_reset_requested_at || '',
           });
         }
         
@@ -40,16 +40,19 @@ export function useAdminResetRequests() {
             accountId: acc.id,
             username: acc.username,
             type: 'totp',
-            timestamp: acc.totp_reset_requested_at,
+            timestamp: acc.totp_reset_requested_at || '',
           });
         }
         
         return items;
       });
 
-      // Sắp xếp ưu tiên thời gian mới nhất lên đầu
-      flatRequests.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
+      flatRequests.sort((a, b) => {
+        const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+        return timeB - timeA;
+      });
+
       setRequests(flatRequests);
     } catch (err: any) {
       setErrorKey(err.message === 'errorServer' ? 'errorServer' : 'errorNetwork');
