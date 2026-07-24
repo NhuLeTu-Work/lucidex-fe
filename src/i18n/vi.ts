@@ -386,5 +386,12 @@ export const vi: Record<string, string> = {
     "errorOrgAlreadyProcessed": "Yêu cầu này đã có quyết định cuối cùng từ trước.",
     "errorServerNotification": "Lỗi hệ thống khi lưu lịch sử từ chối.",
     "errorEmailDeliveryFailed": "Đã từ chối nhưng không thể gửi email thông báo.",
-    "errorRejectFailed": "Có lỗi xảy ra khi xử lý yêu cầu."
+    "errorRejectFailed": "Có lỗi xảy ra khi xử lý yêu cầu.",
+    "rejectTotpSuccess": "Đã từ chối yêu cầu reset TOTP thành công.",
+    "rejectPasswordSuccess": "Đã từ chối yêu cầu reset mật khẩu thành công.",
+    "errorInvalidRequestData": "Dữ liệu yêu cầu không hợp lệ. Vui lòng thử lại.",
+    "errorActionFailed": "Có lỗi xảy ra khi xử lý thao tác này.",
+    "rejectTotpRequest": "Từ chối Reset TOTP",
+    "rejectPasswordRequest": "Từ chối Reset Mật khẩu",
+    "requestExpired24h": "Yêu cầu đã quá hạn (hơn 24 giờ)"
 };

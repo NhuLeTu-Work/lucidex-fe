@@ -401,5 +401,12 @@ export const en: Record<string, string> = {
     "errorOrgAlreadyProcessed": "This application has already been processed.",
     "errorServerNotification": "System error while saving rejection history.",
     "errorEmailDeliveryFailed": "Application rejected, but failed to send the notification email.",
-    "errorRejectFailed": "An error occurred while processing the request."
+    "errorRejectFailed": "An error occurred while processing the request.",
+    "rejectTotpSuccess": "TOTP reset request rejected successfully.",
+    "rejectPasswordSuccess": "Password reset request rejected successfully.",
+    "errorInvalidRequestData": "Invalid request data. Please try again.",
+    "errorActionFailed": "An error occurred while processing the request.",
+    "rejectTotpRequest": "Reject TOTP Reset",
+    "rejectPasswordRequest": "Reject Password Reset",
+    "requestExpired24h": "Request expired (over 24 hours)"
 };

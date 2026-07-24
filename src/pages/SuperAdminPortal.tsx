@@ -40,6 +40,8 @@ export function SuperAdminPortal() {
           />
         )}
         {activeTab === 'audit' && <AuditLogTab t={t} logs={auditLogs} />}
+        
+        {/* Render Tab Admin Reset Request chuẩn xác theo Props mới */}
         {activeTab === 'admin_requests' && <AdminResetRequestTab t={t} />}
       </main>
 

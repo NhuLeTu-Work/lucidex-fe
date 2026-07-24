@@ -1,10 +1,12 @@
 import { Check, X, AlertCircle } from 'lucide-react';
-import { useAdminResetRequests } from '@/hooks/super/useGetAdminResetRequest';
-import { useProcessAdminRequest } from '@/hooks/super/useProcessAdminRequest';
 import { useState } from 'react';
+import { useApp } from '@/app/AppContext';
 import { ConfirmationModal } from '../ui/confirmationModal';
-import { Toast } from '../ui/toast';
 import { AdminCredentialDisplay } from './ResetCredentials';
+
+// Đổi tên khi import để không bị trùng lặp chức năng
+import { useAdminResetRequests as useGetAdminResetRequests } from '@/hooks/super/useGetAdminResetRequest';
+import { useProcessAdminRequest } from '@/hooks/super/useProcessAdminRequest';
 
 type SelectedRequest = {
   accountId: string;
@@ -13,34 +15,42 @@ type SelectedRequest = {
   action: 'approved' | 'rejected';
 } | null;
 
-export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
-  const { requests, isLoading: isFetching, errorKey: fetchError, refetch } = useAdminResetRequests();
-  const { isProcessing, credentialData, processApproval, processRejection, clearCredentialData } = useProcessAdminRequest();
+export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
+  // Lấy hàm showToast global từ AppContext
+  const { t: contextT, showToast } = useApp();
+  const t = externalT || contextT;
+  const translate = (key: string) => (t ? t(key) : key);
+
+  // Hook 1: Fetch danh sách yêu cầu
+  const { requests, isLoading: isFetching, errorKey: fetchError, refetch } = useGetAdminResetRequests();
+  
+  const { 
+    isProcessing, 
+    credentialData, 
+    processApproval, 
+    clearCredentialData,
+    handleRejectTotp, 
+    handleRejectPassword, 
+    isRejectingId, 
+    isRequestValid 
+  } = useProcessAdminRequest(showToast);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<SelectedRequest>(null);
-  
-  // State quản lý Toast
-  const [toastConfig, setToastConfig] = useState<{isOpen: boolean, type: 'success'|'error'|'warning', message?: string}>({
-    isOpen: false,
-    type: 'success'
-  });
-
-  const translate = (key: string) => (t ? t(key) : key);
 
   // Xử lý khi click vào nút Approve/Reject trên bảng
   const handleActionClick = async (accountId: string, username: string, type: 'password' | 'totp', action: 'approved' | 'rejected') => {
     if (action === 'rejected') {
-      // Từ chối: Xử lý ngay, không gọi ConfirmationModal
-      const result = await processRejection(accountId, type);
-      if (result.success) {
-        setToastConfig({ isOpen: true, type: 'success', message: 'requestRejectedSuccess' });
-        refetch();
-      } else {
-        setToastConfig({ isOpen: true, type: 'error', message: result.errorKey });
+      // Từ chối: Xử lý ngay, Hook Reject đã tự gọi showToast thông báo
+      const success = type === 'totp' 
+        ? await handleRejectTotp(accountId) 
+        : await handleRejectPassword(accountId);
+        
+      if (success) {
+        refetch(); // Cập nhật lại danh sách ngay lập tức
       }
     } else {
-      // Approve: Gọi ConfirmationModal
+      // Approve: Bật Modal Confirm
       setSelectedRequest({ accountId, username, type, action });
       setIsModalOpen(true);
     }
@@ -56,13 +66,12 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
     setSelectedRequest(null);
 
     if (result.success) {
-      refetch(); // Cập nhật lại danh sách ngay lập tức
-      // Chỉ toast cho TOTP. Password sẽ được báo thông qua CredentialDisplay.
+      refetch(); 
       if (selectedRequest.type === 'totp') {
-        setToastConfig({ isOpen: true, type: 'success', message: 'requestApprovedSuccess' });
+        showToast('success', 'requestApprovedSuccess');
       }
     } else {
-      setToastConfig({ isOpen: true, type: 'error', message: result.errorKey });
+      showToast('error', result.errorKey);
     }
   };
 
@@ -71,9 +80,7 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
     setSelectedRequest(null);
   };
 
-  const getModalTitle = () => {
-    return translate('approveTitle') || 'Phê duyệt yêu cầu';
-  };
+  const getModalTitle = () => translate('approveTitle') || 'Phê duyệt yêu cầu';
 
   const getModalContent = () => {
     if (!selectedRequest) return null;
@@ -89,7 +96,6 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
 
   return (
     <div className="animate-in fade-in relative">
-      {/* ... Phần header của bạn giữ nguyên ... */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-2xl text-[var(--ct-text)]">
@@ -108,11 +114,10 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
         </div>
       )}
 
-      {/* Bảng danh sách yêu cầu (Giữ nguyên cấu trúc) */}
+      {/* Bảng danh sách yêu cầu */}
       <div className="rounded-xl border overflow-hidden border-[var(--ct-border)]">
         <table className="w-full text-sm text-left">
           <thead style={{ background: 'var(--ct-bg)', borderBottom: '1px solid var(--ct-border)', color: 'var(--ct-text)' }}>
-            {/* Headers ... */}
             <tr>
               <th className="px-4 py-3 font-semibold">{translate('adminId') || 'Admin Account'}</th>
               <th className="px-4 py-3 font-semibold">{translate('requestTime') || 'Time'}</th>
@@ -134,42 +139,55 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
                 </td>
               </tr>
             ) : (
-              requests.map(req => (
-                <tr key={req.id} className="border-t hover:bg-black/5 dark:hover:bg-white/5 border-[var(--ct-border)] text-[var(--ct-text)] transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="font-semibold">{req.username}</p>
-                    <p className="text-xs opacity-60 font-mono">ID: {req.accountId}</p>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs opacity-70">
-                    {new Date(req.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 font-medium">
-                    {req.type === 'password' 
-                      ? (translate('reqTypePassword') || 'Password Reset')
-                      : (translate('reqTypeTotp') || 'TOTP Reset')}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button 
-                        onClick={() => handleActionClick(req.accountId, req.username, req.type, 'approved')}
-                        disabled={isProcessing}
-                        className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 disabled:opacity-50 transition-all"
-                        title={translate('approve') || 'Approve'}
-                      >
-                        <Check size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleActionClick(req.accountId, req.username, req.type, 'rejected')}
-                        disabled={isProcessing}
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-50 transition-all"
-                        title={translate('reject') || 'Reject'}
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+              requests.map(req => {
+                // Xác định trạng thái của từng row
+                const isValid = isRequestValid(req.timestamp);
+                const isRejecting = isRejectingId === `totp-${req.accountId}` || isRejectingId === `pwd-${req.accountId}`;
+                const isDisabled = isProcessing || isRejecting;
+
+                return (
+                  <tr key={`${req.accountId}-${req.type}`} className="border-t hover:bg-black/5 dark:hover:bg-white/5 border-[var(--ct-border)] text-[var(--ct-text)] transition-colors">
+                    <td className="px-4 py-3">
+                      <p className="font-semibold">{req.username}</p>
+                      <p className="text-xs opacity-60 font-mono">ID: {req.accountId}</p>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs opacity-70">
+                      {new Date(req.timestamp).toLocaleString()}
+                      {/* Cảnh báo hết hạn */}
+                      {!isValid && (
+                        <span className="block text-red-500 text-[10px] mt-1 font-sans font-semibold">
+                          {translate('requestExpired24h') || 'Expired (>24h)'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 font-medium">
+                      {req.type === 'password' 
+                        ? (translate('reqTypePassword') || 'Password Reset')
+                        : (translate('reqTypeTotp') || 'TOTP Reset')}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-2">
+                        <button 
+                          onClick={() => handleActionClick(req.accountId, req.username, req.type, 'approved')}
+                          disabled={isDisabled || !isValid} // Chặn Approve nếu quá 24h
+                          className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 disabled:opacity-30 transition-all"
+                          title={translate('approve') || 'Approve'}
+                        >
+                          <Check size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleActionClick(req.accountId, req.username, req.type, 'rejected')}
+                          disabled={isDisabled} // Vẫn cho phép Reject để xóa yêu cầu
+                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-30 transition-all"
+                          title={translate('reject') || 'Reject'}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>
@@ -197,15 +215,6 @@ export function AdminResetRequestTab({ t }: { t?: (key: string) => string }) {
           />
         </div>
       )}
-
-      <Toast
-        isOpen={toastConfig.isOpen}
-        type={toastConfig.type}
-        message={toastConfig.message}
-        onClose={() => setToastConfig({ ...toastConfig, isOpen: false })}
-        position="bottom-right"
-        t={translate}
-      />
     </div>
   );
 }

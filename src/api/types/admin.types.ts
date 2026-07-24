@@ -110,9 +110,9 @@ export interface AdminAccountResponse {
   status: string;
   twofa_enabled: boolean;
   totp_reset_requested: boolean;
-  totp_reset_requested_at: string;
+  totp_reset_requested_at: string | null;
   password_reset_requested: boolean;
-  password_reset_requested_at: string;
+  password_reset_requested_at: string | null;
 }
 
 export interface RejectOrganizationPayload {
