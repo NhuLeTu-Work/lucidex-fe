@@ -106,17 +106,17 @@ export function useLoginOtp(
     } catch (err: any) {
       if (err.response) {
         if (err.response.status === 422) {
-          // SỬA Ở ĐÂY
           setOtpError('errorInvalidData');
-        } else if (err.response.status === 400 || err.response.status === 401) {
-          // SỬA Ở ĐÂY
+        } else if (err.response.status === 400) {
+          // 400: Lỗi do user nhập sai mã OTP hoặc mã OTP hết hạn
           setOtpError('errorOtpInvalid');
+        } else if (err.response.status === 401) {
+          // 401: Lỗi do token phiên (tempOtpToken) bị hết hạn/không hợp lệ
+          setOtpError('errorInvalidSession');
         } else {
-          // SỬA Ở ĐÂY
           setOtpError('errorServer');
         }
       } else {
-        // SỬA Ở ĐÂY
         setOtpError('errorNetwork');
       }
     } finally {
