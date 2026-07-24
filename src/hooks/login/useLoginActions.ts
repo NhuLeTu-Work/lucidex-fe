@@ -1,6 +1,5 @@
 import { authLoginApi } from '@/api/endpoints/authentication/loginApi';
 import { loginAdminApi } from '@/api/endpoints/admin/loginAdmin';
-import { googleAuthApi } from '@/api/endpoints/owner/googleAuthApi';
 import type { LoginState } from './types';
 import { useGoogleAuth } from './useGoogleAuth';
 
