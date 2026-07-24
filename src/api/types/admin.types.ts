@@ -28,9 +28,10 @@ export interface VerifyAdminTotpLoginResponse {
   data: {
     access_token: string;
     token_type: string;
+    refresh_token: string; // Đã bổ sung theo API Document
   };
   message: string;
-  error_code: string;
+  error_code?: string; // Thêm ? vì có thể không có error_code khi success = true
 }
 
 export interface VerifyTotpSetupPayload {

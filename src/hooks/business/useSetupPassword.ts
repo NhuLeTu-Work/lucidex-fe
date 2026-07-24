@@ -59,33 +59,42 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent, otpValue: string) => {
-    e.preventDefault();
-    setOtpError(null); // Reset lỗi trước khi gọi
+  const handleVerifyOtp = async (e: any, rawOtpValue: string) => {
+    // 1. Safe check: Chỉ gọi preventDefault nếu 'e' thực sự là một Event
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    
+    setOtpError(null); 
+    
+    // 2. Làm sạch chuỗi OTP: Loại bỏ tất cả dấu cách hoặc ký tự không phải là số
+    const cleanOtp = (rawOtpValue || '').toString().replace(/[^0-9]/g, '');
+    
+    console.log('Original OTP:', rawOtpValue, 'Cleaned OTP:', cleanOtp, 'Length:', cleanOtp.length);
 
-    if (!otpValue || otpValue.length !== 6) {
-      setOtpError('errorInvalidOtpLength'); // Key
-      return;
+    // 3. Kiểm tra độ dài sau khi đã làm sạch
+    if (!cleanOtp || cleanOtp.length !== 6) {
+      setOtpError('errorInvalidOtpLength'); // Key i18n
+      return; // Dừng lại ở đây nếu không đủ 6 số
     }
 
     setIsOtpLoading(true);
     try {
       const response = await verifyInviteOtp(orgType, {
         invite_token: inviteToken,
-        otp_code: otpValue,
+        otp_code: cleanOtp, // Gửi lên API chuỗi đã làm sạch
       });
 
       if (response.success) {
-        // Có thể thêm 1 state success để Modal OTP hiện dấu tick xanh nếu muốn
         setTimeout(() => {
           window.location.href = '/login'; 
         }, 1500);
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
-        setOtpError('errorOtpInvalid'); // Key
+        setOtpError('errorOtpInvalid'); 
       } else {
-        setOtpError('errorServer'); // Key
+        setOtpError('errorServer'); 
       }
     } finally {
       setIsOtpLoading(false);

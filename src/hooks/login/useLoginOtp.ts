@@ -17,63 +17,79 @@ export function useLoginOtp(
     tempOtpToken
   } = state;
 
-  const handleVerify2FA = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otpValue || otpValue.length < 6) return;
+  const handleVerify2FA = async (e: any) => {
+    // 1. Safe check để tránh lỗi crash preventDefault
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
 
-    setIsOtpLoading(true);
     setOtpError(null);
 
+    // 2. Làm sạch chuỗi OTP (Chỉ lấy số, bỏ khoảng trắng/kí tự lạ)
+    const cleanOtp = (otpValue || '').toString().replace(/[^0-9]/g, '');
+
+    if (!cleanOtp || cleanOtp.length !== 6) {
+      setOtpError('errorInvalidOtpLength'); 
+      return;
+    }
+
+    setIsOtpLoading(true);
+
     try {
-      // LUỒNG DÀNH CHO ADMIN / SUPER ADMIN
+      // ==========================================
+      // LUỒNG 1: DÀNH CHO ADMIN / SUPER ADMIN
+      // ==========================================
       if (currentAcc?.type === 'super' || currentAcc?.type === 'admin') {
         
-        // Luồng 1: Xác nhận Setup TOTP lần đầu (có setupToken)
+        // Luồng 1A: Xác nhận Setup TOTP lần đầu (Gọi API verifyTotpSetupApi)
         if (setupToken) {
           const response = await verifyTotpSetupApi({
             setup_token: setupToken,
-            otp_code: otpValue,
-          });
-
-          if (response.success) {
-            localStorage.setItem('access_token', response.data.access_token);
-            setRole(currentAcc.type);
-            navigate(currentAcc.type === 'super' ? '/super' : '/admin');
-          } else {
-            // SỬA Ở ĐÂY: Bỏ t(), lưu thẳng chuỗi message của BE hoặc dùng key
-            setOtpError('errorOtpInvalid');
-          }
-        } 
-        
-        // Luồng 2: Xác thực TOTP đăng nhập thông thường (có challengeToken)
-        else if (challengeToken) {
-          const response = await verifyAdminTotpLoginApi({
-            challenge_token: challengeToken,
-            otp_code: otpValue,
+            otp_code: cleanOtp,
           });
 
           if (response.success && response.data.access_token) {
             localStorage.setItem('access_token', response.data.access_token);
+            // if (response.data.refresh_token) {
+            //   localStorage.setItem('refresh_token', response.data.refresh_token);
+            // }
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
           } else {
-            // SỬA Ở ĐÂY
             setOtpError('errorOtpInvalid');
           }
         } 
         
-        // Bắt lỗi rỗng nếu state bị mất do reload hoặc lỗi logic
+        // Luồng 1B: Xác thực TOTP đăng nhập thông thường (CHÍNH XÁC THEO API DOC)
+        else if (challengeToken) {
+          const response = await verifyAdminTotpLoginApi({
+            challenge_token: challengeToken,
+            otp_code: cleanOtp, // Gửi OTP đã làm sạch (chắc chắn 6 số)
+          });
+
+          if (response.success && response.data.access_token) {
+            localStorage.setItem('access_token', response.data.access_token);
+            if (response.data.refresh_token) {
+              localStorage.setItem('refresh_token', response.data.refresh_token); // Đã thêm lưu refresh_token
+            }
+            setRole(currentAcc.type);
+            navigate(currentAcc.type === 'super' ? '/super' : '/admin');
+          } else {
+            setOtpError('errorOtpInvalid');
+          }
+        } 
+        
         else {
-          // SỬA Ở ĐÂY: Dùng key thay vì chuỗi tiếng Việt
           setOtpError('errorInvalidSession'); 
         }
       }
       
-      // TODO: LUỒNG DÀNH CHO OWNER VÀ CÁC ROLE KHÁC SẼ NẰM Ở ĐÂY
-      else if(currentAcc?.type === 'owner') {
+      // ==========================================
+      // LUỒNG 2: DÀNH CHO OWNER VÀ CÁC BÊN (ISSUER/VERIFIER)
+      // ==========================================
+      else {
         
         if (!tempOtpToken) {
-          // SỬA Ở ĐÂY: Dùng key thay vì chuỗi tiếng Việt
           setOtpError('errorInvalidSession');
           setIsOtpLoading(false);
           return;
@@ -82,37 +98,34 @@ export function useLoginOtp(
         // Gọi API Verify Email OTP
         const response = await verifyOtpLoginApi({
           otp_token: tempOtpToken,
-          otp_code: otpValue,
+          otp_code: cleanOtp,
         });
 
         if (response.success && response.data.access_token) {
-          // 1. Lưu Access Token
           localStorage.setItem('access_token', response.data.access_token);
-          
-          // 2. Lưu Refresh Token (Nâng cao bảo mật phiên)
           if (response.data.refresh_token) {
             localStorage.setItem('refresh_token', response.data.refresh_token);
           }
-
-          // 3. Phân quyền và điều hướng
-          setRole('owner');
-          navigate('/owner');
+          
+          const safeRole = currentAcc?.type || 'owner';
+          
+          setRole(safeRole);
+          navigate(`/${safeRole}`);
 
         } else {
-          // SỬA Ở ĐÂY
           setOtpError('errorOtpInvalid');
         }
       }
     } catch (err: any) {
       if (err.response) {
-        if (err.response.status === 422) {
-          setOtpError('errorInvalidData');
-        } else if (err.response.status === 400) {
-          // 400: Lỗi do user nhập sai mã OTP hoặc mã OTP hết hạn
+        const status = err.response.status;
+        
+        // Map đúng lỗi API Document của Verify Admin
+        if (status === 422) {
+          setOtpError('errorInvalidOtpLength'); 
+        } else if (status === 400 || status === 401) {
+          // 401: Challenge token invalid/expired, or TOTP code invalid
           setOtpError('errorOtpInvalid');
-        } else if (err.response.status === 401) {
-          // 401: Lỗi do token phiên (tempOtpToken) bị hết hạn/không hợp lệ
-          setOtpError('errorInvalidSession');
         } else {
           setOtpError('errorServer');
         }
