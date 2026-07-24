@@ -30,12 +30,14 @@ export function VerifierPortal() {
       <VerifierSidebarDesktop 
         activeTab={activeTab} setActiveTab={setActiveTab} 
         quotaUsed={quotaUsed} t={t} 
+        userProfile={userProfile}
       />
 
       <main className="flex-1 p-6 lg:p-10 overflow-auto">
         <VerifierSidebarMobile 
           activeTab={activeTab} setActiveTab={setActiveTab} 
           quotaUsed={quotaUsed} t={t} 
+          userProfile={userProfile}
         />
 
         {activeTab === 'dashboard' && (

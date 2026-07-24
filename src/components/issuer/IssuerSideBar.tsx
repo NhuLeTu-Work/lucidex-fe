@@ -1,25 +1,30 @@
 import { LayoutDashboard, Upload, ClipboardCheck, BarChart3 } from 'lucide-react';
-import { currentIssuer } from '../../data/mockData';
 import type { IssuerTab } from '../../types/issuer';
+import type { UserProfile } from '@/api/types/auth.types';
 
 interface SidebarProps {
   activeTab: IssuerTab;
   setActiveTab: (tab: IssuerTab) => void;
   pendingCount: number;
   t: (key: string) => string;
+  userProfile?: UserProfile | null;
 }
 
 function BuildingIcon({ size }: { size: number }) {
   return <BarChart3 size={size} />;
 }
 
-export function IssuerSidebarDesktop({ activeTab, setActiveTab, pendingCount, t }: SidebarProps) {
+export function IssuerSidebarDesktop({ activeTab, setActiveTab, pendingCount, t, userProfile }: SidebarProps) {
   const sidebarItems = [
     { id: 'dashboard' as IssuerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'upload' as IssuerTab, label: t('uploadCSV'), icon: <Upload size={18} /> },
     { id: 'review' as IssuerTab, label: t('manualReview'), icon: <ClipboardCheck size={18} /> },
     { id: 'analytics' as IssuerTab, label: t('analytics'), icon: <BarChart3 size={18} /> },
   ];
+
+  // Xử lý dữ liệu hiển thị từ userProfile
+  const displayName = userProfile?.organization_name || userProfile?.full_name || 'Issuer';
+  const displaySub = userProfile?.email || userProfile?.actor_id || 'Loading...';
 
   return (
     <aside className="w-64 flex-shrink-0 border-r hidden md:block" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
@@ -28,9 +33,9 @@ export function IssuerSidebarDesktop({ activeTab, setActiveTab, pendingCount, t 
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
             <BuildingIcon size={16} />
           </div>
-          <div>
-            <p className="text-sm font-semibold">{currentIssuer.name}</p>
-            <p className="text-xs opacity-60">CICT - CTU</p>
+          <div className="overflow-hidden"> {/* Thêm overflow-hidden để chống vỡ layout khi text quá dài */}
+            <p className="text-sm font-semibold truncate">{displayName}</p>
+            <p className="text-xs opacity-60 truncate">{displaySub}</p>
           </div>
         </div>
       </div>

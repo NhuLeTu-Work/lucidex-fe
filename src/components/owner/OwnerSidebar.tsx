@@ -1,14 +1,15 @@
 import { LayoutDashboard, FileText, Link2, ClipboardList, Settings, Award } from 'lucide-react';
-import { currentOwner } from '../../data/mockData';
 import type { OwnerTab } from '../../types/owner';
+import type { UserProfile } from '@/api/types/auth.types'; // Đảm bảo import đúng đường dẫn type
 
 interface SidebarProps {
   activeTab: OwnerTab;
   setActiveTab: (tab: OwnerTab) => void;
   t: (key: string) => string;
+  userProfile?: UserProfile | null; // Thêm prop này
 }
 
-export function OwnerSidebarDesktop({ activeTab, setActiveTab, t }: SidebarProps) {
+export function OwnerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }: SidebarProps) {
   const sidebarItems = [
     { id: 'dashboard' as OwnerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'credentials' as OwnerTab, label: t('myCredentials'), icon: <FileText size={18} /> },
@@ -18,16 +19,21 @@ export function OwnerSidebarDesktop({ activeTab, setActiveTab, t }: SidebarProps
     { id: 'claim' as OwnerTab, label: t('claimDegree'), icon: <Award size={18} /> },
   ];
 
+  // Xử lý dữ liệu fallback nếu userProfile chưa load xong
+  const displayName = userProfile?.full_name || userProfile?.username || 'Owner';
+  const displayId = userProfile?.email || userProfile?.actor_id || 'Loading...';
+  const avatarInitial = displayName.charAt(0).toUpperCase();
+
   return (
     <aside className="w-64 flex-shrink-0 border-r hidden md:block" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
-            {currentOwner.name.charAt(0)}
+            {avatarInitial}
           </div>
-          <div>
-            <p className="text-sm font-semibold">{currentOwner.name}</p>
-            <p className="text-xs font-mono opacity-60">{currentOwner.studentId}</p>
+          <div className="overflow-hidden"> {/* Thêm overflow-hidden để tránh text dài làm vỡ layout */}
+            <p className="text-sm font-semibold truncate">{displayName}</p>
+            <p className="text-xs font-mono opacity-60 truncate">{displayId}</p>
           </div>
         </div>
       </div>

@@ -29,10 +29,16 @@ export function OwnerPortal() {
   
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
-      <OwnerSidebarDesktop activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
+      <OwnerSidebarDesktop
+        activeTab={activeTab} setActiveTab={setActiveTab} t={t}
+        userProfile={userProfile}
+      />
 
       <main className="flex-1 p-6 lg:p-10 overflow-auto">
-        <OwnerSidebarMobile activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
+        <OwnerSidebarMobile
+          activeTab={activeTab} setActiveTab={setActiveTab} t={t}
+          userProfile={userProfile}
+        />
 
         {activeTab === 'dashboard' && <OwnerDashboard t={t} links={links} onTabChange={setActiveTab}
           userProfile={userProfile}

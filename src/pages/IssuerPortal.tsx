@@ -29,6 +29,7 @@ export function IssuerPortal() {
       <IssuerSidebarDesktop 
         activeTab={activeTab} setActiveTab={setActiveTab} 
         pendingCount={pendingCount} t={t} 
+        userProfile={userProfile}
       />
       
       <main className="flex-1 p-6 lg:p-10 overflow-auto">
@@ -37,6 +38,7 @@ export function IssuerPortal() {
           setActiveTab={setActiveTab} 
           pendingCount={pendingCount}
           t={t} 
+          userProfile={userProfile}
         />
 
         {activeTab === 'dashboard' && (

@@ -1,15 +1,16 @@
 import { LayoutDashboard, Search, History, BarChart3, Building2 } from 'lucide-react';
-import { currentVerifier } from '../../data/mockData';
 import type { VerifierTab } from '../../types/verifier';
+import type { UserProfile } from '@/api/types/auth.types'; // Import type
 
 interface SidebarProps {
   activeTab: VerifierTab;
   setActiveTab: (tab: VerifierTab) => void;
   quotaUsed: number;
   t: (key: string) => string;
+  userProfile?: UserProfile | null; // Thêm prop này
 }
 
-export function VerifierSidebarDesktop({ activeTab, setActiveTab, quotaUsed, t }: SidebarProps) {
+export function VerifierSidebarDesktop({ activeTab, setActiveTab, quotaUsed, t, userProfile }: SidebarProps) {
   const sidebarItems = [
     { id: 'dashboard' as VerifierTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'verify' as VerifierTab, label: t('verifyCredential'), icon: <Search size={18} /> },
@@ -18,20 +19,27 @@ export function VerifierSidebarDesktop({ activeTab, setActiveTab, quotaUsed, t }
     { id: 'register' as VerifierTab, label: t('orgRegistration'), icon: <Building2 size={18} /> },
   ];
 
+  // Xử lý dữ liệu hiển thị từ userProfile
+  const displayName = userProfile?.organization_name || userProfile?.full_name || 'Verifier';
+  const displaySub = userProfile?.email || userProfile?.actor_id || 'Loading...';
+  const avatarInitial = displayName.charAt(0).toUpperCase();
+
   return (
-    <aside className="w-64 flex-shrink-0 border-r hidden md:block" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+    // Bổ sung flex và flex-col để phần Quota luôn được đẩy xuống dưới cùng (mt-auto)
+    <aside className="w-64 flex-shrink-0 border-r hidden md:flex md:flex-col" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
-            {currentVerifier.name.charAt(0)}
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ background: '#000' }}>
+            {avatarInitial}
           </div>
-          <div>
-            <p className="text-sm font-semibold">{currentVerifier.name}</p>
-            <p className="text-xs opacity-60">{currentVerifier.company}</p>
+          <div className="overflow-hidden"> {/* Bổ sung overflow-hidden chống vỡ layout */}
+            <p className="text-sm font-semibold truncate">{displayName}</p>
+            <p className="text-xs opacity-60 truncate">{displaySub}</p>
           </div>
         </div>
       </div>
-      <nav className="p-3 space-y-1">
+      
+      <nav className="p-3 space-y-1 overflow-y-auto">
         {sidebarItems.map(item => (
           <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === item.id ? 'text-white' : 'opacity-60 hover:opacity-100'}`} style={{ background: activeTab === item.id ? '#000' : 'transparent' }}>
             {item.icon}
@@ -39,6 +47,7 @@ export function VerifierSidebarDesktop({ activeTab, setActiveTab, quotaUsed, t }
           </button>
         ))}
       </nav>
+      
       {/* Quota mini */}
       <div className="p-4 mt-auto border-t" style={{ borderColor: 'var(--ct-border)' }}>
         <p className="text-xs font-medium mb-2">{t('freeTier')}</p>
