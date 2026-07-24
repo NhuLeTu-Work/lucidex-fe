@@ -402,5 +402,7 @@ export const vi: Record<string, string> = {
     fmtNameLettersOnly:"Chỉ cho phép chữ cái và khoảng trắng, 2-255 ký tự",
     "errorSessionExpired": "Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.",
     "errorFetchProfile": "Không thể tải thông tin hồ sơ người dùng.",
-    setupAccount: 'Cài đặt Tài khoản'
+    setupAccount: 'Cài đặt Tài khoản',
+    "errorInvalidOtpLength": "Vui lòng nhập đầy đủ 6 số OTP.",
+"errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin."
 };

@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { setupPasswordAndRequestOtp, verifyInviteOtp } from '@/api/endpoints/business/setupPasswordApi';
 import type { OrgType } from '@/api/types/business.types';
-import { toast } from 'sonner';
 
-// Thêm tham số emailUrl vào hook (để lấy từ link invite)
 export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl: string = '', onSuccess: () => void) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -11,22 +9,26 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
-  // === Bổ sung các state còn thiếu ===
+  // State xử lý riêng cho OTP
+  const [isOtpLoading, setIsOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  
   const [error, setError] = useState<string | null>(null);
-  const [email] = useState<string>(emailUrl); // Email lấy từ tham số URL
+  const [email] = useState<string>(emailUrl);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); // Reset lỗi mỗi lần submit
+    setError(null);
 
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.');
+      setError('errorPasswordMismatch'); // Sử dụng Key
       return;
     }
 
     if (password.length < 8) {
-      setError('Mật khẩu phải có ít nhất 8 ký tự.');
+      setError('errorWeakPassword'); // Sử dụng Key
       return;
     }
 
@@ -42,16 +44,15 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
 
       if (response.success) {
         setIsSuccess(true);
-        onSuccess();
-        // Lưu ý: Thường lúc này bạn sẽ mở Modal OTP lên (tùy vào logic UI của bạn)
+        onSuccess(); // Mở Modal OTP
       } else {
-        setError(response.message || 'Có lỗi xảy ra.');
+        setError('errorServer');
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
-        setError('Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin.');
+        setError('errorInvalidInviteLink'); // Key mới
       } else {
-        setError(err.response?.data?.message || 'Lỗi kết nối hoặc token đã hết hạn.');
+        setError('errorServerConnection');
       }
     } finally {
       setIsLoading(false);
@@ -60,13 +61,14 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
 
   const handleVerifyOtp = async (e: React.FormEvent, otpValue: string) => {
     e.preventDefault();
+    setOtpError(null); // Reset lỗi trước khi gọi
 
     if (!otpValue || otpValue.length !== 6) {
-      toast.error('Vui lòng nhập đủ 6 số OTP.');
+      setOtpError('errorInvalidOtpLength'); // Key
       return;
     }
 
-    setIsLoading(true);
+    setIsOtpLoading(true);
     try {
       const response = await verifyInviteOtp(orgType, {
         invite_token: inviteToken,
@@ -74,22 +76,19 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
       });
 
       if (response.success) {
-        toast.success(response.message || 'Xác thực tài khoản thành công! Đang chuyển hướng...');
-        
-        // Đóng modal và chuyển hướng về trang đăng nhập
+        // Có thể thêm 1 state success để Modal OTP hiện dấu tick xanh nếu muốn
         setTimeout(() => {
           window.location.href = '/login'; 
         }, 1500);
       }
     } catch (err: any) {
-      // Xử lý lỗi trả về (OTP sai, hết hạn...)
       if (err.response?.status === 422) {
-        toast.error('Mã OTP không hợp lệ hoặc đã hết hạn.');
+        setOtpError('errorOtpInvalid'); // Key
       } else {
-        toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi xác thực OTP.');
+        setOtpError('errorServer'); // Key
       }
     } finally {
-      setIsLoading(false);
+      setIsOtpLoading(false);
     }
   };
 
@@ -101,9 +100,11 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     email,           
     handleSetupPassword,
     handleVerifyOtp,
-    showPassword,
-    setShowPassword,
-    showConfirmPassword,
-    setShowConfirmPassword,
+    showPassword, setShowPassword,
+    showConfirmPassword, setShowConfirmPassword,
+    // Export thêm các state của OTP
+    isOtpLoading,
+    otpError,
+    setOtpError
   };
 }

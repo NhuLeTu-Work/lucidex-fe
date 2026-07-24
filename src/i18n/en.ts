@@ -416,6 +416,8 @@ export const en: Record<string, string> = {
     fmtNameLettersOnly: "Letters and spaces only, 2-255 characters",
     "errorSessionExpired": "Session expired or invalid token. Please log in again.",
     "errorFetchProfile": "Failed to load user profile information.",
-    setupAccount: 'Set Up Your Account'
+    setupAccount: 'Set Up Your Account',
+    "errorInvalidOtpLength": "Please enter a complete 6-digit OTP.",
+"errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin."
 
 };
