@@ -6,6 +6,8 @@ import { VerifierVerify } from '../components/verifier/VerifierVerify';
 import { VerifierHistory } from '../components/verifier/VerifierHistory';
 import { VerifierQuota } from '../components/verifier/VerifierQuota';
 import { VerifierRegister } from '../components/verifier/VerifierRegister';
+import { useEffect } from 'react';
+import { useAuthMe } from '@/hooks/auth/useAuthMe';
 
 export function VerifierPortal() {
   const { t } = useApp()
@@ -16,6 +18,12 @@ export function VerifierPortal() {
     verifiedData,
     handleVerify
   } = useVerifierPortal();
+  const { showToast } = useApp();
+  const { userProfile, fetchProfile } = useAuthMe(showToast);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
@@ -31,7 +39,9 @@ export function VerifierPortal() {
         />
 
         {activeTab === 'dashboard' && (
-          <VerifierDashboard t={t} quotaUsed={quotaUsed} onTabChange={setActiveTab} />
+          <VerifierDashboard t={t} quotaUsed={quotaUsed} onTabChange={setActiveTab}
+            userProfile={userProfile}
+          />
         )}
         
         {activeTab === 'verify' && (

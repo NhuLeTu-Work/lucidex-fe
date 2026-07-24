@@ -1,6 +1,7 @@
-import { useApp } from '../app/AppContext';
+import { useApp} from '../app/AppContext';
 import { useIssuerPortal } from '../hooks/issuer/userIssuerRequests';
-
+import { useEffect } from 'react';
+import { useAuthMe } from '@/hooks/auth/useAuthMe';
 // Components
 import { IssuerSidebarDesktop, IssuerSidebarMobile } from '../components/issuer/IssuerSideBar';
 import { IssuerDashboard } from '../components/issuer/IssuerDashBoard';
@@ -16,6 +17,12 @@ export function IssuerPortal() {
     handleApprove, handleReject, handleUpload,
     pendingCount
   } = useIssuerPortal();
+  const { showToast } = useApp();
+  const { userProfile, fetchProfile } = useAuthMe(showToast);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
@@ -33,7 +40,9 @@ export function IssuerPortal() {
         />
 
         {activeTab === 'dashboard' && (
-          <IssuerDashboard t={t} pendingCount={pendingCount} onTabChange={setActiveTab} />
+          <IssuerDashboard t={t} pendingCount={pendingCount} onTabChange={setActiveTab}
+            userProfile={userProfile}
+          />
         )}
         
         {activeTab === 'upload' && (

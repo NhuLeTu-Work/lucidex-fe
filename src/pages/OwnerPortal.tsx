@@ -1,6 +1,7 @@
 import { useApp } from '../app/AppContext';
 import { useOwnerPortal } from '../hooks/owner/useOwnerPortal';
-
+import { useEffect } from 'react';
+import { useAuthMe } from '@/hooks/auth/useAuthMe';
 import { OwnerSidebarDesktop, OwnerSidebarMobile } from '../components/owner/OwnerSidebar';
 import { OwnerDashboard } from '../components/owner/OwnerDashboard';
 import { OwnerCredentials } from '../components/owner/OwnerCredentials';
@@ -19,7 +20,13 @@ export function OwnerPortal() {
     showOtpMock, setShowOtpMock,
     handleRevokeLink, handleCreateLink
   } = useOwnerPortal();
-
+  const { showToast } = useApp();
+    const { userProfile, fetchProfile } = useAuthMe(showToast);
+  
+    useEffect(() => {
+      fetchProfile();
+    }, [fetchProfile]);
+  
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
       <OwnerSidebarDesktop activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
@@ -27,7 +34,9 @@ export function OwnerPortal() {
       <main className="flex-1 p-6 lg:p-10 overflow-auto">
         <OwnerSidebarMobile activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
 
-        {activeTab === 'dashboard' && <OwnerDashboard t={t} links={links} onTabChange={setActiveTab} />}
+        {activeTab === 'dashboard' && <OwnerDashboard t={t} links={links} onTabChange={setActiveTab}
+          userProfile={userProfile}
+        />}
         {activeTab === 'credentials' && <OwnerCredentials t={t} />}
         {activeTab === 'links' && <OwnerLinks t={t} links={links} onRevoke={handleRevokeLink} onCreate={() => setShowCreateModal(true)} />}
         {activeTab === 'audit' && <OwnerAudit t={t} />}
