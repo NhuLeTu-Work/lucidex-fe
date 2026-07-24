@@ -22,7 +22,7 @@ export function useLogin() {
     resendCountdown, 
     resendMessage, 
     triggerResend 
-  } = useResendOtp(t);
+  } = useResendOtp();
 
   // Tạo hàm handleResendOTP mới dùng chung
   const handleResendOTP = () => {

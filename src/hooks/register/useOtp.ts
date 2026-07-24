@@ -19,7 +19,7 @@ export function useOtp(
     resendCountdown, 
     resendMessage, 
     triggerResend 
-  } = useResendOtp(t);
+  } = useResendOtp();
 
   // 3. Hàm bọc lại logic Resend để truyền ra UI
   const handleResendOTP = () => {
