@@ -84,7 +84,7 @@ export function useBusinessRegister(
       fErrors.address = 'fmtTextLength'; // CHỈ LƯU KEY
     }
 
-    if (bizData.regTitle.length < 3 || bizData.regTitle.length > 200) {
+    if (roleType === 'verifier' && (bizData.regTitle.length < 3 || bizData.regTitle.length > 200)) {
       fErrors.regTitle = 'fmtTextLength'; // CHỈ LƯU KEY
     }
     
@@ -150,9 +150,10 @@ export function useBusinessRegister(
       if (certificate) {
         formData.append('document', certificate);
       }
-
+      console.log(formData)
       // Gửi API với FormData
       const response = await registerOrganizationApi(roleType as OrgType, formData as any);
+      console.log(response)
       if (response && response.success) {
         setIsSuccess(true);
       } else if (response) {
