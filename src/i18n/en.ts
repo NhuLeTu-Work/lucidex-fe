@@ -408,5 +408,8 @@ export const en: Record<string, string> = {
     "errorActionFailed": "An error occurred while processing the request.",
     "rejectTotpRequest": "Reject TOTP Reset",
     "rejectPasswordRequest": "Reject Password Reset",
-    "requestExpired24h": "Request expired (over 24 hours)"
+    "requestExpired24h": "Request expired (over 24 hours)",
+    "errorFetchRequestStatus": "Failed to fetch account request status. Please try again.",
+    "cooldown24h": "Please wait 24h since last request",
+    "requestSentSuccess": "Your request has been sent successfully."
 };

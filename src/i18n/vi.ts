@@ -393,5 +393,8 @@ export const vi: Record<string, string> = {
     "errorActionFailed": "Có lỗi xảy ra khi xử lý thao tác này.",
     "rejectTotpRequest": "Từ chối Reset TOTP",
     "rejectPasswordRequest": "Từ chối Reset Mật khẩu",
-    "requestExpired24h": "Yêu cầu đã quá hạn (hơn 24 giờ)"
+    "requestExpired24h": "Yêu cầu đã quá hạn (hơn 24 giờ)",
+    "errorFetchRequestStatus": "Không thể lấy trạng thái yêu cầu của tài khoản. Vui lòng thử lại.",
+    "cooldown24h": "Phải chờ 24h kể từ lần yêu cầu trước",
+    "requestSentSuccess": "Yêu cầu của bạn đã được gửi thành công."
 };

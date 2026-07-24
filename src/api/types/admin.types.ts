@@ -130,3 +130,12 @@ export interface RejectOrganizationResponse {
   message: string;
   error_code?: string;
 }
+
+export interface AdminResetRequestStatusResponse {
+  id: string;
+  username: string;
+  totp_reset_requested: boolean;
+  totp_reset_requested_at: string | null;
+  password_reset_requested: boolean;
+  password_reset_requested_at: string | null;
+}

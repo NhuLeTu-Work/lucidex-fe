@@ -1,17 +1,31 @@
-import { KeyRound, Smartphone, CheckCircle, Send, AlertCircle } from 'lucide-react';
+import { KeyRound, Smartphone, CheckCircle, Send, AlertCircle, Clock } from 'lucide-react';
 import { useAdminAccountSettings } from '../../hooks/admin/useAdminAccountSettings';
+import { useApp } from '@/app/AppContext'; // Lấy showToast từ global
 
 export function AdminAccount({ t }: { t?: (key: string) => string }) {
+  const { t: contextT, showToast } = useApp();
+  const translate = (key: string) => (t ? t(key) : (contextT ? contextT(key) : key));
+
   const {
     loadingType,
     requestedPassword,
+    isInitializing,
+    pwdCooldown,
+    totpCooldown,
     requestedTotp,
     errorKey,
     handleRequestPasswordReset,
-    handleRequestTotpReset
-  } = useAdminAccountSettings();
+    handleRequestTotpReset,
+    refetch
+  } = useAdminAccountSettings(showToast);
 
-  const translate = (key: string) => (t ? t(key) : key);
+  if (isInitializing) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="w-6 h-6 border-2 border-current/30 border-t-current rounded-full animate-spin text-[var(--ct-text)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in fade-in max-w-4xl">
@@ -21,11 +35,14 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
         </h1>
       </div>
 
-      {/* Hiển thị lỗi toàn cục nếu API fail */}
+      {/* Hiển thị lỗi toàn cục nếu API GET fail */}
       {errorKey && (
         <div className="mb-6 p-3.5 rounded-xl border flex items-start gap-2.5 text-sm animate-in shake duration-300" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
           <AlertCircle size={16} className="shrink-0 mt-0.5" />
           <span className="font-medium text-balance">{translate(errorKey)}</span>
+          <button onClick={refetch} className="ml-auto underline font-semibold hover:opacity-70">
+            {translate('retry') || 'Retry'}
+          </button>
         </div>
       )}
 
@@ -45,10 +62,10 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
           
           <button 
             onClick={handleRequestPasswordReset}
-            disabled={requestedPassword || loadingType !== null}
+            disabled={requestedPassword || pwdCooldown || loadingType !== null}
             className={`mt-2 py-3 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
-              requestedPassword 
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 cursor-not-allowed' 
+              (requestedPassword || pwdCooldown)
+                ? 'bg-black/5 text-[var(--ct-text)] opacity-60 cursor-not-allowed dark:bg-white/5' 
                 : 'bg-[var(--ct-text)] text-[var(--ct-bg)] hover:opacity-90 active:scale-[0.99] disabled:opacity-50'
             }`}
           >
@@ -56,6 +73,8 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
               <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
             ) : requestedPassword ? (
               <><CheckCircle size={16} /> <span>{translate('requestSent') || 'Request Sent'}</span></>
+            ) : pwdCooldown ? (
+              <><Clock size={16} /> <span>{translate('cooldown24h') || 'Please wait 24h'}</span></>
             ) : (
               <><Send size={16} /> <span>{translate('sendRequest') || 'Send Request'}</span></>
             )}
@@ -77,10 +96,10 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
           
           <button 
             onClick={handleRequestTotpReset}
-            disabled={requestedTotp || loadingType !== null}
+            disabled={requestedTotp || totpCooldown || loadingType !== null}
             className={`mt-2 py-3 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
-              requestedTotp 
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 cursor-not-allowed' 
+              (requestedTotp || totpCooldown)
+                ? 'bg-black/5 text-[var(--ct-text)] opacity-60 cursor-not-allowed dark:bg-white/5' 
                 : 'bg-[var(--ct-text)] text-[var(--ct-bg)] hover:opacity-90 active:scale-[0.99] disabled:opacity-50'
             }`}
           >
@@ -88,6 +107,8 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
               <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
             ) : requestedTotp ? (
               <><CheckCircle size={16} /> <span>{translate('requestSent') || 'Request Sent'}</span></>
+            ) : totpCooldown ? (
+              <><Clock size={16} /> <span>{translate('cooldown24h') || 'Please wait 24h'}</span></>
             ) : (
               <><Send size={16} /> <span>{translate('sendRequest') || 'Send Request'}</span></>
             )}
