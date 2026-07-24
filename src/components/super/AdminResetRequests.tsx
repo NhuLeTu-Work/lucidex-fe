@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { useApp } from '@/app/AppContext';
 import { ConfirmationModal } from '../ui/confirmationModal';
 import { AdminCredentialDisplay } from './ResetCredentials';
-
-// Đổi tên khi import để không bị trùng lặp chức năng
 import { useAdminResetRequests as useGetAdminResetRequests } from '@/hooks/super/useGetAdminResetRequest';
 import { useProcessAdminRequest } from '@/hooks/super/useProcessAdminRequest';
 
@@ -16,12 +14,9 @@ type SelectedRequest = {
 } | null;
 
 export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
-  // Lấy hàm showToast global từ AppContext
   const { t: contextT, showToast } = useApp();
   const t = externalT || contextT;
   const translate = (key: string) => (t ? t(key) : key);
-
-  // Hook 1: Fetch danh sách yêu cầu
   const { requests, isLoading: isFetching, errorKey: fetchError, refetch } = useGetAdminResetRequests();
   
   const { 
@@ -41,27 +36,20 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
   // Xử lý khi click vào nút Approve/Reject trên bảng
   const handleActionClick = async (accountId: string, username: string, type: 'password' | 'totp', action: 'approved' | 'rejected') => {
     if (action === 'rejected') {
-      // Từ chối: Xử lý ngay, Hook Reject đã tự gọi showToast thông báo
       const success = type === 'totp' 
         ? await handleRejectTotp(accountId) 
         : await handleRejectPassword(accountId);
         
-      if (success) {
-        refetch(); // Cập nhật lại danh sách ngay lập tức
-      }
+      if (success) { refetch(); }
     } else {
-      // Approve: Bật Modal Confirm
       setSelectedRequest({ accountId, username, type, action });
       setIsModalOpen(true);
     }
   };
 
-  // Xử lý khi bấm Confirm trong Modal (Duyệt)
   const handleConfirmAction = async () => {
     if (!selectedRequest) return;
-    
     const result = await processApproval(selectedRequest.accountId, selectedRequest.type);
-    
     setIsModalOpen(false);
     setSelectedRequest(null);
 
@@ -140,7 +128,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
               </tr>
             ) : (
               requests.map(req => {
-                // Xác định trạng thái của từng row
                 const isValid = isRequestValid(req.timestamp);
                 const isRejecting = isRejectingId === `totp-${req.accountId}` || isRejectingId === `pwd-${req.accountId}`;
                 const isDisabled = isProcessing || isRejecting;
@@ -153,7 +140,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
                     </td>
                     <td className="px-4 py-3 font-mono text-xs opacity-70">
                       {new Date(req.timestamp).toLocaleString()}
-                      {/* Cảnh báo hết hạn */}
                       {!isValid && (
                         <span className="block text-red-500 text-[10px] mt-1 font-sans font-semibold">
                           {translate('requestExpired24h') || 'Expired (>24h)'}
@@ -204,7 +190,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
         t={translate}
       />
 
-      {/* Hiển thị Popup Copy Password nếu duyệt Password Reset thành công */}
       {credentialData && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <AdminCredentialDisplay 

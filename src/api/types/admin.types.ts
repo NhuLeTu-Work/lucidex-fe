@@ -44,6 +44,7 @@ export interface VerifyTotpSetupResponse {
   data: {
     access_token: string;
     token_type: string;
+    refresh_token: string;
   };
   message: string;
   error_code: string;

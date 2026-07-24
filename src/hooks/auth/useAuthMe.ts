@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { getAuthMeApi } from '@/api/endpoints/auth/authMeApi';
+import { getAuthMeApi } from '@/api/endpoints/authentication/authMeApi';
 import type { UserProfile } from '@/api/types/auth.types';
 
 export function useAuthMe(showToast: (type: 'success' | 'error' | 'warning', message: string) => void) {

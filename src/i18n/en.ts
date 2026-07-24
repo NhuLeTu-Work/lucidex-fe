@@ -417,7 +417,8 @@ export const en: Record<string, string> = {
     "errorSessionExpired": "Session expired or invalid token. Please log in again.",
     "errorFetchProfile": "Failed to load user profile information.",
     setupAccount: 'Set Up Your Account',
+    setuppassword: "Set Up Password",
     "errorInvalidOtpLength": "Please enter a complete 6-digit OTP.",
-"errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin."
+    "errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin.",
 
 };

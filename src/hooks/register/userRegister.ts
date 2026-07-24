@@ -2,7 +2,6 @@ import { useApp } from '@/app/AppContext';
 import { useNavigate } from 'react-router-dom';
 import type { RegistrationRole } from './types';
 
-// Các sub-hooks đã tách
 import { useRegisterState } from './useRegisterState';
 import { usePasswordValidation } from './usePasswordValidation';
 import { useOtp } from './useOtp';
@@ -14,12 +13,9 @@ import { useGoogleAuth } from '../login/useGoogleAuth';
 export function useRegister() {
   const { t, setRole } = useApp();
   const navigate = useNavigate();
-
-  // Khởi tạo states
   const state = useRegisterState();
   const { validatePassword } = usePasswordValidation();
 
-  // Khởi tạo các handlers
   const { 
     handleVerifyOTP, 
     handleResendOTP, 
@@ -32,7 +28,6 @@ export function useRegister() {
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state);
   const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate, setRole);
 
-  // Các hàm tiện ích bổ sung
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     state.setRoleType(e.target.value as RegistrationRole);
     state.setError(null);
@@ -48,7 +43,6 @@ export function useRegister() {
     }
   };
   const { handleGoogleAuth } = useGoogleAuth(state, navigate, setRole);
-  // Trả về exacly 100% properties và types giống hệt file gốc
   return {
     roleType: state.roleType,
     handleRoleChange,
@@ -57,7 +51,6 @@ export function useRegister() {
     fieldErrors: state.fieldErrors,
     isLoading: state.isLoading,
     isSuccess: state.isSuccess,
-    
     fullName: state.fullName,
     setFullName: state.setFullName,
     email: state.email,
@@ -66,18 +59,15 @@ export function useRegister() {
     setPassword: state.setPassword,
     confirmPassword: state.confirmPassword,
     setConfirmPassword: state.setConfirmPassword,
-    
     showPassword: state.showPassword,
     setShowPassword: state.setShowPassword,
     showConfirmPassword: state.showConfirmPassword,
     setShowConfirmPassword: state.setShowConfirmPassword,
-    
     bizData: state.bizData,
     certificate: state.certificate,
     setCertificate: state.setCertificate,
     handleBizChange,
     handleBizRegister,
-    
     showOtpModal: state.showOtpModal,
     setShowOtpModal: state.setShowOtpModal,
     otpValue: state.otpValue,
@@ -85,14 +75,12 @@ export function useRegister() {
     otpError: state.otpError,
     setOtpError: state.setOtpError,
     isOtpLoading: state.isOtpLoading,
-    
     handleOwnerRegisterOtp,
     handleOwnerRegister,
     handleVerifyOTP,
     getSubtitle,
     t,
     setRole,
-    
     handleResendOTP,           
     isResendOtpLoading,        
     resendMessage,             

@@ -403,6 +403,7 @@ export const vi: Record<string, string> = {
     "errorSessionExpired": "Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.",
     "errorFetchProfile": "Không thể tải thông tin hồ sơ người dùng.",
     setupAccount: 'Cài đặt Tài khoản',
+    setuppassword: "Cài đặt Mật khẩu",
     "errorInvalidOtpLength": "Vui lòng nhập đầy đủ 6 số OTP.",
-"errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin."
+    "errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin."
 };
