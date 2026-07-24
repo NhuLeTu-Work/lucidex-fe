@@ -66,11 +66,11 @@ export function useBusinessRegister(
     // Validate orgName
     if (roleType === 'issuer') {
       if (bizData.orgName.length < 2 || bizData.orgName.length > 255) {
-        fErrors.orgName = 'fmtInstNameLength'; // CHỈ LƯU KEY
+        fErrors.orgName = 'fmtInstNameLength';
       }
     } else {
-      if (bizData.orgName.length < 1 || bizData.orgName.length > 200) {
-        fErrors.orgName = 'fmtTextLength'; // CHỈ LƯU KEY
+      if (bizData.orgName.length < 3 || bizData.orgName.length > 200) {
+        fErrors.orgName = 'fmtTextLength';
       }
     }
     
@@ -81,17 +81,21 @@ export function useBusinessRegister(
     
     // Validate address
     if (bizData.address.length < 1 || bizData.address.length > 500) {
-      fErrors.address = 'fmtAddressLength'; // CHỈ LƯU KEY
+      fErrors.address = 'fmtTextLength'; // CHỈ LƯU KEY
+    }
+
+    if (bizData.regTitle.length < 3 || bizData.regTitle.length > 200) {
+      fErrors.regTitle = 'fmtTextLength'; // CHỈ LƯU KEY
     }
     
     // Validate legalRep
     if (roleType === 'issuer') {
       if (bizData.legalRep.length < 2 || bizData.legalRep.length > 255 || !nameRegex.test(bizData.legalRep.trim())) {
-        fErrors.legalRep = 'fmtNameLettersOnly'; // CHỈ LƯU KEY
+        fErrors.legalRep = 'fmtNameLettersOnly';
       }
     } else {
-      if (bizData.legalRep.length < 1 || bizData.legalRep.length > 200) {
-        fErrors.legalRep = 'fmtTextLength'; // CHỈ LƯU KEY
+      if (bizData.legalRep.length < 3 || bizData.legalRep.length > 200) {
+        fErrors.legalRep = 'fmtTextLength';
       }
     }
     
@@ -110,11 +114,11 @@ export function useBusinessRegister(
     // Validate regName
     if (roleType === 'issuer') {
       if (bizData.regName.length < 2 || bizData.regName.length > 255 || !nameRegex.test(bizData.regName.trim())) {
-        fErrors.regName = 'fmtNameLettersOnly'; // CHỈ LƯU KEY
+        fErrors.regName = 'fmtNameLettersOnly';
       }
     } else {
-      if (bizData.regName.length < 1 || bizData.regName.length > 200) {
-        fErrors.regName = 'fmtTextLength'; // CHỈ LƯU KEY
+      if (bizData.regName.length < 3 || bizData.regName.length > 200) {
+        fErrors.regName = 'fmtTextLength';
       }
     }
 
