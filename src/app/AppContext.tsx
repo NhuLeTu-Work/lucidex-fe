@@ -14,6 +14,9 @@ interface AppContextType {
   setLang: (l: 'vi' | 'en') => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  toastConfig: { isOpen: boolean; type: 'success' | 'error' | 'warning'; message: string };
+  showToast: (type: 'success' | 'error' | 'warning', message: string) => void;
+  hideToast: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -47,7 +50,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const switchLang = useCallback(() => setLang(lang === 'vi' ? 'en' : 'vi'), [lang, setLang]);
+  const [toastConfig, setToastConfig] = useState<{isOpen: boolean; type: 'success' | 'error' | 'warning'; message: string}>({
+    isOpen: false, type: 'success', message: ''
+  });
 
+  const showToast = useCallback((type: 'success' | 'error' | 'warning', message: string) => {
+    setToastConfig({ isOpen: true, type, message });
+  }, []);
+
+  const hideToast = useCallback(() => {
+    setToastConfig(prev => ({ ...prev, isOpen: false }));
+  }, []);
   return (
     <AppContext.Provider value={{ 
       role, 
@@ -57,7 +70,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       lang, 
       setLang: switchLang as any, 
       theme, 
-      toggleTheme 
+      toggleTheme,
+      toastConfig, showToast, hideToast
     }}>
       {children}
     </AppContext.Provider>

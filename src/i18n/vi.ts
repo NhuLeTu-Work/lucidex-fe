@@ -379,4 +379,12 @@ export const vi: Record<string, string> = {
     closeAndFinish: 'Hoàn tất & Đóng',
     requestRejectedSuccess: 'Đã từ chối yêu cầu thành công.',
     requestApprovedSuccess: 'Đã phê duyệt yêu cầu thành công.',
+    "errorEmptyRejectReason": "Vui lòng nhập lý do từ chối.",
+    "rejectSuccess": "Đã từ chối đơn đăng ký thành công.",
+    "errorAdminSession": "Phiên đăng nhập hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.",
+    "errorOrgNotFound": "Đơn đăng ký không tồn tại hoặc đã bị xóa.",
+    "errorOrgAlreadyProcessed": "Yêu cầu này đã có quyết định cuối cùng từ trước.",
+    "errorServerNotification": "Lỗi hệ thống khi lưu lịch sử từ chối.",
+    "errorEmailDeliveryFailed": "Đã từ chối nhưng không thể gửi email thông báo.",
+    "errorRejectFailed": "Có lỗi xảy ra khi xử lý yêu cầu."
 };

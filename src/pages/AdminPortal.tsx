@@ -4,7 +4,7 @@ import type { AdminTab } from '../types/admin';
 
 // Hooks
 import { useAdminRequests } from '../hooks/admin/userAdminRequests';
-import { useAdminOrganizations } from '../hooks/admin/useGetOrganizations'; // <-- Import hook gọi API
+import { useAdminOrganizations } from '../hooks/admin/useGetOrganizations'; 
 
 // Components
 import { AdminSidebarDesktop, AdminSidebarMobile } from '../components/admin/AdminSidebar';
@@ -18,38 +18,27 @@ import { RejectReasonModal } from '../components/admin/RejectReasonModal';
 import { DocViewerModal } from '../components/admin/DocReviewerModal';
 
 export function AdminPortal() {
-  const { t } = useApp();
+  const { t, showToast } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
-  // ==========================================
-  // 1. GỌI API LẤY DỮ LIỆU THẬT
-  // ==========================================
-  // API lấy danh sách đang chờ duyệt
   const { organizations, isLoading, fetchOrganizations } = useAdminOrganizations(undefined, 'pending_review');
-
-  // TODO: Tạm thời để mảng rỗng. 
-  // Sau này bạn gọi hook API lấy danh sách account thật (ví dụ: useAdminOrganizations(undefined, 'approved')) và gán vào đây
   const accounts: any[] = []; 
-
-  // ==========================================
-  // 2. PHÂN LOẠI DỮ LIỆU ĐỂ TRUYỀN XUỐNG CON
-  // ==========================================
+  
   const pendingIssuers = useMemo(() => organizations.filter(org => org.type === 'issuer'), [organizations]);
   const pendingOrgs = useMemo(() => organizations.filter(org => org.type === 'verifier'), [organizations]);
   const pendingCount = organizations.length;
-
-  // ==========================================
-  // 3. HOOK QUẢN LÝ TRẠNG THÁI UI VÀ ACTION
-  // ==========================================
+  
+  // Gộp chung vào 1 lần gọi Hook duy nhất
   const {
     reqSubTab, setReqSubTab, selectedReq, setSelectedReq,
     rejectModalOpen, setRejectModalOpen,
     rejectReason, setRejectReason,
     docViewerOpen, setDocViewerOpen, 
-    handleApprove, handleRejectSubmit
-  } = useAdminRequests(t);
+    handleApprove,
+    handleRejectSubmit // <-- Kéo handleRejectSubmit lên đây
+  } = useAdminRequests(t, showToast);
 
-  // Mock thông tin admin đăng nhập (Thay bằng dữ liệu thật từ Context/Redux nếu có)
+  // Mock thông tin admin đăng nhập
   const currentAdmin = { name: 'Admin', email: 'admin@system.com', role: 'super' };
 
   return (
@@ -90,17 +79,15 @@ export function AdminPortal() {
       </main>
 
       {/* ========================================== */}
-      {/* --- MODALS RENDER (ĐÃ LOẠI BỎ CODE LẶP) --- */}
+      {/* --- MODALS RENDER --- */}
       {/* ========================================== */}
       {selectedReq && !rejectModalOpen && !docViewerOpen && (
         <RequestDetailModal
           selectedReq={selectedReq}
           onClose={() => setSelectedReq(null)}
           onApprove={async () => {
-             // 1. Chờ duyệt API hoàn tất (nhận kết quả true/false)
              const isSuccess = await handleApprove(selectedReq);
              
-             // 2. Nếu thành công thì mới reload data và đóng modal
              if (isSuccess) {
                await fetchOrganizations(); 
                setSelectedReq(null); 
@@ -116,16 +103,18 @@ export function AdminPortal() {
         <RejectReasonModal
           reason={rejectReason} 
           setReason={setRejectReason}
-          onSubmit={async () => {
+          // Thêm event (e) vào đây
+          onSubmit={async (e: React.FormEvent) => { 
+             e?.preventDefault(); // <--- CHẶN RELOAD TRANG Ở ĐÂY
+
              if (handleRejectSubmit) {
-               // Chờ gọi API từ chối
                const isSuccess = await handleRejectSubmit(selectedReq!, rejectReason);
                
                if (isSuccess) {
-                 await fetchOrganizations(); // Reload danh sách
+                 await fetchOrganizations(); 
                  setRejectReason(''); 
                  setRejectModalOpen(false); 
-                 setSelectedReq(null); // Đóng hoàn toàn detail modal
+                 setSelectedReq(null); 
                }
              }
           }} 

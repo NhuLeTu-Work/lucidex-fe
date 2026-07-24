@@ -394,4 +394,12 @@ export const en: Record<string, string> = {
     closeAndFinish: 'Close & Finish',
     requestRejectedSuccess: 'Request rejected successfully.',
     requestApprovedSuccess: 'Request approved successfully.',
+    "errorEmptyRejectReason": "Please provide a reason for rejection.",
+    "rejectSuccess": "Organization application rejected successfully.",
+    "errorAdminSession": "Admin session expired or invalid. Please log in again.",
+    "errorOrgNotFound": "The application does not exist or has been deleted.",
+    "errorOrgAlreadyProcessed": "This application has already been processed.",
+    "errorServerNotification": "System error while saving rejection history.",
+    "errorEmailDeliveryFailed": "Application rejected, but failed to send the notification email.",
+    "errorRejectFailed": "An error occurred while processing the request."
 };

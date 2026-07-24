@@ -114,3 +114,19 @@ export interface AdminAccountResponse {
   password_reset_requested: boolean;
   password_reset_requested_at: string;
 }
+
+export interface RejectOrganizationPayload {
+  reason: string;
+}
+
+export interface RejectOrganizationResponse {
+  success: boolean;
+  data: {
+    organization_id: string;
+    organization_status: string;
+    rejection_reason: string;
+    reviewed_at: string;
+  };
+  message: string;
+  error_code?: string;
+}
