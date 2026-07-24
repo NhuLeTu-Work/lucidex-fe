@@ -46,22 +46,32 @@ export function AdminRequests({
             <span className="text-sm">{t('loadingRequests') || 'Loading requests...'}</span>
           </div>
         ) : currentList.length === 0 ? (
-          <p className="text-sm opacity-60 italic text-[var(--ct-text)]">{t('noPendingReq') || 'No pending requests.'}</p>
+          <p className="text-sm opacity-60 italic text-[var(--ct-text)]">
+            {t('noPendingReq') || 'No pending requests.'}
+          </p>
         ) : (
           <>
             {currentList.map((req: OrganizationRecord) => (
-              <div 
-                key={req.id} 
-                onClick={() => onSelectReq(req)} 
-                className="p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all hover:scale-[1.01] border-[var(--ct-border)] bg-[var(--ct-surface)]"
+              <div
+                key={req.id}
+                onClick={() => onSelectReq(req)}
+                className="p-4 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all hover:scale-[1.01] border-[var(--ct-border)] bg-[var(--ct-surface)]"
               >
-                <div>
-                  <h3 className="font-semibold text-sm mb-1 text-[var(--ct-text)]">{req.name}</h3>
-                  <p className="text-xs opacity-60 font-mono text-[var(--ct-text)]">
-                    {t('submittedAt') || 'Submitted'}: {new Date(req.created_at).toLocaleString()}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm mb-1 break-words text-[var(--ct-text)]">
+                    {req.name}
+                  </h3>
+
+                  <p className="text-xs opacity-60 font-mono break-words text-[var(--ct-text)]">
+                    {t('submittedAt') || 'Submitted'}:{' '}
+                    {new Date(req.created_at).toLocaleString()}
                   </p>
                 </div>
-                <ChevronRight size={16} className="opacity-40 text-[var(--ct-text)]" />
+
+                <ChevronRight
+                  size={16}
+                  className="shrink-0 opacity-40 text-[var(--ct-text)]"
+                />
               </div>
             ))}
           </>
