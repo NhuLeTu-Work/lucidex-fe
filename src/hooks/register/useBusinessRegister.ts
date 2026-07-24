@@ -90,7 +90,7 @@ export function useBusinessRegister( state: RegisterState ) {
     
     const emailRegex = /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,62}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z]{2,})+$/;
     if (!emailRegex.test(bizData.email.trim())) {
-      fErrors.email = 'fmtEmail'; // CHỈ LƯU KEY
+      fErrors.email = 'fmtGmail'; // CHỈ LƯU KEY
     }
     
     const normalizedPhone = bizData.phone.replace(/[\s.()]/g, '');

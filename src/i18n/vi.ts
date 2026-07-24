@@ -235,7 +235,7 @@ export const vi: Record<string, string> = {
     fmtTextLength: 'Chỉ nhập văn bản từ 3-200 ký tự',
     fmtTaxCode: 'Yêu cầu chính xác 10 chữ số',
     fmtLettersOnly: 'Chỉ bao gồm chữ cái',
-    fmtGmail: 'Định dạng Gmail hợp lệ (VD: ten@gmail.com)',
+    fmtGmail: 'Định dạng Gmail không hợp lệ (VD: ten@gmail.com)',
     fmtPhone: 'Số điện thoại Việt Nam gồm 10 chữ số',
     
     applicationSubmitted: 'Gửi yêu cầu thành công',

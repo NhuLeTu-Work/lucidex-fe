@@ -247,7 +247,7 @@ export const en: Record<string, string> = {
     fmtTextLength: 'Text, 3–200 characters',
     fmtTaxCode: 'Exactly 10 digits',
     fmtLettersOnly: 'Text, letters only',
-    fmtGmail: 'Valid email format (e.g. name@gmail.com)',
+    fmtGmail: 'Invalid email format (e.g. name@gmail.com)',
     fmtPhone: '10-digit Vietnamese phone number',
     
     applicationSubmitted: 'Application Submitted',
