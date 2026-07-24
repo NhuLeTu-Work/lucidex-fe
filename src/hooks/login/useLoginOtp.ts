@@ -65,7 +65,6 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
             setOtpError('errorOtpInvalid');
           }
         } 
-        
         else {
           setOtpError('errorInvalidSession'); 
         }
