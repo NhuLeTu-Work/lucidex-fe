@@ -110,7 +110,7 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
           onError={() => {
             console.log('Register Failed');
           }}
-          text="signup_with" // Tùy chỉnh text của nút thành "Sign up with Google"
+          text="signup_with" 
         />
       </div>
     </form>

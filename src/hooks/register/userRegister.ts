@@ -9,6 +9,7 @@ import { useOtp } from './useOtp';
 import { useOwnerRegister } from './useOwnerRegister';
 import { useBusinessRegister } from './useBusinessRegister';
 import { useOwnerRegisterOtp } from './useOwnerRegisterOtp';
+import { useGoogleAuth } from '../login/useGoogleAuth';
 
 export function useRegister() {
   const { t, setRole } = useApp();
@@ -47,7 +48,7 @@ export function useRegister() {
       default: return t('subtitleOwner');
     }
   };
-
+  const { handleGoogleAuth } = useGoogleAuth(state, navigate, setRole);
   // Trả về exacly 100% properties và types giống hệt file gốc
   return {
     roleType: state.roleType,
@@ -97,5 +98,6 @@ export function useRegister() {
     isResendOtpLoading,        
     resendMessage,             
     resendCountdown,
+    handleGoogleAuth
   };
 }

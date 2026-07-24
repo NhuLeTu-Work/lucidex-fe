@@ -10,6 +10,7 @@ export function Header() {
   // ĐỊNH NGHĨA HÀM LOGOUT VỚI 3 BƯỚC CHUẨN MỰC
   const handleLogout = () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('user_role');
     setRole('guest');
     navigate('/'); 
