@@ -415,5 +415,7 @@ export const en: Record<string, string> = {
     fmtInstNameLength: "Name must be between 2 and 255 characters",
     fmtNameLettersOnly: "Letters and spaces only, 2-255 characters",
     "errorSessionExpired": "Session expired or invalid token. Please log in again.",
-    "errorFetchProfile": "Failed to load user profile information."
+    "errorFetchProfile": "Failed to load user profile information.",
+    setupAccount: 'Set Up Your Account'
+
 };
