@@ -4,7 +4,6 @@ import type { RegisterState } from './types';
 export function useOwnerRegister(
   state: RegisterState,
   validatePassword: (pwd: string) => boolean,
-  t: any,
   // setRole: any,
   // navigate: any
 ) {
@@ -19,21 +18,21 @@ export function useOwnerRegister(
     setError(null);
 
     if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError(t('errorFieldsRequired'));
+      setError('errorFieldsRequired');
       return;
     }
 
     const nameRegex = /^[\p{L}\s]+$/u;
     if (!nameRegex.test(fullName.trim())) {
-      setError(t('errorInvalidName') || 'Full name must contain only letters and spaces.');
+      setError('errorInvalidName');
       return;
     }
     if (password !== confirmPassword) {
-      setError(t('errorPasswordMismatch'));
+      setError('errorPasswordMismatch');
       return;
     }
     if (!validatePassword(password)) {
-      setError(t('errorWeakPassword'));
+      setError('errorWeakPassword');
       return;
     }
 
@@ -59,7 +58,7 @@ export function useOwnerRegister(
         if (err.response.status === 422) {
           setError('Dữ liệu không hợp lệ, vui lòng kiểm tra lại form.');
         } else if (err.response.status === 400 || err.response.status === 409) {
-          setError(err.response.data.message || t('errorEmailExists'));
+          setError(err.response.data.message || 'errorEmailExists');
         } else {
           setError(err.response.data.message || 'Lỗi kết nối đến máy chủ.');
         }

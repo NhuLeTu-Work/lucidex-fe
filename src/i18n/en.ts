@@ -203,7 +203,7 @@ export const en: Record<string, string> = {
     createAccount: 'Create an account',
     demoAccounts: 'Demo Accounts',
     demoAccountDesc: 'Quickly select a role below to auto-fill and sign in to the respective workspace.',
-    
+    errorInvalidName: 'Full name must contain only letters and spaces.',
     errorPasswordMismatch: 'Password and Confirm Password do not match.',
     errorWeakPassword: 'Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character.',
     errorEmailExists: 'This email is already registered.',
@@ -412,4 +412,5 @@ export const en: Record<string, string> = {
     "errorFetchRequestStatus": "Failed to fetch account request status. Please try again.",
     "cooldown24h": "Please wait 24h since last request",
     "requestSentSuccess": "Your request has been sent successfully."
+
 };
