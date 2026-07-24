@@ -10,6 +10,7 @@ export interface AuthLoginResponse {
   data: {
     otp_token: string;
     message: string;
+    role: string;
   };
   message: string;
   error_code: string;

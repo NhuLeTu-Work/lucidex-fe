@@ -64,7 +64,9 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
         if (response.success && response.data.otp_token) {
           setTempOtpToken(response.data.otp_token);
           
-          setCurrentAcc({ email: loginIdentifier.trim(), type: 'owner' } as any); 
+          const userRole = response.data.role || 'owner'; // fallback an toàn
+          
+          setCurrentAcc({ email: loginIdentifier.trim(), type: userRole } as any); 
           setOtpValue('');
           setOtpMethod('email'); 
           setView('login_2fa');
