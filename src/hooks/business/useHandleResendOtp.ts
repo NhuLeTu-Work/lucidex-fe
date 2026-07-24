@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { resendOtpApi } from '@/api/endpoints/authentication/resendOtpApt';
 
-export function useResendOtp(t: any) {
+export function useResendOtp() {
   const [isResendOtpLoading, setIsResendOtpLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
@@ -27,17 +27,13 @@ export function useResendOtp(t: any) {
     setExternalError: (msg: string | null) => void,
     token?: string | null,
   ) => {
-    if (!email) {
-      setExternalError(t('errorMissingEmail') || 'Không tìm thấy email để gửi lại OTP.');
-      return;
-    }
 
     // Client-side Rate Limit (Tối đa 3 lần / 5 phút)
     const now = Date.now();
     resendTimestamps.current = resendTimestamps.current.filter(ts => now - ts < 5 * 60 * 1000);
 
     if (resendTimestamps.current.length >= 3) {
-      setExternalError(t('errorTooManyAttempts') || 'Bạn đã gửi lại quá nhiều lần. Vui lòng thử lại sau 5 phút.');
+      setExternalError('errorTooManyAttempts'); // CHỈ TRUYỀN KEY
       setResendMessage(null);
       return;
     }
@@ -47,36 +43,34 @@ export function useResendOtp(t: any) {
     setExternalError(null);
 
     try {
-      // THAY ĐỔI: Thêm token vào payload gửi lên API
-      const payload = { 
-        email: email.trim(),
-        ...(token && { token: token.trim() }) // Gắn token nếu có
-      };
+      // TẠO PAYLOAD ĐÚNG CÚ PHÁP: Chỉ đính kèm field nếu có giá trị
+      const payload: { email?: string; token?: string } = {};
+      if (email) payload.email = email.trim();
+      if (token) payload.token = token.trim();
 
       const response = await resendOtpApi(payload);
       
       if (response.success) {
         resendTimestamps.current.push(now);
         setResendCountdown(60);
-        setResendMessage(t('otpResent') || 'Đã gửi lại mã OTP mới!');
+        setResendMessage('otpResent'); // CHỈ TRUYỀN KEY
       }
     } catch (err: any) {
       const status = err.response?.status;
-      let errorMessage = 'Có lỗi xảy ra khi gửi lại mã OTP.';
       
       if (status === 404) {
-        errorMessage = t('errorAccountNotFound') || 'Tài khoản không tồn tại.';
+        setExternalError('errorAccountNotFound');
       } else if (status === 422) {
-        errorMessage = t('errorInvalidEmail') || 'Dữ liệu yêu cầu không hợp lệ (Kiểm tra lại email hoặc token).';
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
+        setExternalError('errorInvalidData');
+      } else {
+        setExternalError('errorServer');
       }
 
-      setExternalError(errorMessage);
     } finally {
       setIsResendOtpLoading(false);
     }
-  }, [t]);
+  }, [] 
+);
 
   return {
     isResendOtpLoading,

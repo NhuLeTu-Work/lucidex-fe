@@ -1,7 +1,7 @@
 import { apiClient } from '../../api';
 
 export interface ResendOtpPayload {
-  email: string;
+  email?: string;
   token?: string;
 }
 
