@@ -239,8 +239,8 @@ export const vi: Record<string, string> = {
     fmtPhone: 'Số điện thoại Việt Nam gồm 10 chữ số',
     
     applicationSubmitted: 'Gửi yêu cầu thành công',
-    pendingReviewMsgIssuer: 'Đơn đăng ký của bạn cho Tổ chức cấp phát đã được gửi thành công và đang chờ ban quản trị phê duyệt.',
-    pendingReviewMsgVerifier: 'Đơn đăng ký của bạn cho Doanh nghiệp/Nhà tuyển dụng đã được gửi thành công và đang chờ ban quản trị phê duyệt.',
+    pendingReviewMsgIssuer: 'Đơn đăng ký của bạn cho Tổ chức cấp phát đã được gửi thành công và đang chờ ban quản trị phê duyệt. Vui lòng kiểm tra hộp thư rác nếu bạn không nhận được link mời tham gia.',
+    pendingReviewMsgVerifier: 'Đơn đăng ký của bạn cho Doanh nghiệp/Nhà tuyển dụng đã được gửi thành công và đang chờ ban quản trị phê duyệt. Vui lòng kiểm tra hộp thư rác nếu bạn không nhận được link mời tham gia.',
     returnHome: 'Quay về trang chủ',
 
     "submittedAt": "Ngày nộp đơn",
@@ -405,5 +405,7 @@ export const vi: Record<string, string> = {
     setupAccount: 'Cài đặt Tài khoản',
     setuppassword: "Cài đặt Mật khẩu",
     "errorInvalidOtpLength": "Vui lòng nhập đầy đủ 6 số OTP.",
-    "errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin."
+    "errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin.",
+    "linkInvalidTitle": "Đường dẫn không hợp lệ hoặc đã hết hạn",
+    "linkInvalidDesc": "Đường dẫn này đã được sử dụng, hết hạn hoặc không còn hợp lệ. Bạn không thể truy cập trang này nữa.",
 };

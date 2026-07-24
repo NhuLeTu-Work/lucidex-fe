@@ -17,6 +17,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
   const [email] = useState<string>(emailUrl);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLinkInvalid, setIsLinkInvalid] = useState(false);
 
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +51,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
+        setIsLinkInvalid(true);
         setError('errorInvalidInviteLink'); // Key mới
       } else {
         setError('errorServerConnection');
@@ -111,7 +113,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     handleVerifyOtp,
     showPassword, setShowPassword,
     showConfirmPassword, setShowConfirmPassword,
-    // Export thêm các state của OTP
+    isLinkInvalid, setIsLinkInvalid,
     isOtpLoading,
     otpError,
     setOtpError

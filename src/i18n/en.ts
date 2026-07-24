@@ -252,8 +252,8 @@ export const en: Record<string, string> = {
     
     applicationSubmitted: 'Application Submitted',
     pendingReviewMsg: 'Your registration application has been submitted successfully and is pending review.',
-    pendingReviewMsgIssuer: 'Your registration application for Issuer has been submitted successfully and is pending review.',
-    pendingReviewMsgVerifier: 'Your registration application for Verifier has been submitted successfully and is pending review.',
+    pendingReviewMsgIssuer: 'Your registration application for Issuer has been submitted successfully and is pending review. Please check your spam inbox in case you do not see the invite link.',
+    pendingReviewMsgVerifier: 'Your registration application for Verifier has been submitted successfully and is pending review. Please check your spam inbox in case you do not see the invite link.',
     returnHome: 'Return to Home',
     verify2FA: '2FA Verify',
     
@@ -420,5 +420,6 @@ export const en: Record<string, string> = {
     setuppassword: "Set Up Password",
     "errorInvalidOtpLength": "Please enter a complete 6-digit OTP.",
     "errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin.",
-
+    "linkInvalidTitle": "Link Invalid or Expired",
+    "linkInvalidDesc": "This link has been used, expired, or is no longer valid. You cannot access this page anymore.",
 };

@@ -1,14 +1,39 @@
-import { Lock, EyeOff, Eye, ShieldAlert, CheckCircle } from 'lucide-react';
-
+import { Lock, EyeOff, Eye, ShieldAlert, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
 export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
+  const navigate = useNavigate();
   const {
     password, setPassword, 
     confirmPassword, setConfirmPassword,
     showPassword, setShowPassword, 
     showConfirmPassword, setShowConfirmPassword,
     isLoading, handleSetupPassword, 
-    t
+    t, isLinkInvalid
   } = hookProps;
+  if (isLinkInvalid) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-8 text-center animate-in fade-in zoom-in-95">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
+          <AlertTriangle size={32} className="text-red-500" />
+        </div>
+        <h3 className="text-xl font-semibold" style={{ color: 'var(--ct-text)' }}>
+          {t('linkInvalidTitle') || 'Link Invalid or Expired'}
+        </h3>
+        <p className="text-sm opacity-70 mb-4 text-balance max-w-sm" style={{ color: 'var(--ct-text)' }}>
+          {t('linkInvalidDesc') || 'This link has been used, expired, or is no longer valid. You cannot access this page anymore.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="px-6 py-2.5 text-sm font-semibold rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 flex items-center gap-2"
+          style={{ color: 'var(--ct-text)', borderColor: 'var(--ct-border)' }}
+        >
+          <ArrowLeft size={16} />
+          {t('backToHome') || 'Back to Home'}
+        </button>
+      </div>
+    );
+  }
   return (
     <form onSubmit={handleSetupPassword} className="flex flex-col gap-4 animate-in fade-in">
             
