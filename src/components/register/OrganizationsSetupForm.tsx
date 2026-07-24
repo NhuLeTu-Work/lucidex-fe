@@ -10,6 +10,7 @@ export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
     isLoading, handleSetupPassword, 
     t, isLinkInvalid
   } = hookProps;
+  console.log("eeeeeeeeeeeeeeee", isLinkInvalid)
   if (isLinkInvalid) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8 text-center animate-in fade-in zoom-in-95">
@@ -89,7 +90,7 @@ export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
         ) : (
           <>
             <CheckCircle size={16} />
-            <span>{t('setupPassword') || 'Set Up Password'}</span>
+            <span>{t('setupPassword')}</span>
           </>
         )}
       </button>
