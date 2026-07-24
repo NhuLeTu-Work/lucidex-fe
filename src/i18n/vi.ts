@@ -397,5 +397,7 @@ export const vi: Record<string, string> = {
     "requestExpired24h": "Yêu cầu đã quá hạn (hơn 24 giờ)",
     "errorFetchRequestStatus": "Không thể lấy trạng thái yêu cầu của tài khoản. Vui lòng thử lại.",
     "cooldown24h": "Phải chờ 24h kể từ lần yêu cầu trước",
-    "requestSentSuccess": "Yêu cầu của bạn đã được gửi thành công."
+    "requestSentSuccess": "Yêu cầu của bạn đã được gửi thành công.",
+    fmtInstNameLength: "Tên phải từ 2 đến 255 ký tự",
+    fmtNameLettersOnly:"Chỉ cho phép chữ cái và khoảng trắng, 2-255 ký tự"
 };

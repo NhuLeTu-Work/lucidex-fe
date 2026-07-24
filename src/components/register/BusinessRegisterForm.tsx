@@ -36,7 +36,7 @@ export function BusinessRegisterForm({
           style={{ background: 'var(--ct-bg)', borderColor: fieldErrors[name] ? '#ef4444' : 'var(--ct-border)', color: 'var(--ct-text)' }}
         />
       </div>
-      {fieldErrors[name] && <span className="text-[11px] text-red-500 font-medium ml-1 animate-in slide-in-from-top-1">{fieldErrors[name]}</span>}
+      {fieldErrors[name] && <span className="text-[11px] text-red-500 font-medium ml-1 animate-in slide-in-from-top-1">{t(fieldErrors[name])}</span>}
     </div>
   );
 

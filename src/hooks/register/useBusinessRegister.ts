@@ -5,7 +5,6 @@ import type { OrgType } from '../../api/types/business.types';
 
 export function useBusinessRegister(
   state: RegisterState,
-  t: any
 ) {
   const {
     bizData, setBizData, fieldErrors, setFieldErrors,
@@ -62,35 +61,61 @@ export function useBusinessRegister(
     // 1. KIỂM TRA FORMAT (Đồng bộ với Backend)
     // ==========================================
     const fErrors: Record<string, string> = {};
+    const nameRegex = /^[\p{L}\s]+$/u; 
 
-    if (bizData.orgName.length < 1 || bizData.orgName.length > 200) {
-      fErrors.orgName = t('fmtTextLength') || 'Text, 1–200 characters';
+    // Validate orgName
+    if (roleType === 'issuer') {
+      if (bizData.orgName.length < 2 || bizData.orgName.length > 255) {
+        fErrors.orgName = 'fmtInstNameLength'; // CHỈ LƯU KEY
+      }
+    } else {
+      if (bizData.orgName.length < 1 || bizData.orgName.length > 200) {
+        fErrors.orgName = 'fmtTextLength'; // CHỈ LƯU KEY
+      }
     }
     
+    // Validate taxCode
     if (!/^\d{10}(?:-\d{3})?$/.test(bizData.taxCode.trim())) {
-      fErrors.taxCode = t('fmtTaxCode') || 'Exactly 10 digits or 13 with dash';
+      fErrors.taxCode = 'fmtTaxCode'; // CHỈ LƯU KEY
     }
     
+    // Validate address
     if (bizData.address.length < 1 || bizData.address.length > 500) {
-      fErrors.address = t('fmtAddressLength') || 'Text, 1–500 characters';
+      fErrors.address = 'fmtAddressLength'; // CHỈ LƯU KEY
     }
     
-    if (bizData.legalRep.length < 1 || bizData.legalRep.length > 200) {
-      fErrors.legalRep = t('fmtTextLength') || 'Text, 1–200 characters';
+    // Validate legalRep
+    if (roleType === 'issuer') {
+      if (bizData.legalRep.length < 2 || bizData.legalRep.length > 255 || !nameRegex.test(bizData.legalRep.trim())) {
+        fErrors.legalRep = 'fmtNameLettersOnly'; // CHỈ LƯU KEY
+      }
+    } else {
+      if (bizData.legalRep.length < 1 || bizData.legalRep.length > 200) {
+        fErrors.legalRep = 'fmtTextLength'; // CHỈ LƯU KEY
+      }
     }
     
+    // Validate email
     const emailRegex = /^[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,62}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z]{2,})+$/;
     if (!emailRegex.test(bizData.email.trim())) {
-      fErrors.email = t('fmtEmail') || 'Please enter a valid email address';
+      fErrors.email = 'fmtEmail'; // CHỈ LƯU KEY
     }
     
+    // Validate phone
     const normalizedPhone = bizData.phone.replace(/[\s.()]/g, '');
     if (!/^0(?:3|5|7|8|9)\d{8}$/.test(normalizedPhone)) {
-      fErrors.phone = t('fmtPhone') || '10-digit Vietnamese phone number';
+      fErrors.phone = 'fmtPhone'; // CHỈ LƯU KEY
     }
     
-    if (bizData.regName.length < 1 || bizData.regName.length > 200) {
-      fErrors.regName = t('fmtTextLength') || 'Text, 1–200 characters';
+    // Validate regName
+    if (roleType === 'issuer') {
+      if (bizData.regName.length < 2 || bizData.regName.length > 255 || !nameRegex.test(bizData.regName.trim())) {
+        fErrors.regName = 'fmtNameLettersOnly'; // CHỈ LƯU KEY
+      }
+    } else {
+      if (bizData.regName.length < 1 || bizData.regName.length > 200) {
+        fErrors.regName = 'fmtTextLength'; // CHỈ LƯU KEY
+      }
     }
 
     if (Object.keys(fErrors).length > 0) {
@@ -102,7 +127,7 @@ export function useBusinessRegister(
     
     try {
       // ==========================================
-      // 2. TẠO PAYLOAD VÀ MAP KEY (Trường hợp A)
+      // 2. TẠO PAYLOAD VÀ MAP KEY
       // ==========================================
       const formData = new FormData();
       formData.append('name', bizData.orgName);
@@ -124,21 +149,20 @@ export function useBusinessRegister(
 
       // Gửi API với FormData
       const response = await registerOrganizationApi(roleType as OrgType, formData as any);
-      console.log("eeeeeeeeeeeee", response)
       if (response && response.success) {
         setIsSuccess(true);
       } else if (response) {
-        setError(response.message || 'Registration failed. Please try again.');
+        setError(response.message || 'errorRegistrationFailed');
       }
       
     } catch (err: any) {
       if (err.response && err.response.status === 422) {
-        setError('Dữ liệu không hợp lệ, vui lòng kiểm tra lại form.');
+        setError('errorInvalidData');
         console.log('Validation Error Details:', err.response.data.detail);
       } else if (err.response?.status === 400 || err.response?.status === 409) {
-        setError(err.response?.data?.message || 'Tổ chức này đã đăng ký hoặc thông tin bị trùng lặp.');
+        setError('errorEmailExists');
       } else {
-        setError(err.response?.data?.message || 'Lỗi kết nối đến máy chủ.');
+        setError('errorServerConnection');
       }
     } finally {
       setIsLoading(false);

@@ -27,10 +27,9 @@ export function useRegister() {
     resendCountdown, 
     resendMessage 
   } = useOtp(state, t, setRole, navigate);
-  const { handleOwnerRegister } = useOwnerRegister(state, validatePassword, t,
-    // setRole, navigate
+  const { handleOwnerRegister } = useOwnerRegister(state, validatePassword
   );
-  const { handleBizChange, handleBizRegister } = useBusinessRegister(state, t);
+  const { handleBizChange, handleBizRegister } = useBusinessRegister(state);
   const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate, setRole);
 
   // Các hàm tiện ích bổ sung

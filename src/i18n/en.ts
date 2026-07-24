@@ -411,6 +411,7 @@ export const en: Record<string, string> = {
     "requestExpired24h": "Request expired (over 24 hours)",
     "errorFetchRequestStatus": "Failed to fetch account request status. Please try again.",
     "cooldown24h": "Please wait 24h since last request",
-    "requestSentSuccess": "Your request has been sent successfully."
-
+    "requestSentSuccess": "Your request has been sent successfully.",
+    fmtInstNameLength: "Name must be between 2 and 255 characters",
+    fmtNameLettersOnly: "Letters and spaces only, 2-255 characters"
 };
