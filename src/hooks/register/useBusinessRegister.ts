@@ -36,7 +36,7 @@ export function useBusinessRegister( state: RegisterState ) {
       phone: 'lblContactPhone',
       regName: 'lblRegName',
       regTitle: 'lblRegTitle',
-      certificate: 'uploadCert',
+      certificate: roleType === 'verifier' ? 'businessLicense' : 'certIssuer',
     };
 
     requiredKeys.forEach(key => {

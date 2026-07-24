@@ -282,6 +282,7 @@ export const vi: Record<string, string> = {
     "docLoadErr": "Không thể tải tài liệu này.",
     "emailSent": "Đã gửi Email thông báo",
     "uploadCertIssuer": "Tải lên Quyết định thành lập",
+    "certIssuer": "Quyết định thành lập",
     "whatDoWeOffer": "Những Gì Lucidex Cung Cấp",
     "lblThisIsIssuer": "Đây chính là Tổ chức cấp phát",
     "lblThisIsOwner": "Đây chính là Chủ sở hữu",

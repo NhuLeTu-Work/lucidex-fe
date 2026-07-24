@@ -295,6 +295,7 @@ export const en: Record<string, string> = {
     "docLoadErr": "This document could not be loaded.",
     "emailSent": "Notification Email Sent",
     "uploadCertIssuer": "Upload Establishment Decision",
+    "certIssuer": "Establishment Decision",
     "whatDoWeOffer": "What Lucidex Offers",
     "lblThisIsIssuer": "This is our Issuer",
     "lblThisIsOwner": "This is our Owner",
