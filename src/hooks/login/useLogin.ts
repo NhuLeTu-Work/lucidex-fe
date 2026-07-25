@@ -5,41 +5,31 @@ import { useLoginState } from './useLoginState';
 import { useLoginActions } from './useLoginActions';
 import { useSetupAccount } from './useSetupAccount';
 import { useLoginOtp } from './useLoginOtp';
-import { useResendOtp } from '../business/useHandleResendOtp';
+import { useResendOtp } from '../auth/useResendOtp';
 
 export function useLogin() {
   const { t, setRole } = useApp();
   const navigate = useNavigate();
-
-  // Khởi tạo trạng thái
   const state = useLoginState();
 
-  // ==============================================
-  // TÍCH HỢP HOOK RESEND OTP MỚI
-  // ==============================================
-  const { 
-    isResendOtpLoading, 
-    resendCountdown, 
-    resendMessage, 
-    triggerResend 
-  } = useResendOtp();
+  const {
+    isResendOtpLoading,
+    resendCountdown,
+    resendMessage,
+    triggerResend,
+    isSwitchDisabled,
+    handleSwitchMethod,
+  } = useResendOtp({ setOtpMethod: state.setOtpMethod, setOtpValue: state.setOtpValue });
 
-  // Tạo hàm handleResendOTP mới dùng chung
   const handleResendOTP = () => {
-    // Luồng Login: Ưu tiên lấy email từ tài khoản đang đăng nhập (currentAcc)
     const targetEmail = state.currentAcc?.email || state.email;
-    
-    // Gọi hàm trigger từ hook, truyền email và hàm setOtpError của state hiện tại
-    triggerResend(targetEmail, state.setOtpError);
+    triggerResend({ email: targetEmail }, state.setOtpError);
   };
-  // ==============================================
 
-  // Khởi tạo các logic handlers
   const { processLogin, handleLogin, handleQuickLogin, handleGoogleAuth} = useLoginActions(state, navigate, setRole);
   const { handleSetupAccount } = useSetupAccount(state);
   
-  // Lưu ý: Mình không lấy handleResendOTP từ useLoginOtp cũ nữa, chỉ lấy verify và switch
-  const { handleVerify2FA, handleSwitchMethod } = useLoginOtp(state, setRole, navigate);
+  const { handle2FALogin } = useLoginOtp(state, setRole, navigate);
 
   return {
     view: state.view,
@@ -75,7 +65,7 @@ export function useLogin() {
     handleLogin,
     handleQuickLogin,
     handleSetupAccount,
-    handleVerify2FA,
+    handle2FALogin,
     handleGoogleAuth,
     t,
 
@@ -83,9 +73,8 @@ export function useLogin() {
     resendCountdown,
     resendMessage,
     handleResendOTP,
+    isSwitchDisabled, handleSwitchMethod,
 
-    isSwitchDisabled: state.isSwitchDisabled,
-    handleSwitchMethod,
     tempOtpToken: state.tempOtpToken,
     processLogin,
     setupToken: state.setupToken,

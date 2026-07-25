@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 // Hooks
 import { useRegister } from '../hooks/register/userRegister';
 import { useSetupPassword } from '../hooks/business/useSetupPassword';
-
+import { useResendOtp } from '@/hooks/auth/useResendOtp';
 // Components
 import { RoleSelector } from '../components/register/RoleSelector';
 import { OwnerRegisterForm } from '../components/register/OwnerRegisterForm';
@@ -37,8 +37,23 @@ export function Register() {
     bizData, certificate, setCertificate, handleBizChange, handleBizRegister,
     showOtpModal, setShowOtpModal, otpValue, setOtpValue, otpError,
     isOtpLoading, handleOwnerRegisterOtp, getSubtitle, t,
-    isResendOtpLoading, resendMessage, handleResendOTP, resendCountdown
   } = normalRegisterProps;
+
+  const {
+    isResendOtpLoading,
+    resendCountdown,
+    resendMessage,
+    triggerResend,
+  } = useResendOtp();
+
+  const handleResendOTP = () => {
+    const setErr = isInviteFlow ? setupPasswordProps.setOtpError : normalRegisterProps.setOtpError;
+    if (isInviteFlow) {
+      triggerResend({ token: inviteToken }, setErr);
+    } else {
+      triggerResend({ email: normalRegisterProps.email }, setErr);
+    }
+  };
 
   // 1. Hợp nhất trạng thái Form
   const error = isInviteFlow ? setupPasswordProps.error : normalRegisterProps.error;

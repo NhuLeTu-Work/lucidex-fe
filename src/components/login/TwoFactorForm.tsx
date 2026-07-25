@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Shield, AlertCircle, CheckCircle, Smartphone, Mail } from 'lucide-react';
+import { Shield, AlertCircle, CheckCircle,
+  // Smartphone, Mail
+} from 'lucide-react';
 
 export function TwoFactorForm({ hookProps }: { hookProps: any }) {
   const {
@@ -10,7 +12,7 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
     setOtpValue,
     otpError,
     isOtpLoading,
-    handleVerify2FA,
+    handle2FALogin,
     t,
     // Các biến từ hook useResendOtp mới
     isResendOtpLoading,
@@ -18,11 +20,11 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
     resendMessage,
     handleResendOTP,
     
-    isSwitchDisabled = false,
-    handleSwitchMethod,
+    // isSwitchDisabled = false,
+    // handleSwitchMethod,
   } = hookProps;
 
-  const isOwner = currentAcc?.type === 'owner';
+  // const isOwner = currentAcc?.type === 'owner';
 
   // State kiểm soát hiển thị thông báo thành công khi gửi lại OTP
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
@@ -77,7 +79,7 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
         </div>
       )}
 
-      <form onSubmit={handleVerify2FA} className="flex flex-col gap-4">
+      <form onSubmit={handle2FALogin} className="flex flex-col gap-4">
         {/* Input OTP */}
         <input 
           type="text" 
@@ -106,7 +108,7 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
 
         <div className="flex flex-col items-center gap-3 mt-2">
           <div className="flex flex-col items-center gap-1">
-            {!isOwner && (
+            {/* {!isOwner && (
               <button 
                 type="button" 
                 disabled={isOtpLoading || isSwitchDisabled || isResendOtpLoading}
@@ -117,7 +119,7 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
                 {otpMethod === 'email' ? <Smartphone size={14} /> : <Mail size={14} />}
                 {otpMethod === 'email' ? (t('switchToSMS') || 'Switch to SMS method') : (t('switchToEmail') || 'Switch to Email method')}
               </button>
-            )}
+            )} */}
           </div>
 
           {/* Nút Resend OTP */}

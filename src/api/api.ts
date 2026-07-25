@@ -9,10 +9,8 @@ export const apiClient = axios.create({
   },
 });
 
-// ==========================================
 // 1. REQUEST INTERCEPTOR
 // Chức năng: Tự động đính kèm Access Token vào mọi request gửi đi
-// ==========================================
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -26,11 +24,8 @@ apiClient.interceptors.request.use(
   }
 );
 
-// ==========================================
 // 2. RESPONSE INTERCEPTOR
-// Chức năng: Đón lõng lỗi 401, bỏ qua các luồng Đăng nhập/OTP, 
-// và xử lý logic Refresh Token nếu cần
-// ==========================================
+// Chức năng: Đón lõng lỗi 401, bỏ qua các luồng Đăng nhập/OTP, và xử lý logic Refresh Token nếu cần
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -57,17 +52,6 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         return Promise.reject(error); 
       }
-      
-      // TODO: Đặt logic gọi API lấy Access Token mới (dùng refresh token) ở đây
-      // try {
-      //   const res = await axios.post(`${baseURL}/auth/refresh`, { refresh_token: refreshToken });
-      //   localStorage.setItem('access_token', res.data.access_token);
-      //   originalRequest.headers.Authorization = `Bearer ${res.data.access_token}`;
-      //   return apiClient(originalRequest); // Gọi lại request ban đầu với token mới
-      // } catch (refreshError) {
-      //   // Xử lý khi refresh token cũng hết hạn (ví dụ: logout user)
-      //   return Promise.reject(refreshError);
-      // }
     }
     
     // Trả về bất kỳ lỗi nào khác (400, 403, 404, 500, lỗi mạng...)

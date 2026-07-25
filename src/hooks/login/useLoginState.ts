@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import type { Account, LoginView, OtpMethod } from './types';
 
 export function useLoginState() {
@@ -22,24 +22,12 @@ export function useLoginState() {
   
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(0);
-  const [isSwitchDisabled, setIsSwitchDisabled] = useState(false);
-  const [otpSuccessMessage, setOtpSuccessMessage] = useState('');
-  
-  const switchTimestamps = useRef<number[]>([]);
-  const resendTimestamps = useRef<number[]>([]);
   
   const [tempOtpToken, setTempOtpToken] = useState<string | null>(null);
   const [setupToken, setSetupToken] = useState<string | null>(null);
   const [challengeToken, setChallengeToken] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [manualEntryKey, setManualEntryKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (resendCountdown <= 0) return;
-    const timer = setInterval(() => setResendCountdown(c => Math.max(c - 1, 0)), 1000);
-    return () => clearInterval(timer);
-  }, [resendCountdown]);
 
   return {
     view, setView,
@@ -58,10 +46,6 @@ export function useLoginState() {
     isOtpLoading, setIsOtpLoading,
     error, setError,
     isLoading, setIsLoading,
-    resendCountdown, setResendCountdown,
-    isSwitchDisabled, setIsSwitchDisabled,
-    otpSuccessMessage, setOtpSuccessMessage,
-    switchTimestamps, resendTimestamps,
     tempOtpToken, setTempOtpToken,
     setupToken, setSetupToken,
     challengeToken, setChallengeToken,

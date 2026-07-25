@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { setupPasswordAndRequestOtp, verifyInviteOtp } from '@/api/endpoints/business/setupPasswordApi';
 import type { OrgType } from '@/api/types/business.types';
+import { useNavigate } from 'react-router';
 
 export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl: string = '', onSuccess: () => void) {
+  const navigate = useNavigate()
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
@@ -62,41 +64,32 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
   };
 
   const handleVerifyOtp = async (e: any, rawOtpValue: string) => {
-    // 1. Safe check: Chỉ gọi preventDefault nếu 'e' thực sự là một Event
-    if (e && typeof e.preventDefault === 'function') {
-      e.preventDefault();
-    }
-    
-    setOtpError(null); 
-    
-    // 2. Làm sạch chuỗi OTP: Loại bỏ tất cả dấu cách hoặc ký tự không phải là số
-    const cleanOtp = (rawOtpValue || '').toString().replace(/[^0-9]/g, '');
-    
-    console.log('Original OTP:', rawOtpValue, 'Cleaned OTP:', cleanOtp, 'Length:', cleanOtp.length);
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    setOtpError(null);
 
-    // 3. Kiểm tra độ dài sau khi đã làm sạch
+    const cleanOtp = (rawOtpValue || '').toString().replace(/[^0-9]/g, '');
     if (!cleanOtp || cleanOtp.length !== 6) {
-      setOtpError('errorInvalidOtpLength'); // Key i18n
-      return; // Dừng lại ở đây nếu không đủ 6 số
+      setOtpError('errorInvalidOtpLength');
+      return;
     }
 
     setIsOtpLoading(true);
     try {
       const response = await verifyInviteOtp(orgType, {
         invite_token: inviteToken,
-        otp_code: cleanOtp, // Gửi lên API chuỗi đã làm sạch
+        otp_code: cleanOtp,
       });
 
       if (response.success) {
         setTimeout(() => {
-          window.location.href = '/login'; 
+          navigate('/login');
         }, 1500);
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
-        setOtpError('errorOtpInvalid'); 
+        setOtpError('errorOtpInvalid');
       } else {
-        setOtpError('errorServer'); 
+        setOtpError('errorServer');
       }
     } finally {
       setIsOtpLoading(false);

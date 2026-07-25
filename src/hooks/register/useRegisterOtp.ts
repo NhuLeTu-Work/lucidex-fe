@@ -1,8 +1,7 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/registerOwnerApi';
 import type { RegisterState } from './types';
-import { useResendOtp } from '../business/useHandleResendOtp';
 
-export function useOtp(
+export function useRegisterOtp(
   state: RegisterState,
   t: any,
   setRole: any,
@@ -12,20 +11,6 @@ export function useOtp(
   const {
     otpValue, setOtpError, setIsOtpLoading, email
   } = state;
-
-  // 2. Khởi tạo Hook Resend độc lập (Hook này đã bao trọn gói loading, đếm ngược, message)
-  const { 
-    isResendOtpLoading, 
-    resendCountdown, 
-    resendMessage, 
-    triggerResend 
-  } = useResendOtp();
-
-  // 3. Hàm bọc lại logic Resend để truyền ra UI
-  const handleResendOTP = () => {
-    // Truyền email và hàm setOtpError vào triggerResend để hook tự lo gọi API và xử lý lỗi
-    triggerResend(email, setOtpError);
-  };
 
   // 4. Giữ nguyên logic Verify OTP hiện tại của bạn
   const handleVerifyOTP = async (e?: React.FormEvent) => {
@@ -66,10 +51,6 @@ export function useOtp(
 
   // 5. Trả về cả các hàm xử lý lẫn các state hiển thị (Loading, Đếm ngược, Thông báo) để UI sử dụng
   return { 
-    handleVerifyOTP, 
-    handleResendOTP,
-    isResendOtpLoading,
-    resendCountdown,
-    resendMessage
+    handleVerifyOTP,
   };
 }

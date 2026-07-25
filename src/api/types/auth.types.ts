@@ -58,3 +58,17 @@ export interface AuthMeResponse {
   message: string;
   error_code?: string;
 }
+
+// ... giữ nguyên các interface cũ (AuthLoginPayload, VerifyAuthOtpPayload, UserProfile, ...)
+
+export interface ResendOtpPayload {
+  email?: string;
+  token?: string;
+}
+
+export interface ResendOtpResponse {
+  success: boolean;
+  data: null;
+  message: string;
+  error_code: string;
+}

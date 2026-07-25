@@ -1,7 +1,7 @@
 import { ShieldCheck, AlertCircle, CheckCircle } from 'lucide-react';
 
 export function AdminGoogleAuthForm({ hookProps }: { hookProps: any }) {
-  const { view, otpValue, setOtpValue, otpError, isOtpLoading, handleVerify2FA, t,
+  const { view, otpValue, setOtpValue, otpError, isOtpLoading, handle2FALogin, t,
     qrCode, manualEntryKey
   } = hookProps;
 
@@ -49,7 +49,7 @@ export function AdminGoogleAuthForm({ hookProps }: { hookProps: any }) {
         </div>
       )}
 
-      <form onSubmit={handleVerify2FA} className="flex flex-col gap-4">
+      <form onSubmit={handle2FALogin} className="flex flex-col gap-4">
         <input 
           type="text" 
           value={otpValue} 

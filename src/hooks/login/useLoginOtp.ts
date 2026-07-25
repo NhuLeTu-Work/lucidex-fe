@@ -5,13 +5,11 @@ import { verifyOtpLoginApi } from '@/api/endpoints/authentication/verifyOtpLogin
 export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
   const {
     currentAcc, otpValue, setOtpError,
-    setIsOtpLoading, resendTimestamps, setOtpSuccessMessage,
-    setResendCountdown, switchTimestamps, setIsSwitchDisabled,
-    setOtpMethod, setOtpValue: clearOtpValue,
+    setIsOtpLoading,
     setupToken, challengeToken, tempOtpToken
   } = state;
 
-  const handleVerify2FA = async (e: any) => {
+  const handle2FALogin = async (e: any) => {
     if (e && typeof e.preventDefault === 'function') {
       e.preventDefault();
     }
@@ -113,39 +111,5 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
     }
   };
 
-  const handleResendOTP = () => {
-    const now = Date.now();
-    resendTimestamps.current = resendTimestamps.current.filter(ts => now - ts < 5 * 60 * 1000);
-    if (resendTimestamps.current.length >= 3) {
-      setOtpSuccessMessage('');
-      setOtpError('errorTooManyAttempts');
-      return;
-    }
-    resendTimestamps.current.push(now);
-    setOtpError(null);
-    setOtpSuccessMessage('otpResent');
-    setResendCountdown(60);
-  };
-
-  const handleSwitchMethod = (newMethod: 'email' | 'sms') => {
-    const now = Date.now();
-    switchTimestamps.current = switchTimestamps.current.filter(ts => now - ts < 10 * 1000);
-
-    if (switchTimestamps.current.length >= 3) {
-      setIsSwitchDisabled(true);
-      setOtpSuccessMessage('');
-      setOtpError('errorSwitchCooldown');
-      setTimeout(() => { setIsSwitchDisabled(false); setOtpError(null); }, 10 * 1000);
-      return;
-    }
-
-    switchTimestamps.current.push(now);
-    setOtpMethod(newMethod);
-    clearOtpValue('');
-    setOtpError(null);
-    setOtpSuccessMessage('otpResent');
-    setResendCountdown(60);
-  };
-
-  return { handleVerify2FA, handleResendOTP, handleSwitchMethod };
+  return { handle2FALogin };
 }

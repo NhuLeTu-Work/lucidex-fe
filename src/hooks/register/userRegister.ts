@@ -4,7 +4,7 @@ import type { RegistrationRole } from './types';
 
 import { useRegisterState } from './useRegisterState';
 import { usePasswordValidation } from './usePasswordValidation';
-import { useOtp } from './useOtp';
+import { useRegisterOtp } from './useRegisterOtp';
 import { useOwnerRegister } from './useOwnerRegister';
 import { useBusinessRegister } from './useBusinessRegister';
 import { useOwnerRegisterOtp } from './useOwnerRegisterOtp';
@@ -22,7 +22,7 @@ export function useRegister() {
     isResendOtpLoading, 
     resendCountdown, 
     resendMessage 
-  } = useOtp(state, t, setRole, navigate);
+  } = useRegisterOtp(state, t, setRole, navigate);
   const { handleOwnerRegister } = useOwnerRegister(state, validatePassword
   );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state);
