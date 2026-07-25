@@ -17,12 +17,7 @@ export function useRegister() {
   const { validatePassword } = usePasswordValidation();
 
   const { 
-    handleVerifyOTP, 
-    handleResendOTP, 
-    isResendOtpLoading, 
-    resendCountdown, 
-    resendMessage 
-  } = useRegisterOtp(state, t, setRole, navigate);
+    handleVerifyOTP } = useRegisterOtp(state, t, setRole, navigate);
   const { handleOwnerRegister } = useOwnerRegister(state, validatePassword
   );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state);
@@ -81,10 +76,6 @@ export function useRegister() {
     getSubtitle,
     t,
     setRole,
-    handleResendOTP,           
-    isResendOtpLoading,        
-    resendMessage,             
-    resendCountdown,
     handleGoogleAuth
   };
 }
