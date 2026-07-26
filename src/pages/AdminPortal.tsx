@@ -35,7 +35,7 @@ export function AdminPortal() {
     docViewerOpen, setDocViewerOpen, 
     handleApprove,
     handleRejectSubmit 
-  } = useAdminRequests(t, showToast);
+  } = useAdminRequests(showToast);
 
   // Mock thông tin admin đăng nhập
   const currentAdmin = { name: 'Admin', email: 'admin@system.com', role: 'super' };

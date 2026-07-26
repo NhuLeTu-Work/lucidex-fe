@@ -32,12 +32,9 @@ export function useCreateAdmin(
       await fetchAccounts();
     } catch (error: any) {
       if (error.response) {
-        showToast(
-          'error',
-          error.response.data.message || 'createAdminError'
-        );
+        showToast( 'error', 'createAdminError' );
       } else {
-        showToast('error', 'networkError');
+        showToast('error', 'errorNetwork');
       }
     } finally {
       setIsCreating(false);

@@ -1,8 +1,7 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/verifyOwnerOtpApi';
 
 export function useOwnerRegisterOtp(
-  state: any, // Thay 'any' bằng 'RegisterState' nếu bạn đã định nghĩa
-  t: (key: string) => string,
+  state: any, 
   navigate: any, 
   setRole: any
 ) {
@@ -19,7 +18,7 @@ export function useOwnerRegisterOtp(
 
     // Validate nhanh mã OTP
     if (!otpValue || otpValue.trim().length < 4) {
-      setOtpError(t('errorOtpInvalid') || 'Vui lòng nhập đầy đủ mã OTP.');
+      setOtpError('errorOtpInvalid');
       return;
     }
 
@@ -48,11 +47,7 @@ export function useOwnerRegisterOtp(
     } catch (err: any) {
       if (err.response) {
         if (err.response.status === 422) {
-          setOtpError('Mã OTP sai định dạng.');
-        } else if (err.response.status === 400 || err.response.status === 404) {
-          setOtpError(err.response.data.message || 'Mã xác thực không đúng hoặc đã hết hạn.');
-        } else {
-          setOtpError('Lỗi máy chủ. Vui lòng thử lại sau.');
+          setOtpError('errorOtpInvalid');
         }
       } else {
         setOtpError('Lỗi kết nối mạng.');

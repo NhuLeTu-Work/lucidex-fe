@@ -63,7 +63,7 @@ export function useOwnerRegister(
           setError(err.response.data.message || 'Lỗi kết nối đến máy chủ.');
         }
       } else {
-        setError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+        setError('errorNetwork');
       }
     } finally {
       setIsLoading(false);

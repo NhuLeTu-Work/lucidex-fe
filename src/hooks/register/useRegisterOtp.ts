@@ -38,11 +38,9 @@ export function useRegisterOtp(
           setOtpError('Mã OTP không hợp lệ.');
         } else if (err.response.status === 400) {
           setOtpError(err.response.data.message || t('errorOtpInvalid'));
-        } else {
-          setOtpError('Lỗi hệ thống. Vui lòng thử lại sau.');
         }
       } else {
-        setOtpError('Lỗi mạng. Không thể kết nối đến máy chủ.');
+        setOtpError('errorNetwork');
       }
     } finally {
       setIsOtpLoading(false);

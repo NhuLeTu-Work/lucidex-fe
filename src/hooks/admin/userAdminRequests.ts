@@ -5,7 +5,6 @@ import type { OrganizationRecord } from '@/api/types/admin.types';
 import { rejectOrganizationApi } from '@/api/endpoints/admin/rejectOrganizationApi';
 
 export function useAdminRequests(
-  _t: (key: string) => string, 
   showToast: (type: 'success' | 'error' | 'warning', message: string) => void
 ) {
   

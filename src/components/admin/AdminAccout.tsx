@@ -1,4 +1,4 @@
-import { KeyRound, Smartphone, CheckCircle, Send, AlertCircle, Clock } from 'lucide-react';
+import { KeyRound, Smartphone, CheckCircle, Send, Clock } from 'lucide-react';
 import { useAdminAccountSettings } from '../../hooks/admin/useAdminAccountSettings';
 import { useApp } from '@/app/AppContext'; // Lấy showToast từ global
 
@@ -13,10 +13,8 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
     pwdCooldown,
     totpCooldown,
     requestedTotp,
-    errorKey,
     handleRequestPasswordReset,
     handleRequestTotpReset,
-    refetch
   } = useAdminAccountSettings(showToast);
 
   if (isInitializing) {
@@ -34,17 +32,6 @@ export function AdminAccount({ t }: { t?: (key: string) => string }) {
           {translate('accountSettings') || 'Account Settings'}
         </h1>
       </div>
-
-      {/* Hiển thị lỗi toàn cục nếu API GET fail */}
-      {errorKey && (
-        <div className="mb-6 p-3.5 rounded-xl border flex items-start gap-2.5 text-sm animate-in shake duration-300" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
-          <AlertCircle size={16} className="shrink-0 mt-0.5" />
-          <span className="font-medium text-balance">{translate(errorKey)}</span>
-          <button onClick={refetch} className="ml-auto underline font-semibold hover:opacity-70">
-            {translate('retry') || 'Retry'}
-          </button>
-        </div>
-      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Card 1: Request Reset Password */}

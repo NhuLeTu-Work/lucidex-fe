@@ -16,12 +16,11 @@ export function useRegister() {
   const state = useRegisterState();
   const { validatePassword } = usePasswordValidation();
 
-  const { 
-    handleVerifyOTP } = useRegisterOtp(state, t, setRole, navigate);
+  const { handleVerifyOTP } = useRegisterOtp(state, t, setRole, navigate);
   const { handleOwnerRegister } = useOwnerRegister(state, validatePassword
   );
   const { handleBizChange, handleBizRegister } = useBusinessRegister(state);
-  const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, t, navigate, setRole);
+  const { handleOwnerRegisterOtp } = useOwnerRegisterOtp(state, navigate, setRole);
 
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     state.setRoleType(e.target.value as RegistrationRole);
