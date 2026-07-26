@@ -1,6 +1,6 @@
 import { useApp } from '@/app/AppContext';
-import { useSuperAdmin } from '../hooks/super/userSuperAdmin';
 import { useSuper } from '@/hooks/super/useSuper';
+import { useSuperPortal } from '@/hooks/super/useSuperPortal';
 import { SuperAdminSidebar } from '../components/super/SuperAdminSidebar';
 import { AdminAccountsTab } from '../components/super/AdminAccountsTab';
 import { AuditLogTab } from '../components/super/AuditLogTab';
@@ -8,22 +8,17 @@ import { CreateAdminModal } from '../components/super/CreateAdminModal';
 import { AdminResetRequestTab } from '@/components/super/AdminResetRequests';
 
 export function SuperAdminPortal() {
-  const { t } = useApp();
+  const { t, showToast } = useApp();
 
-  // 1. Hook cũ: Chỉ còn quản lý Tab, hiển thị danh sách và Confirm Modal
-  const {
-    activeTab, setActiveTab, auditLogs,
-    confirmState, setConfirmState, openConfirm, executeAction
-  } = useSuperAdmin();
+  const { activeTab, setActiveTab, confirmState, openConfirm, closeConfirm, executeAction } = useSuperPortal();
 
-  // 2. Hook mới: Chuyên phụ trách việc gọi API Create Admin và quản lý state của Credentials Modal
   const {
-    accounts, 
+    accounts,
     isCreating,
     newAdminCredentials,
     handleCreateAdmin,
-    closeCreateModal
-  } = useSuper(t);
+    closeCreateModal,
+  } = useSuper(t, showToast);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
@@ -31,45 +26,48 @@ export function SuperAdminPortal() {
 
       <main className="flex-1 p-6 lg:p-10 overflow-auto bg-[var(--ct-bg)]">
         {activeTab === 'accounts' && (
-          <AdminAccountsTab 
+          <AdminAccountsTab
             t={t}
-            accounts={accounts} 
-            isCreating={isCreating} 
+            accounts={accounts}
+            isCreating={isCreating}
             openConfirm={openConfirm}
-            onOpenCreate={handleCreateAdmin} 
+            onOpenCreate={handleCreateAdmin}
           />
         )}
-        {activeTab === 'audit' && <AuditLogTab t={t} logs={auditLogs} />}
-        
-        {/* Render Tab Admin Reset Request chuẩn xác theo Props mới */}
+
+        {/* TODO: AuditLogTab hiện chưa có nguồn dữ liệu thật (chưa có API audit logs).
+            Cần bổ sung useAuditLogs (gọi API) trước khi tab này hiển thị đúng. */}
+        {activeTab === 'audit' && <AuditLogTab t={t} logs={[]} />}
+
         {activeTab === 'admin_requests' && <AdminResetRequestTab t={t} />}
       </main>
 
-      {/* 3. Modal Tạo Admin: Bật lên khi có kết quả credentials trả về từ API */}
       {newAdminCredentials && (
-        <CreateAdminModal 
+        <CreateAdminModal
           t={t}
-          credentials={newAdminCredentials} 
+          credentials={newAdminCredentials}
           onClose={closeCreateModal}
+          showToast={showToast}
         />
       )}
 
-      {/* Generic Confirm Modal (Giữ nguyên) */}
       {confirmState.isOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
           <div className="w-full max-w-sm rounded-2xl p-6 bg-[var(--ct-surface)] border border-[var(--ct-border)] shadow-xl animate-in zoom-in-95">
             <h3 className="font-display text-xl font-semibold mb-2 text-[var(--ct-text)]">{confirmState.title}</h3>
             <p className="text-sm opacity-70 mb-6 text-[var(--ct-text)]">{confirmState.message}</p>
             <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setConfirmState({ ...confirmState, isOpen: false })} 
+              <button
+                onClick={closeConfirm}
                 className="px-4 py-2 text-sm rounded-xl border border-[var(--ct-border)] text-[var(--ct-text)] hover:bg-black/5"
               >
                 {t('cancel') || 'Cancel'}
               </button>
-              <button 
-                onClick={executeAction} 
-                className={`px-4 py-2 text-sm font-semibold text-white rounded-xl ${confirmState.actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:opacity-80'}`}
+              <button
+                onClick={() => executeAction(/* onLock */ undefined, /* onDelete */ undefined)}
+                className={`px-4 py-2 text-sm font-semibold text-white rounded-xl ${
+                  confirmState.actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:opacity-80'
+                }`}
               >
                 {t('confirm') || 'Confirm'}
               </button>

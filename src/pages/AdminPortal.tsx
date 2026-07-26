@@ -21,21 +21,20 @@ export function AdminPortal() {
   const { t, showToast } = useApp();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
-  const { organizations, isLoading, fetchOrganizations } = useAdminOrganizations(undefined, 'pending_review');
+  const { organizations, isLoading, fetchOrganizations } = useAdminOrganizations(showToast, 'pending_review', undefined, );
   const accounts: any[] = []; 
   
   const pendingIssuers = useMemo(() => organizations.filter(org => org.type === 'issuer'), [organizations]);
   const pendingOrgs = useMemo(() => organizations.filter(org => org.type === 'verifier'), [organizations]);
   const pendingCount = organizations.length;
   
-  // Gộp chung vào 1 lần gọi Hook duy nhất
   const {
     reqSubTab, setReqSubTab, selectedReq, setSelectedReq,
     rejectModalOpen, setRejectModalOpen,
     rejectReason, setRejectReason,
     docViewerOpen, setDocViewerOpen, 
     handleApprove,
-    handleRejectSubmit // <-- Kéo handleRejectSubmit lên đây
+    handleRejectSubmit 
   } = useAdminRequests(t, showToast);
 
   // Mock thông tin admin đăng nhập

@@ -12,7 +12,7 @@ import { OwnerClaim } from '../components/owner/OwnerClaim';
 import { CreateLinkModal } from '../components/owner/OwnerLinkModal';
 
 export function OwnerPortal() {
-  const { t } = useApp();
+  const { t, showToast } = useApp();
   const {
     activeTab, setActiveTab,
     links, showCreateModal, setShowCreateModal,
@@ -20,8 +20,7 @@ export function OwnerPortal() {
     showOtpMock, setShowOtpMock,
     handleRevokeLink, handleCreateLink
   } = useOwnerPortal();
-  const { showToast } = useApp();
-    const { userProfile, fetchProfile } = useAuthMe(showToast);
+  const { userProfile, fetchProfile } = useAuthMe(showToast);
   
     useEffect(() => {
       fetchProfile();

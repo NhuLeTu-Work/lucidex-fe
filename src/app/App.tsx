@@ -5,9 +5,9 @@ import { useAxiosInterceptor } from '../hooks/useAxiosInterceptor';
 import { Toast } from '@/components/ui/toast';
 
 export function AppLayout() {
-  const { t, toastConfig, hideToast } = useApp();
+  const { t, showToast, toastConfig, hideToast } = useApp();
   
-  useAxiosInterceptor(t);
+  useAxiosInterceptor(t, showToast);
 
   return (
     <div className="min-h-screen transition-colors duration-300" style={{ background: 'var(--ct-bg)', color: 'var(--ct-text)' }}>

@@ -25,17 +25,6 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
     }
   };
 
-  const processRejection = async (id: string, type: 'password' | 'totp') => {
-    setIsProcessing(true);
-    try {
-      await superAdminRequestsApi.rejectRequest(id, type);
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, errorKey: error.message };
-    } finally {
-      setIsProcessing(false);
-    }
-  };
   // Xử lý từ chối Reset TOTP
   const handleRejectTotp = async (id: string): Promise<boolean> => {
     setIsRejectingId(`totp-${id}`);
@@ -79,27 +68,15 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
     }
   };
 
-  // Hàm Helper: Kiểm tra xem request có hợp lệ không (cách đây chưa quá 24h)
-  // Dành cho UI Super Admin nếu muốn highlight các request đã quá cũ
-  const isRequestValid = (requestedAt: string | null) => {
-    if (!requestedAt) return false;
-    const requestTime = new Date(requestedAt).getTime();
-    const now = new Date().getTime();
-    const hoursDifference = (now - requestTime) / (1000 * 60 * 60);
-    return hoursDifference <= 24; 
-  };
-
   const clearCredentialData = () => setCredentialData(null);
 
   return {
     isProcessing,
     credentialData,
     processApproval,
-    processRejection,
     clearCredentialData,
     handleRejectTotp,
     handleRejectPassword,
     isRejectingId,
-    isRequestValid
   };
 }

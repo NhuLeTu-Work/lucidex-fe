@@ -1,5 +1,4 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/verifyOwnerOtpApi';
-import { toast } from 'sonner'; // Hoặc thư viện toast bạn đang dùng
 
 export function useOwnerRegisterOtp(
   state: any, // Thay 'any' bằng 'RegisterState' nếu bạn đã định nghĩa
@@ -36,18 +35,11 @@ export function useOwnerRegisterOtp(
       const response = await verifyOwnerOtpApi(payload);
 
       if (response.success && response.data) {
-        // 1. Lưu token vào localStorage
         const { access_token, refresh_token } = response.data;
         if (access_token) localStorage.setItem('access_token', access_token);
         if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
 
-        // 2. Tắt Modal OTP
         setShowOtpModal(false);
-        
-        // 3. Hiển thị thông báo thành công
-        toast.success(t('registerSuccess') || 'Xác thực thành công! Đang chuyển hướng...');
-        
-        // 4. Chuyển hướng thẳng vào trang Owner
         setRole('owner')
         navigate('/owner');
       } else {

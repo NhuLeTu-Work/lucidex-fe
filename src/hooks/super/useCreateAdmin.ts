@@ -1,31 +1,43 @@
 import { useState } from 'react';
 import { createAdminApi } from '@/api/endpoints/super/createAdminApi';
-import { toast } from 'sonner';
 
-export function useCreateAdmin(t: any, fetchAccounts: () => Promise<void>) {
+export function useCreateAdmin(
+  fetchAccounts: () => Promise<void>,
+  showToast: (
+  type: 'success' | 'error' | 'warning',
+  messageKey: string
+) => void
+) {
   const [isCreating, setIsCreating] = useState(false);
-  const [newAdminCredentials, setNewAdminCredentials] = useState<{ username: string; password: string } | null>(null);
+
+  const [newAdminCredentials, setNewAdminCredentials] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
 
   const handleCreateAdmin = async () => {
     setIsCreating(true);
+
     try {
       const result = await createAdminApi();
-      
+
       setNewAdminCredentials({
         username: result.username,
-        password: result.temporary_password
+        password: result.temporary_password,
       });
 
-      toast.success(t('createAdminSuccess') || 'Tạo tài khoản Admin thành công!');
-      
+      showToast('success', 'createAdminSuccess');
+
       // Chờ cập nhật lại danh sách table sau khi tạo xong
       await fetchAccounts();
-
     } catch (error: any) {
       if (error.response) {
-        toast.error(error.response.data.message || t('createAdminError') || 'Lỗi khi tạo tài khoản.');
+        showToast(
+          'error',
+          error.response.data.message || 'createAdminError'
+        );
       } else {
-        toast.error('Lỗi kết nối mạng.');
+        showToast('error', 'networkError');
       }
     } finally {
       setIsCreating(false);
@@ -36,5 +48,10 @@ export function useCreateAdmin(t: any, fetchAccounts: () => Promise<void>) {
     setNewAdminCredentials(null);
   };
 
-  return { isCreating, newAdminCredentials, handleCreateAdmin, closeCreateModal };
+  return {
+    isCreating,
+    newAdminCredentials,
+    handleCreateAdmin,
+    closeCreateModal,
+  };
 }

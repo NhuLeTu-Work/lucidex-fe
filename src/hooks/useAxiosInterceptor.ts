@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { apiClient } from '../api/api';
 import { refreshTokenApi } from '../api/endpoints/authentication/refreshTokenApi';
 
@@ -17,7 +16,10 @@ const onRefreshed = (token: string) => {
   refreshSubscribers = [];
 };
 
-export function useAxiosInterceptor(t: (key: string) => string) {
+export function useAxiosInterceptor(
+  t: (key: string) => string,
+  showToast: (type: 'success' | 'error' | 'warning', message: string) => void
+) {
   const navigate = useNavigate();
   // Dùng ref để đảm bảo interceptor luôn lấy được hàm navigate mới nhất mà không bị re-render loop
   const navigateRef = useRef(navigate);
@@ -97,8 +99,7 @@ export function useAxiosInterceptor(t: (key: string) => string) {
 
           // Chỉ show Toast báo "Phiên hết hạn" NẾU trước đó user đã từng đăng nhập
           if (hadSession) {
-            // Sử dụng Key i18n để render ngôn ngữ tương ứng
-            toast.error(t('errorSessionExpired') || 'Phiên của bạn đã hết. Vui lòng đăng nhập lại.');
+            showToast('error', t('errorSessionExpired') || 'Phiên của bạn đã hết. Vui lòng đăng nhập lại.');  
           }
 
           // Đá về trang login

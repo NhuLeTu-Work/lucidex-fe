@@ -27,7 +27,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
     handleRejectTotp, 
     handleRejectPassword, 
     isRejectingId, 
-    isRequestValid 
   } = useProcessAdminRequest(showToast);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,7 +127,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
               </tr>
             ) : (
               requests.map(req => {
-                const isValid = isRequestValid(req.timestamp);
                 const isRejecting = isRejectingId === `totp-${req.accountId}` || isRejectingId === `pwd-${req.accountId}`;
                 const isDisabled = isProcessing || isRejecting;
 
@@ -140,11 +138,6 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
                     </td>
                     <td className="px-4 py-3 font-mono text-xs opacity-70">
                       {new Date(req.timestamp).toLocaleString()}
-                      {!isValid && (
-                        <span className="block text-red-500 text-[10px] mt-1 font-sans font-semibold">
-                          {translate('requestExpired24h') || 'Expired (>24h)'}
-                        </span>
-                      )}
                     </td>
                     <td className="px-4 py-3 font-medium">
                       {req.type === 'password' 
@@ -155,7 +148,7 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
                       <div className="flex items-center justify-center gap-2">
                         <button 
                           onClick={() => handleActionClick(req.accountId, req.username, req.type, 'approved')}
-                          disabled={isDisabled || !isValid} // Chặn Approve nếu quá 24h
+                          disabled={isDisabled}
                           className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 disabled:opacity-30 transition-all"
                           title={translate('approve') || 'Approve'}
                         >

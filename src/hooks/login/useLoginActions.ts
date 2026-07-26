@@ -108,13 +108,8 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
     processLogin(email, password);
   };
 
-  const handleQuickLogin = (demoEmail: string) => {
-    state.setEmail(demoEmail);
-    state.setPassword('••••••••');
-    processLogin(demoEmail, '••••••••');
-  };
 
   const { handleGoogleAuth } = useGoogleAuth(state, navigate, setRole);
 
-  return { processLogin, handleLogin, handleQuickLogin, handleGoogleAuth };
+  return { processLogin, handleLogin, handleGoogleAuth };
 }

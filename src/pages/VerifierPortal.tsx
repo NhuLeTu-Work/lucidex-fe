@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { useAuthMe } from '@/hooks/auth/useAuthMe';
 
 export function VerifierPortal() {
-  const { t } = useApp()
+  const { t, showToast } = useApp()
   const {
     activeTab, setActiveTab,
     quotaUsed,
@@ -18,7 +18,6 @@ export function VerifierPortal() {
     verifiedData,
     handleVerify
   } = useVerifierPortal();
-  const { showToast } = useApp();
   const { userProfile, fetchProfile } = useAuthMe(showToast);
 
   useEffect(() => {

@@ -26,7 +26,7 @@ export function useLogin() {
     triggerResend({ email: targetEmail }, state.setOtpError);
   };
 
-  const { processLogin, handleLogin, handleQuickLogin, handleGoogleAuth} = useLoginActions(state, navigate, setRole);
+  const { processLogin, handleLogin, handleGoogleAuth} = useLoginActions(state, navigate, setRole);
   const { handleSetupAccount } = useSetupAccount(state);
   
   const { handle2FALogin } = useLoginOtp(state, setRole, navigate);
@@ -63,7 +63,6 @@ export function useLogin() {
     isLoading: state.isLoading,
     
     handleLogin,
-    handleQuickLogin,
     handleSetupAccount,
     handle2FALogin,
     handleGoogleAuth,

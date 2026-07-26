@@ -1,15 +1,13 @@
 import { Copy, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface Props {
   credentials: { username: string; password: string } | null;
   onClose: () => void;
-  t: (key: string) => string; // <=== Thêm prop t
+  t: (key: string) => string;
+  showToast: any
 }
 
 export function CreateAdminModal({ credentials, onClose, t }: Props) {
-  // credentials lúc này luôn có sẵn vì đã được tạo trước khi mở modal
-  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
       <div className="w-full max-w-md rounded-2xl border p-6 shadow-2xl bg-[var(--ct-surface)] border-[var(--ct-border)] animate-in zoom-in-95">
@@ -40,7 +38,7 @@ export function CreateAdminModal({ credentials, onClose, t }: Props) {
 }
 
 // Component nhỏ để hiển thị box thông tin cho gọn
-function CredentialBox({ label, value, t, isPassword }: any) {
+function CredentialBox({ label, value, isPassword, showToast }: any) {
   return (
     <div className="p-4 rounded-xl border bg-[var(--ct-bg)] border-[var(--ct-border)]">
       <p className="text-xs uppercase font-bold tracking-wider opacity-50 mb-1 text-[var(--ct-text)]">{label}</p>
@@ -48,7 +46,7 @@ function CredentialBox({ label, value, t, isPassword }: any) {
         <span className={`font-mono text-lg font-bold text-[var(--ct-text)] ${isPassword ? 'tracking-[0.2em]' : ''}`}>
           {value}
         </span>
-        <button onClick={() => { navigator.clipboard.writeText(value); toast.success(`${label} ${t('copiedToClipboard')}`); }} className="p-2 hover:bg-black/10 rounded-md text-[var(--ct-text)]">
+        <button onClick={() => { navigator.clipboard.writeText(value); showToast('success', 'requestApprovedSuccess');}} className="p-2 hover:bg-black/10 rounded-md text-[var(--ct-text)]">
           <Copy size={16} />
         </button>
       </div>

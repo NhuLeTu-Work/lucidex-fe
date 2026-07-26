@@ -96,10 +96,12 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
     } catch (err: any) {
       if (err.response) {
         const status = err.response.status;
-        if (status === 422) {
-          setOtpError('errorInvalidOtpLength'); 
-        } else if (status === 400 || status === 401) {
+        if (status === 400) {
           setOtpError('errorOtpInvalid');
+        } else if (status === 422) {
+          setOtpError('errorInvalidOtpLength'); 
+        } else if (status === 401) {
+          setOtpError('errorSessionExpired');
         } else {
           setOtpError('errorServer');
         }

@@ -141,11 +141,8 @@ export function useBusinessRegister( state: RegisterState ) {
       }
       
     } catch (err: any) {
-      if (err.response && err.response.status === 422) {
+      if (err.response.status === 422) {
         setError('errorInvalidData');
-        console.log('Validation Error Details:', err.response.data.detail);
-      } else if (err.response?.status === 400 || err.response?.status === 409) {
-        setError('errorEmailExists');
       } else {
         setError('errorServerConnection');
       }

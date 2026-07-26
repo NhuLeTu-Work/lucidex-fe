@@ -1,6 +1,4 @@
-import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn,
-  // ArrowRight, ShieldCheck, Building2, Award, GraduationCap 
-} from 'lucide-react';
+import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -93,26 +91,6 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
               useOneTap
             />
           </div>
-
-      {/* <div className="p-6 rounded-2xl border flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3 duration-700 delay-150" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
-        <div className="flex flex-col gap-0.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80" style={{ color: 'var(--ct-text)' }}>{t('demoAccounts') || 'Demo Accounts'}</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {mockAccounts.filter(acc => ['acc_003', 'acc_002', 'iss_001', 'vef_001', 'admin_new', 'admin_returning', 'super_admin'].includes(acc.id)).map((acc) => (
-            <button key={acc.id} type="button" disabled={isLoading} onClick={() => handleQuickLogin(acc.email)} className="p-3 text-left rounded-xl border flex flex-col gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] group" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
-              <div className="flex items-center justify-between w-full">
-                <span className="p-1 rounded-md border text-xs opacity-70 group-hover:opacity-100 transition-opacity" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', color: 'var(--ct-text)' }}>{getRoleIcon(acc.type)}</span>
-                <ArrowRight size={12} className="opacity-0 -translate-x-1 group-hover:opacity-40 group-hover:translate-x-0 transition-all" style={{ color: 'var(--ct-text)' }} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold truncate" style={{ color: 'var(--ct-text)' }}>{acc.name}</span>
-                <span className="text-[9px] font-mono opacity-60 truncate" style={{ color: 'var(--ct-text)' }}>{acc.email}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div> */}
     </>
   );
 }

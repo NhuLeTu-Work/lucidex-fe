@@ -1,17 +1,14 @@
-// src/hooks/admin/useAdminOrganizations.ts
 import { useState, useEffect, useCallback } from 'react';
 import { getOrganizationsApi } from '@/api/endpoints/admin/getOrganizationsApi';
 import type { OrganizationRecord, OrgTypeFilter, OrgStatusFilter } from '@/api/types/admin.types';
-import { toast } from 'sonner';
 
 export function useAdminOrganizations(
-  initialType?: OrgTypeFilter, 
-  initialStatus: OrgStatusFilter = 'pending_review' // Default theo tài liệu API
+  showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
+  initialStatus: OrgStatusFilter = 'pending_review',
+  initialType?: OrgTypeFilter,
 ) {
   const [organizations, setOrganizations] = useState<OrganizationRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // State quản lý các bộ lọc
+  const [isLoading, setIsLoading] = useState(false);  
   const [typeFilter, setTypeFilter] = useState<OrgTypeFilter | undefined>(initialType);
   const [statusFilter, setStatusFilter] = useState<OrgStatusFilter | undefined>(initialStatus);
 
@@ -25,14 +22,15 @@ export function useAdminOrganizations(
 
       if (response.success) {
         setOrganizations(response.data);
-      } else {
-        toast.error(response.message || 'Lỗi khi tải danh sách tổ chức.');
       }
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        toast.error('Phiên đăng nhập Admin đã hết hạn hoặc không hợp lệ.');
-      } else {
-        toast.error(error.response?.data?.message || 'Không thể kết nối đến máy chủ.');
+      const status = error.response?.status;
+      if (status === 401) {
+        showToast('error', 'errorAdminSession'); 
+      } else if (status === 422) {
+        showToast('error', 'errorInvalidRequestData'); 
+      } else if (status === 500) {
+        showToast('error', 'errorServerNotification'); 
       }
     } finally {
       setIsLoading(false);
@@ -49,9 +47,9 @@ export function useAdminOrganizations(
     organizations,
     isLoading,
     typeFilter,
-    setTypeFilter,     // Dùng hàm này để thay đổi filter type (ví dụ: khi click nút filter trên UI)
+    setTypeFilter,     
     statusFilter,
-    setStatusFilter,   // Dùng hàm này để thay đổi filter status
-    fetchOrganizations // Export hàm này để có thể gắn vào nút "Refresh"
+    setStatusFilter,   
+    fetchOrganizations 
   };
 }

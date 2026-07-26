@@ -5,8 +5,10 @@ import { useLanding } from '../hooks/useLanding';
 import { BlurRevealText } from '../components/landing/BlurRevealText';
 import { FeatureCard } from '../components/landing/FeatureCard';
 import { StepRow } from '../components/landing/StepRow';
+// import { useApp } from '@/app/AppContext';
 
 export function LandingPage() {
+  // const { showToast } = useApp()
   const { t, handleVerifierClick, handleVerifyClick } = useLanding();
   const heroRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
