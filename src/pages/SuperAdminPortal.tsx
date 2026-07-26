@@ -18,7 +18,7 @@ export function SuperAdminPortal() {
     newAdminCredentials,
     handleCreateAdmin,
     closeCreateModal,
-  } = useSuper(t, showToast);
+  } = useSuper(showToast);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
