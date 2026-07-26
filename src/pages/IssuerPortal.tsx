@@ -10,14 +10,14 @@ import { IssuerReview } from '../components/issuer/IssuerReview';
 import { IssuerAnalytics } from '../components/issuer/IssuerAnalytics';
 
 export function IssuerPortal() {
-  const { t } = useApp();
+  const { t, showToast } = useApp();
   const {
     activeTab, setActiveTab,
-    reviewItems, uploadState,
-    handleApprove, handleReject, handleUpload,
+    reviewItems,
+    // uploadState, handleUpload,
+    handleApprove, handleReject, 
     pendingCount
   } = useIssuerPortal();
-  const { showToast } = useApp();
   const { userProfile, fetchProfile } = useAuthMe(showToast);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export function IssuerPortal() {
         )}
         
         {activeTab === 'upload' && (
-          <IssuerUpload t={t} uploadState={uploadState} onUpload={handleUpload} />
+          <IssuerUpload />
         )}
         
         {activeTab === 'review' && (
