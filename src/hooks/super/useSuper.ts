@@ -31,7 +31,7 @@ export function useSuper(showToast: (type: 'success' | 'error' | 'warning', mess
       showToast('success', type === 'password' ? 'approvePasswordSuccess' : 'approveTotpSuccess');
       await Promise.all([fetchAccounts(), refetchRequests()]);
     } else {
-      showToast('error', result.errorKey || 'errorActionFailed');
+      showToast('error', 'errorActionFailed');
     }
     return result.success;
   };

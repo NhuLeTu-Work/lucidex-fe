@@ -17,7 +17,7 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
   const { t: contextT, showToast } = useApp();
   const t = externalT || contextT;
   const translate = (key: string) => (t ? t(key) : key);
-  const { requests, isLoading: isFetching, errorKey: fetchError, refetch } = useGetAdminResetRequests();
+  const { requests, isLoading: isFetching, errorKey: fetchError, refetch } = useGetAdminResetRequests(showToast);
   
   const { 
     isProcessing, 
@@ -58,7 +58,7 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
         showToast('success', 'requestApprovedSuccess');
       }
     } else {
-      showToast('error', result.errorKey);
+      showToast('error', 'errorActionFailed');
     }
   };
 

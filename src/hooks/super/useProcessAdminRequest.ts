@@ -19,7 +19,8 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
       }
       return { success: true };
     } catch (error: any) {
-      handleApiError(error.response?.status, error.response?.error_code);
+      handleApiError(error.response.status, error.response.error_code);
+      return { success: false };
     } finally {
       setIsProcessing(false);
     }
@@ -33,7 +34,7 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
       showToast('success', 'rejectTotpSuccess');
       return true; // Trả về true để Component cha reload lại danh sách
     } catch (error: any) {
-      handleApiError(error.response?.status);
+      handleApiError(error.response.status, error.response.error_code);
       return false;
     } finally {
       setIsRejectingId(null);
@@ -56,7 +57,7 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
   };
 
   // Hàm helper xử lý mã lỗi chung
-  const handleApiError = (status?: number, errorCode?: string) => {
+  const handleApiError = (status: number, errorCode: string) => {
     if (status === 401) {
       showToast('error', 'errorAdminSession');
     } else if (status === 404) {
