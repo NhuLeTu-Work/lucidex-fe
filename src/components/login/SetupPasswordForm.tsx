@@ -15,7 +15,7 @@ export function SetupPasswordForm({ hookProps }: { hookProps: any }) {
             <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center border mb-2" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}>
               <Key size={22} style={{ color: 'var(--ct-text)' }} />
             </div>
-            <h2 className="font-display text-2xl font-semibold tracking-tight" style={{ color: 'var(--ct-text)' }}>{t('setupAccountTitle') || 'Set Up Your Account'}</h2>
+            <h2 className="font-display text-2xl font-semibold tracking-tight" style={{ color: 'var(--ct-text)' }}>{t('setupAccount') || 'Set Up Your Account'}</h2>
             <p className="text-sm opacity-70" style={{ color: 'var(--ct-text)' }}>{t('setupAccountDesc') || 'Please set a secure password for your newly approved account.'}</p>
           </div>
 

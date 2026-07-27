@@ -64,14 +64,14 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           }
         } 
         else {
-          setOtpError('errorInvalidSession'); 
+          setOtpError('errorSessionExpired'); 
         }
       }
       
       // LUỒNG 2: DÀNH CHO OWNER VÀ CÁC BÊN (ISSUER/VERIFIER)
       else {
         if (!tempOtpToken) {
-          setOtpError('errorInvalidSession');
+          setOtpError('errorSessionExpired');
           setIsOtpLoading(false);
           return;
         }
@@ -111,7 +111,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           if (status === 400 && errorCode === 'INVALID_OTP') {
             setOtpError('errorInvalidOtp');
           } else if (status === 401 && errorCode === 'HTTP_401') {
-            setOtpError('errorTempTokenInvalid');
+            setOtpError('errorSessionExpired');
           } else if (status === 401 && errorCode === 'INVALID_CREDENTIALS') {
             setOtpError('errorActorNotFound');
           } else if (status === 422) {

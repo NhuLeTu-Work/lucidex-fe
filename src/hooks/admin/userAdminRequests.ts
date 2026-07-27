@@ -85,7 +85,7 @@ export function useAdminRequests(
         showToast('warning', 'errorEmailDeliveryFailed'); 
         return true; 
       } else {
-        showToast('error', 'errorRejectFailed'); 
+        showToast('error', 'errorActionFailed'); 
       }
       return false;
     } finally {

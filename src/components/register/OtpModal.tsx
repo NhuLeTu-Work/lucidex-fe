@@ -55,10 +55,10 @@ export function OtpModal({
             <Shield size={22} style={{ color: 'var(--ct-text)' }} />
           </div>
           <h2 className="font-display text-2xl font-semibold tracking-tight text-balance" style={{ color: 'var(--ct-text)' }}>
-            {t('verifyEmail') || 'Verify your email'}
+            {t('verifyEmail')}
           </h2>
           <p className="text-sm opacity-70 text-balance" style={{ color: 'var(--ct-text)' }}>
-            {t('otpSentDesc') || 'A 6-digit code has been sent to'}
+            {t('otpSentToEmail')}
             <span className="block font-semibold opacity-100 mt-1">
               {email}
             </span>

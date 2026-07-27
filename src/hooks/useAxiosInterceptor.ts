@@ -103,9 +103,9 @@ export function useAxiosInterceptor(
             const errorCode = refreshError.response?.data?.error_code || refreshError.response?.error_code;
 
             if (status === 401 && errorCode === 'INVALID_REFRESH_TOKEN') {
-              showToast('error', 'errorInvalidRefreshToken');
+              showToast('error', 'errorSessionExpired');
             } else if (status === 401 && errorCode === 'EXPIRED_REFRESH_TOKEN') {
-              showToast('error', 'errorExpiredRefreshToken');
+              showToast('error', 'errorSessionExpired');
             } else if (status === 422) {
               showToast('error', 'errorValidationRefreshToken');
             } else {

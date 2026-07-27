@@ -17,7 +17,7 @@ export function RoleSelector({ roleType, handleRoleChange, isSuccess, getSubtitl
       </div>
       
       <h2 className="font-display text-2xl font-semibold tracking-tight" style={{ color: 'var(--ct-text)' }}>
-        {t('createAccountTitle') || 'Create an Account'}
+        {t('createAccount') || 'Create an Account'}
       </h2>
 
       <div className="relative w-48 mx-auto">

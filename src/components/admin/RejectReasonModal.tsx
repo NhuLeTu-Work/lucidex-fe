@@ -14,7 +14,7 @@ export function RejectReasonModal({ reason, setReason, onSubmit, onClose, t }: a
             rows={4}
             required
             className="w-full p-3 text-sm rounded-xl border outline-none focus:border-red-400 resize-none bg-[var(--ct-bg)] border-[var(--ct-border)] text-[var(--ct-text)]"
-            onInvalid={(e) => (e.target as HTMLTextAreaElement).setCustomValidity(t('reqReasonErr') || 'A reason is required.')}
+            onInvalid={(e) => (e.target as HTMLTextAreaElement).setCustomValidity(t('errorEmptyRejectReason') || 'A reason is required.')}
             onInput={(e) => (e.target as HTMLTextAreaElement).setCustomValidity('')}
           />
           <div className="flex justify-end gap-2">

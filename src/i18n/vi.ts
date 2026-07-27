@@ -155,7 +155,6 @@ export const vi: Record<string, string> = {
     orgRequests: 'Yêu cầu Tổ chức',
     orgRequestsDesc: 'Xem xét và phê duyệt đăng ký tổ chức.',
     noOrgRequests: 'Không có yêu cầu tổ chức nào chờ duyệt.',
-    businessLicenseDoc: 'Giấy phép Kinh doanh',
     viewLicense: 'Xem',
     accounts: 'Tài khoản',
     accountType: 'Loại Tài khoản',
@@ -196,26 +195,19 @@ export const vi: Record<string, string> = {
     errorEmailExists: 'Email này đã được đăng ký trên hệ thống.',
     errorOtpExpired: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.',
     errorOtpInvalid: 'Mã OTP không hợp lệ. Vui lòng thử lại.',
-    
-    createAccountTitle: 'Tạo tài khoản',
     createAccountSubtitle: 'Tham gia cùng chúng tôi để quản lý văn bằng an toàn.',
     confirmPassword: 'Mật khẩu xác thực',
     signUp: 'Đăng ký',
     signUpWithGoogle: 'Đăng ký bằng Google',
     alreadyHaveAccount: 'Đã có tài khoản?',
-    
     verifyEmail: 'Xác thực Email',
-    otpSentDesc: 'Chúng tôi đã gửi mã xác thực 6 chữ số đến',
     verifyAndProceed: 'Xác thực & Tiếp tục',
-
     roleOwner: 'Chủ sở hữu văn bằng',
     roleIssuer: 'Tổ chức cấp phát',
     roleVerifier: 'Doanh nghiệp / Nhà tuyển dụng',
-    
     subtitleOwner: 'Tham gia cùng chúng tôi để quản lý văn bằng an toàn.',
     subtitleIssuer: 'Đăng ký tổ chức của bạn để bắt đầu cấp phát văn bằng số.',
     subtitleVerifier: 'Đăng ký tổ chức của bạn để xác thực văn bằng dễ dàng.',
-    
     lblOrgName: 'Tên doanh nghiệp',
     lblInstName: 'Tên tổ chức / Đơn vị',
     lblTaxCode: 'Mã số thuế / MSDN',
@@ -225,7 +217,6 @@ export const vi: Record<string, string> = {
     lblContactPhone: 'Số điện thoại liên hệ',
     lblRegName: 'Họ tên người đăng ký',
     lblRegTitle: 'Chức vụ người đăng ký',
-    
     uploadCert: 'Tải lên Giấy phép Đăng ký Kinh doanh',
     clickToUpload: 'Nhấn để tải lên chứng từ',
     submitForReview: 'Gửi yêu cầu đăng ký',
@@ -236,28 +227,20 @@ export const vi: Record<string, string> = {
     fmtLettersOnly: 'Chỉ bao gồm chữ cái',
     fmtGmail: 'Định dạng Gmail không hợp lệ (VD: ten@gmail.com)',
     fmtPhone: 'Số điện thoại Việt Nam gồm 10 chữ số',
-    
     applicationSubmitted: 'Gửi yêu cầu thành công',
     pendingReviewMsgIssuer: 'Đơn đăng ký của bạn cho Tổ chức cấp phát đã được gửi thành công và đang chờ ban quản trị phê duyệt. Vui lòng kiểm tra hộp thư rác nếu bạn không nhận được link mời tham gia.',
     pendingReviewMsgVerifier: 'Đơn đăng ký của bạn cho Doanh nghiệp/Nhà tuyển dụng đã được gửi thành công và đang chờ ban quản trị phê duyệt. Vui lòng kiểm tra hộp thư rác nếu bạn không nhận được link mời tham gia.',
-    returnHome: 'Quay về trang chủ',
-
     "submittedAt": "Ngày nộp đơn",
     "pendingReviewTitle": "Đơn đăng ký đang được duyệt",
     "pendingReviewDesc": "Đơn đăng ký của bạn đang trong quá trình xét duyệt bởi quản trị viên. Vui lòng quay lại sau.",
     "backToLogin": "Quay lại trang đăng nhập",
-    
     "rejectedTitle": "Đơn đăng ký bị từ chối",
     "rejectedDesc": "Rất tiếc, đơn đăng ký của bạn đã bị từ chối. Cảm ơn bạn đã quan tâm đến nền tảng.",
-    "rejectionReason": "Lý do từ chối",
     "backToHome": "Quay về trang chủ",
-    
-    "setupAccountTitle": "Thiết lập tài khoản",
     "setupAccountDesc": "Yêu cầu tạo tài khoản của bạn đã được duyệt. Vui lòng thiết lập một mật khẩu an toàn cho tài khoản vừa được phê duyệt của bạn.",
     "setupAccountBtn": "Hoàn tất thiết lập",
     "setupSuccessTitle": "Tạo tài khoản thành công!",
     "setupSuccessDesc": "Đang chuyển hướng đến trang thiết lập 2FA bắt buộc...",
-
     "setup2FATitle": "Thiết lập bảo mật 2 lớp",
     "login2FATitle": "Xác thực bảo mật 2 lớp",
     "otpSentToEmail": "Mã xác thực 6 chữ số đã được gửi đến địa chỉ:",
@@ -265,7 +248,6 @@ export const vi: Record<string, string> = {
     "switchToSMS": "Chuyển sang nhận mã qua SMS",
     "switchToEmail": "Chuyển sang nhận mã qua Email",
     "verify2FA": "Xác nhận & Tiếp tục",
-    
     "pendingRequests": "Yêu cầu chờ duyệt",
     "pendingRequestsDesc": "Xử lý các yêu cầu đăng ký theo thứ tự thời gian nộp.",
     "tabIssuer": "Tổ chức cấp phát",
@@ -277,7 +259,6 @@ export const vi: Record<string, string> = {
     "rejectReasonDesc": "Vui lòng nhập lý do từ chối đơn đăng ký này. Lý do sẽ được gửi qua email cho người nộp đơn.",
     "enterReason": "VD: Tài liệu tải lên bị mờ, không thể đọc được...",
     "confirmReject": "Xác nhận từ chối",
-    "reqReasonErr": "Bắt buộc phải nhập lý do từ chối.",
     "docLoadErr": "Không thể tải tài liệu này.",
     "emailSent": "Đã gửi Email thông báo",
     "uploadCertIssuer": "Tải lên Quyết định thành lập",
@@ -287,12 +268,9 @@ export const vi: Record<string, string> = {
     "lblThisIsOwner": "Đây chính là Chủ sở hữu",
     "lblThisIsVerifier": "Đây chính là Nhà tuyển dụng",
     resendIn: "Gửi lại sau",
-    otpResendSuccess: "Một mã xác thực mới vừa được gửi.",
-    otpRateLimitError: "Bạn đã thao tác quá nhiều lần. Vui lòng thử lại sau vài phút.",
     otpSwitchCooldownError: "Vui lòng đợi reset cooldown trước khi đổi phương thức xác thực.",
     otpResent: "Một mã xác thực mới vừa được gửi.",
     errorTooManyAttempts: "Bạn đã thao tác quá nhiều lần. Vui lòng thử lại sau 5 phút.",
-    errorSwitchCooldown: "Vui lòng đợi reset cooldown trước khi đổi phương thức khác.",
     errorEmailExistsGoogle: "Email này đã được đăng ký qua Google. Vui lòng đăng nhập bằng Google.",
     errorEmailExistsPassword: "Email này đã được đăng ký bằng mật khẩu. Vui lòng đăng nhập bằng email và mật khẩu của bạn.",
     setupGoogleAuthTitle: "Cài đặt Ứng dụng xác thực",
@@ -338,8 +316,6 @@ export const vi: Record<string, string> = {
     errorNetwork: 'Lỗi mạng. Không thể kết nối đến máy chủ.',
     errorAccountNotFound: 'Tài khoản không tồn tại.',
     cantScanQR: "Không quét được QR? Hãy nhập mã này.", 
-    "errorInvalidSession": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.",
-    errorPasswordAccountOauth: "Email này đã đăng ký bằng mật khẩu. Vui lòng đăng nhập bằng email và mật khẩu.",
     errorInvalidGoogleToken: "Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
     errorGoogleEmailNotVerified: "Email Google chưa được xác minh. Vui lòng xác minh email trước khi tiếp tục.",
     adminResetRequests: 'Yêu cầu cấp lại Admin',
@@ -387,7 +363,6 @@ export const vi: Record<string, string> = {
     "errorOrgAlreadyProcessed": "Yêu cầu này đã có quyết định cuối cùng từ trước.",
     "errorServerNotification": "Lỗi hệ thống khi lưu lịch sử từ chối.",
     "errorEmailDeliveryFailed": "Đã từ chối nhưng không thể gửi email thông báo.",
-    "errorRejectFailed": "Có lỗi xảy ra khi xử lý yêu cầu.",
     "rejectTotpSuccess": "Đã từ chối yêu cầu reset TOTP thành công.",
     "rejectPasswordSuccess": "Đã từ chối yêu cầu reset mật khẩu thành công.",
     "errorInvalidRequestData": "Dữ liệu yêu cầu không hợp lệ. Vui lòng thử lại.",
@@ -443,8 +418,6 @@ export const vi: Record<string, string> = {
     notEnoughPowerAdmin: 'Bạn không có đủ quyền truy cập cho yêu cầu này. Vui lòng đăng nhập vào tài khoản phù hợp.',
     errorAdminAuthentication: 'Không thể khởi tạo xác thực hai yếu tố. Vui lòng thử lại sau.',
     errorApproveOrgInternal: 'Đã xảy ra lỗi hệ thống trong quá trình lưu trữ dữ liệu phê duyệt tổ chức và lời mời. Vui lòng liên hệ bộ phận kỹ thuật.',
-
-    // Issuer Registration (Register_Reg)
     errorRegDocumentRequired: 'Vui lòng đính kèm tài liệu minh chứng.',
     errorRegInvalidFileType: 'Tài liệu phải ở định dạng PDF.',
     errorRegFileEmpty: 'Tệp tài liệu tải lên bị trống (0 byte). Vui lòng kiểm tra lại.',
@@ -455,28 +428,15 @@ export const vi: Record<string, string> = {
     errorRegValidation: 'Thông tin hồ sơ không hợp lệ. Vui lòng kiểm tra lại dữ liệu đã nhập.',
     errorRegInternalServer: 'Đã xảy ra lỗi hệ thống khi tải lên tài liệu. Vui lòng thử lại sau.',
     errorRegEmailFailed: 'Hệ thống không thể gửi email xác nhận. Quá trình đăng ký đã bị hủy, vui lòng thử lại.',
-
-    // Invitations
     errorInviteInvalid: 'Đường dẫn liên kết không hợp lệ, đã hết hạn hoặc không tồn tại.',
-
-    // Generic Validation & Emails
     errorValidation: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.',
     errorOtpEmailFailed: 'Không thể gửi mã OTP qua email. Quá trình tạo mã đã bị hủy, vui lòng thử lại.',
-
-    // Google OAuth
     errorGoogleAccountMismatch: 'Thông tin tài khoản Google không khớp hoặc có lỗi xung đột dữ liệu.',
     errorValidationGoogleAuth: 'Dữ liệu xác thực không hợp lệ.',
     errorGoogleOauthUnavailable: 'Tính năng đăng nhập bằng Google hiện đang bảo trì hoặc chưa được cấu hình.',
-
-    // OTP & Tokens
-    errorTempTokenInvalid: 'Phiên xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.',
     errorActorNotFound: 'Không tìm thấy thông tin tài khoản xác thực.',
     errorOwnerAlreadyActive: 'Tài khoản này đã được kích hoạt trước đó.',
     errorOwnerNotFound: 'Không tìm thấy tài khoản nào tương ứng với email này.',
     errorValidationOtp: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại định dạng email hoặc mã OTP.',
-
-    // Refresh Token
-    errorInvalidRefreshToken: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.',
-    errorExpiredRefreshToken: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
     errorValidationRefreshToken: 'Dữ liệu phiên làm việc không hợp lệ.',
 };

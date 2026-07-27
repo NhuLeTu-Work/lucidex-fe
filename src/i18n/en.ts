@@ -5,19 +5,16 @@ export const en: Record<string, string> = {
     register: 'Register',
     login: 'Login',
     logout: 'Logout',
-    // Hero
     heroTitle: 'THE NEW STANDARD FOR DIGITAL CREDENTIALS',
     heroSubtitle: 'Secure. Instant. Auditable.',
     heroCTA1: 'Register Organization',
     heroCTA2: 'Verify a Credential',
-    // Features
     forUniversities: 'For Universities',
     forStudents: 'For Students',
     forEmployers: 'For Employers',
     featUniDesc: 'Eliminate manual verification burden. Gain labor market insights.',
     featStuDesc: 'Own your credentials. Share instantly. Control who sees what.',
     featEmpDesc: 'Verify degrees in 30 seconds. Full audit trail compliance.',
-    // How it works
     howItWorks: 'How It Works',
     step1: 'Issuer Uploads Data',
     step2: 'Student Claims Credential',
@@ -44,7 +41,6 @@ export const en: Record<string, string> = {
     quotaPlan: 'Quota & Plan',
     exportPDF: 'Export PDF',
     orgRegistration: 'Organization Registration',
-    // Common
     search: 'Search',
     filter: 'Filter',
     status: 'Status',
@@ -68,7 +64,6 @@ export const en: Record<string, string> = {
     revoked: 'Revoked',
     expired: 'Expired',
     all: 'All',
-    // Student
     welcomeOwner: 'Welcome, Owner',
     studentId: 'Student ID',
     degreeInfo: 'Degree Information',
@@ -99,7 +94,6 @@ export const en: Record<string, string> = {
     consentSettingsDesc: 'Manage how your credentials can be accessed by organizations.',
     setDefaultConsent: 'Set Default Consent Level',
     autoApproveFor: 'Auto-approve for trusted organizations',
-    // Claim
     claimYourDegree: 'Claim Your Digital Degree',
     enterStudentId: 'Enter Student ID',
     enterDob: 'Enter Date of Birth',
@@ -113,7 +107,6 @@ export const en: Record<string, string> = {
     cccdNote: 'Photo will be deleted immediately after OCR processing.',
     processing: 'Processing...',
     claimSuccess: 'Credential claimed successfully!',
-    // Issuer
     welcomeIssuer: 'Welcome, Issuer Admin',
     uploadCSVDesc: 'Upload graduation data via CSV batch file.',
     downloadTemplate: 'Download Template',
@@ -132,7 +125,6 @@ export const en: Record<string, string> = {
     verificationsThisMonth: 'Verifications This Month',
     activeOwners: 'Active Owners',
     pendingReviews: 'Pending Reviews',
-    // Verifier
     welcomeVerifier: 'Welcome Verifier',
     company: 'Company',
     freeTier: 'Free Tier',
@@ -159,12 +151,10 @@ export const en: Record<string, string> = {
     uploadLicense: 'Upload Business License',
     submitForApproval: 'Submit for Approval',
     regSuccess: 'Registration submitted! Awaiting admin approval.',
-    // Admin
     welcomeAdmin: 'Welcome, System Admin',
     orgRequests: 'Organization Requests',
     orgRequestsDesc: 'Review and approve Verifier organization registrations.',
     noOrgRequests: 'No pending organization requests.',
-    businessLicenseDoc: 'Business License',
     viewLicense: 'View',
     accounts: 'Accounts',
     accountType: 'Account Type',
@@ -174,20 +164,17 @@ export const en: Record<string, string> = {
     admin: 'Admin',
     createdAt: 'Created At',
     lastActive: 'Last Active',
-    // Verify link page
     verifyPageTitle: 'Verify Credential',
     enterLinkCode: 'Enter verification code from link',
     check: 'Check',
     consentRequired: 'Owner consent required for verification.',
     contactOwner: 'Please contact the credential owner.',
-    // Misc
     switchLight: 'Light Mode',
     switchDark: 'Dark Mode',
     langVi: 'Tieng Viet',
     langEn: 'English',
     mockDataLabel: '[MOCK DATA]',
     phase1Label: 'Phase 1 Pilot - CICT/CTU',
-    
     errorFieldsRequired: 'Please fill in all required fields.',
     errorAccountInactive: 'This account is currently locked.',
     errorInvalidCredentials: 'Invalid email or password.',
@@ -208,26 +195,19 @@ export const en: Record<string, string> = {
     errorEmailExists: 'This email is already registered.',
     errorOtpExpired: 'OTP has expired. Please request a new code.',
     errorOtpInvalid: 'Invalid OTP. Please try again.',
-    
-    createAccountTitle: 'Create an Account',
     createAccountSubtitle: 'Join us to securely manage your credentials.',
     confirmPassword: 'Confirm Password',
     signUp: 'Sign Up',
     signUpWithGoogle: 'Sign up with Google',
     alreadyHaveAccount: 'Already have an account?',
-    
     verifyEmail: 'Verify Email',
-    otpSentDesc: 'We have sent a 6-digit verification code to',
     verifyAndProceed: 'Verify & Proceed',
-
     roleOwner: 'Credential Owner',
     roleIssuer: 'Issuer',
     roleVerifier: 'Verifier',
-    
     subtitleOwner: 'Join us to securely manage your credentials.',
     subtitleIssuer: 'Register your institution to start issuing digital credentials.',
     subtitleVerifier: 'Register your organization to verify credentials seamlessly.',
-    
     lblOrgName: 'Organization Name',
     lblInstName: 'Institution Name',
     lblTaxCode: 'Tax Code / MSDN',
@@ -237,48 +217,37 @@ export const en: Record<string, string> = {
     lblContactPhone: 'Contact Phone',
     lblRegName: "Registrant's Name",
     lblRegTitle: "Registrant's Title",
-    
     uploadCert: 'Upload Business Registration Certificate',
     clickToUpload: 'Click to upload certificate',
     submitForReview: 'Submit Application',
-    
     errorMissingFields: 'Please fill in the following required field(s):',
     fmtTextLength: 'Text, 3–200 characters',
     fmtTaxCode: 'Exactly 10 digits',
     fmtLettersOnly: 'Text, letters only',
     fmtGmail: 'Invalid email format (e.g. name@gmail.com)',
     fmtPhone: '10-digit Vietnamese phone number',
-    
     applicationSubmitted: 'Application Submitted',
     pendingReviewMsg: 'Your registration application has been submitted successfully and is pending review.',
     pendingReviewMsgIssuer: 'Your registration application for Issuer has been submitted successfully and is pending review. Please check your spam inbox in case you do not see the invite link.',
     pendingReviewMsgVerifier: 'Your registration application for Verifier has been submitted successfully and is pending review. Please check your spam inbox in case you do not see the invite link.',
-    returnHome: 'Return to Home',
     verify2FA: '2FA Verify',
-    
     "submittedAt": "Submitted At",
     "pendingReviewTitle": "Application Under Review",
     "pendingReviewDesc": "Your registration is currently pending review by an administrator. Please check back later.",
     "backToLogin": "Back to Login",
-    
     "rejectedTitle": "Application Rejected",
     "rejectedDesc": "Unfortunately, your registration has been rejected. Thank you for your interest.",
-    "rejectionReason": "Reason for rejection",
     "backToHome": "Back to Home",
-    
-    "setupAccountTitle": "Set Up Your Account",
     "setupAccountDesc": "Your registeration has been approved. Please set a secure password for your newly approved account.",
     "setupAccountBtn": "Complete Setup",
     "setupSuccessTitle": "Account Created!",
     "setupSuccessDesc": "Redirecting to mandatory 2FA setup...",
-      
     "setup2FATitle": "Set up Two-Factor Auth",
     "login2FATitle": "Two-Factor Authentication",
     "otpSentToEmail": "A 6-digit verification code has been sent to:",
     "otpSentToSMS": "A 6-digit verification code has been sent to:",
     "switchToSMS": "Switch to SMS method",
     "switchToEmail": "Switch to Email method",
-    
     "pendingRequests": "Pending Requests",
     "pendingRequestsDesc": "Process registration requests in a fair, predictable order.",
     "tabIssuer": "Issuer",
@@ -290,7 +259,6 @@ export const en: Record<string, string> = {
     "rejectReasonDesc": "Please provide a reason for rejecting this application. This will be sent to the applicant.",
     "enterReason": "e.g. The uploaded document is blurred...",
     "confirmReject": "Confirm Reject",
-    "reqReasonErr": "A reason is required.",
     "docLoadErr": "This document could not be loaded.",
     "emailSent": "Notification Email Sent",
     "uploadCertIssuer": "Upload Establishment Decision",
@@ -300,12 +268,9 @@ export const en: Record<string, string> = {
     "lblThisIsOwner": "This is our Owner",
     "lblThisIsVerifier": "This is our Verifier",
     resendIn: "Resend in",
-    otpResendSuccess: "A new code has been sent.",
-    otpRateLimitError: "Too many attempts. Please try again later.",
     otpSwitchCooldownError: "Please wait for cooldown before switching again.",
     otpResent: "A new code has been sent.",
     errorTooManyAttempts: "Too many attempts. Please try again in 5 minutes.",
-    errorSwitchCooldown: "Please wait for cooldown before switching again.",
     errorEmailExistsGoogle: "This email is already registered via Google. Please log in using Google.",
     errorEmailExistsPassword: "This email is already registered with a password. Please log in using your email and password.",
     setupGoogleAuthTitle: "Setup Authenticator",
@@ -319,7 +284,6 @@ export const en: Record<string, string> = {
     systemAuditLog: 'System Audit Log',
     superAdminRole: 'Super Admin',
     platformOwner: 'Platform Owner',
-    // Create Admin Modal
     provisionAdminAccount: 'Provision Admin Account',
     operationsAdminDefault: 'Operations Admin role will be assigned by default.',
     generateCredentials: 'Generate Credentials',
@@ -352,8 +316,6 @@ export const en: Record<string, string> = {
     errorNetwork: 'Network error. Unable to connect to the server.',
     errorAccountNotFound: 'Account does not exist.',
     cantScanQR: "Can't scan the QR code? Use this setup key", 
-    "errorInvalidSession": "Invalid or expired session.",
-    errorPasswordAccountOauth: "This email is registered with a password. Please log in using your email and password.",
     errorInvalidGoogleToken: "Invalid or expired Google token. Please log in again.",
     errorGoogleEmailNotVerified: "Google email is not verified. Please verify your email before continuing.",
     adminResetRequests: 'Admin Reset Requests',
@@ -401,7 +363,6 @@ export const en: Record<string, string> = {
     "errorOrgAlreadyProcessed": "This application has already been processed.",
     "errorServerNotification": "System error while saving rejection history.",
     "errorEmailDeliveryFailed": "Application rejected, but failed to send the notification email.",
-    "errorRejectFailed": "An error occurred while processing the request.",
     "rejectTotpSuccess": "TOTP reset request rejected successfully.",
     "rejectPasswordSuccess": "Password reset request rejected successfully.",
     "errorInvalidRequestData": "Invalid request data. Please try again.",
@@ -457,8 +418,6 @@ export const en: Record<string, string> = {
     notEnoughPowerAdmin: 'You do not have enough access for this request. Please log in to the suitable account.',
     errorAdminAuthentication: 'Unable to initialize two-factor authentication. Please try again later.',
     errorApproveOrgInternal: 'A system error occurred while persisting the organization approval and invitation data. Please contact technical support.',
-    
-    // Issuer Registration (Register_Reg)
     errorRegDocumentRequired: 'Please attach the required supporting document.',
     errorRegInvalidFileType: 'The document must be a PDF file.',
     errorRegFileEmpty: 'The uploaded document is empty (0 bytes). Please check your file.',
@@ -469,28 +428,15 @@ export const en: Record<string, string> = {
     errorRegValidation: 'Invalid application information. Please verify the entered data.',
     errorRegInternalServer: 'A system error occurred while uploading the document. Please try again later.',
     errorRegEmailFailed: 'The system failed to send a confirmation email. The registration process was cancelled, please try again.',
-
-    // Invitations
     errorInviteInvalid: 'The invitation link is invalid, expired, or does not exist.',
-    
-    // Generic Validation & Emails
     errorValidation: 'Invalid data. Please check your inputs.',
     errorOtpEmailFailed: 'Failed to send OTP email. The verification code has been invalidated, please try again.',
-
-    // Google OAuth
     errorGoogleAccountMismatch: 'Google account information mismatch or a data conflict occurred.',
     errorValidationGoogleAuth: 'Invalid authentication data.',
     errorGoogleOauthUnavailable: 'Google login is currently unavailable or misconfigured.',
-
-    // OTP & Tokens
-    errorTempTokenInvalid: 'The authentication session is invalid or has expired. Please log in again.',
     errorActorNotFound: 'Authentication account information could not be found.',
     errorOwnerAlreadyActive: 'This account has already been activated.',
     errorOwnerNotFound: 'No account found associated with this email address.',
     errorValidationOtp: 'Invalid data. Please verify your email format or OTP code.',
-    
-    // Refresh Token
-    errorInvalidRefreshToken: 'Invalid login session. Please log in again.',
-    errorExpiredRefreshToken: 'Your login session has expired. Please log in again.',
     errorValidationRefreshToken: 'Invalid session data.',
 };

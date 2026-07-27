@@ -19,7 +19,7 @@ export function RejectedStatus({ currentAcc, t }: { currentAcc: Account; t: (k: 
         <p className="text-sm opacity-70" style={{ color: 'var(--ct-text)' }}>{t('rejectedDesc') || 'Unfortunately, your registration has been rejected. Thank you for your interest.'}</p>
       </div>
       <div className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 text-sm text-left dark:bg-red-900/20 dark:border-red-800/50 dark:text-red-300">
-        <span className="font-semibold block mb-1">{t('rejectionReason') || 'Reason for rejection'}:</span>
+        <span className="font-semibold block mb-1">{t('rejectReasonTitle') || 'Reason for rejection'}:</span>
         {currentAcc.registrationData.rejectedReason}
       </div>
       <RegistrationDataCard data={currentAcc.registrationData} t={t} />

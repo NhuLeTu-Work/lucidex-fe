@@ -35,7 +35,7 @@ export function SuccessStatus({ roleType }: SuccessStatusProps) {
         className="mt-4 px-6 py-2 text-sm font-semibold rounded-lg border transition-all hover:opacity-70"
         style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
       >
-        {t('returnHome') || 'Return to Home'}
+        {t('backToHome')}
       </button>
     </div>
   );
