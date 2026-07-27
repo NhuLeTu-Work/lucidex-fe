@@ -137,14 +137,33 @@ export function useBusinessRegister( state: RegisterState ) {
       if (response && response.success) {
         setIsSuccess(true);
       } else if (response) {
-        setError(response.message || 'errorRegistrationFailed');
+        setError('errorRegistrationFailed');
       }
       
     } catch (err: any) {
-      if (err.response.status === 422) {
-        setError('errorInvalidData');
+      if (err.response.status === 400 && err.response.error_code === 'DOCUMENT_REQUIRED') {
+        setError('errorRegDocumentRequired');
+      } else if (err.response.status === 400 && err.response.error_code === 'INVALID_FILE_TYPE') {
+        setError('errorRegInvalidFileType');
+      } else if (err.response.status === 400 && err.response.error_code === 'FILE_EMPTY') {
+        setError('errorRegFileEmpty');
+      } else if (err.response.status === 400 && err.response.error_code === 'FILE_TOO_LARGE') {
+        setError('errorRegFileTooLarge');
+      } else if (err.response.status === 409 && err.response.error_code === 'TAX_CODE_ALREADY_REGISTERED') {
+        setError('errorRegTaxCodeExists');
+      } else if (err.response.status === 409 && err.response.error_code === 'PHONE_ALREADY_REGISTERED') {
+        setError('errorRegPhoneExists');
+      } else if (err.response.status === 409 && err.response.error_code === 'EMAIL_ALREADY_REGISTERED') {
+        setError('errorRegEmailExists');
+      } else if (err.response.status === 422) {
+        setError('errorRegValidation');
+      } else if (err.response.status === 500) {
+        setError('errorRegInternalServer');
+      } else if (err.response.status === 502 && err.response.error_code === 'ORGANIZATION_EMAIL_SENDING_FAILED') {
+        setError('errorRegEmailFailed');
       } else {
-        setError('errorServerConnection');
+        // Fallback cho các lỗi không xác định
+        setError('errorActionFailed');
       }
     } finally {
       setIsLoading(false);

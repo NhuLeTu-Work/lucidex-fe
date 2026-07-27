@@ -96,18 +96,32 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
     } catch (err: any) {
       if (err.response) {
         const status = err.response.status;
-        if (status === 400) {
-          setOtpError('errorOtpInvalid');
-        } else if (status === 422) {
-          setOtpError('errorInvalidOtpLength'); 
-        } else if (status === 401) {
-          setOtpError('errorSessionExpired');
+        const errorCode = err.response.eror_code;
+        if (currentAcc?.type === 'super' || currentAcc?.type === 'admin') {
+          if (status === 401) {
+            setOtpError('errorOtpInvalid');
+          } else if (status === 422) {
+            setOtpError('errorInvalidOtpLength'); 
+          } else if (status === 401) {
+            setOtpError('errorSessionExpired');
+          } else {
+            setOtpError('errorServer');
+          }
         } else {
-          setOtpError('errorServer');
+          if (status === 400 && errorCode === 'INVALID_OTP') {
+            setOtpError('errorInvalidOtp');
+          } else if (status === 401 && errorCode === 'HTTP_401') {
+            setOtpError('errorTempTokenInvalid');
+          } else if (status === 401 && errorCode === 'INVALID_CREDENTIALS') {
+            setOtpError('errorActorNotFound');
+          } else if (status === 422) {
+            setOtpError('errorValidation');
+          } else {
+            setOtpError('errorActionFailed');
+          }
         }
-      } else {
-        setOtpError('errorNetwork');
       }
+      setOtpError('errorNetwork');
     } finally {
       setIsOtpLoading(false);
     }

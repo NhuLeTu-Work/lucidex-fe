@@ -62,6 +62,7 @@ export function useResendOtp(options: UseResendOtpOptions = {}) {
         const status = err.response?.status;
         if (status === 404) setExternalError('errorAccountNotFound');
         else if (status === 422) setExternalError('errorInvalidData');
+        else if (status === 403) setExternalError('errorInactiveAccount');
         else setExternalError('errorServer');
       } finally {
         setIsResendOtpLoading(false);

@@ -31,11 +31,13 @@ export function useCreateAdmin(
       // Chờ cập nhật lại danh sách table sau khi tạo xong
       await fetchAccounts();
     } catch (error: any) {
-      if (error.response) {
-        showToast( 'error', 'createAdminError' );
-      } else {
-        showToast('error', 'errorNetwork');
-      }
+      if (error.response.code === 401) {
+      showToast('error', 'errorAdminSession');
+    } else if (error.response.code === 403) {
+      showToast('error', 'notEnoughPowerAdmin');
+    } else {
+      showToast('error', 'errorNetwork');
+    }
     } finally {
       setIsCreating(false);
     }

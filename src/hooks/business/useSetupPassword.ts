@@ -19,7 +19,6 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
   const [email] = useState<string>(emailUrl);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLinkInvalid, setIsLinkInvalid] = useState(false);
 
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,11 +51,20 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
         setError('errorServer');
       }
     } catch (err: any) {
-      if (err.response?.status === 422) {
-        setIsLinkInvalid(true);
-        setError('errorInvalidInviteLink'); // Key mới
+      if (err.response.status === 400 && err.response.error_code === 'INVALID_INVITE') {
+        setError('errorInviteInvalid');
+      } else if (err.response.status === 400 && err.response.error_code === 'ACCOUNT_NOT_ELIGIBLE') {
+        setError('errorOrgNotFound');
+      } else if (err.response.status === 400 && err.response.error_code === 'PASSWORD_MISMATCH') {
+        setError('errorPasswordMismatch');
+      } else if (err.response.status === 400 && err.response.error_code === 'WEAK_PASSWORD') {
+        setError('errorWeakPassword');
+      } else if (err.response.status === 422) {
+        setError('errorValidation');
+      } else if (err.response.status === 500 && err.response.error_code === 'EMAIL_SENDING_FAILED') {
+        setError('errorOtpEmailFailed');
       } else {
-        setError('errorServerConnection');
+        setError('errorActionFailed');
       }
     } finally {
       setIsLoading(false);
@@ -86,10 +94,16 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
         }, 1500);
       }
     } catch (err: any) {
-      if (err.response?.status === 422) {
-        setOtpError('errorOtpInvalid');
+      if (err.response.status === 400 && err.response.error_code === 'INVALID_INVITE') {
+        setError('errorInviteInvalid');
+      } else if (err.response.status === 400 && err.response.error_code === 'ACCOUNT_NOT_ELIGIBLE') {
+        setError('errorOrgNotFound');
+      } else if (err.response.status === 422) {
+        setError('errorValidation');
+      } else if (err.response.status === 500 && err.response.error_code === 'EMAIL_SENDING_FAILED') {
+        setError('errorOtpEmailFailed');
       } else {
-        setOtpError('errorServer');
+        setError('errorActionFailed');
       }
     } finally {
       setIsOtpLoading(false);
@@ -106,7 +120,6 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     handleVerifyOtp,
     showPassword, setShowPassword,
     showConfirmPassword, setShowConfirmPassword,
-    isLinkInvalid, setIsLinkInvalid,
     isOtpLoading,
     otpError,
     setOtpError

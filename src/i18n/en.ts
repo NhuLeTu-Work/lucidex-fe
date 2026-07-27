@@ -454,4 +454,43 @@ export const en: Record<string, string> = {
     processingDuplicates: "Applying updates...",
     pleaseWait: "Please wait a moment while we process the queue.",
     finalUploadCompleted: "Upload completed. All records processed successfully.",
+    notEnoughPowerAdmin: 'You do not have enough access for this request. Please log in to the suitable account.',
+    errorAdminAuthentication: 'Unable to initialize two-factor authentication. Please try again later.',
+    errorApproveOrgInternal: 'A system error occurred while persisting the organization approval and invitation data. Please contact technical support.',
+    
+    // Issuer Registration (Register_Reg)
+    errorRegDocumentRequired: 'Please attach the required supporting document.',
+    errorRegInvalidFileType: 'The document must be a PDF file.',
+    errorRegFileEmpty: 'The uploaded document is empty (0 bytes). Please check your file.',
+    errorRegFileTooLarge: 'The document size exceeds the maximum limit of 20MB.',
+    errorRegTaxCodeExists: 'This tax code is already registered in the system.',
+    errorRegPhoneExists: 'This phone number is already associated with another registration.',
+    errorRegEmailExists: 'This email address is already associated with another registration.',
+    errorRegValidation: 'Invalid application information. Please verify the entered data.',
+    errorRegInternalServer: 'A system error occurred while uploading the document. Please try again later.',
+    errorRegEmailFailed: 'The system failed to send a confirmation email. The registration process was cancelled, please try again.',
+
+    // Invitations
+    errorInviteInvalid: 'The invitation link is invalid, expired, or does not exist.',
+    
+    // Generic Validation & Emails
+    errorValidation: 'Invalid data. Please check your inputs.',
+    errorOtpEmailFailed: 'Failed to send OTP email. The verification code has been invalidated, please try again.',
+
+    // Google OAuth
+    errorGoogleAccountMismatch: 'Google account information mismatch or a data conflict occurred.',
+    errorValidationGoogleAuth: 'Invalid authentication data.',
+    errorGoogleOauthUnavailable: 'Google login is currently unavailable or misconfigured.',
+
+    // OTP & Tokens
+    errorTempTokenInvalid: 'The authentication session is invalid or has expired. Please log in again.',
+    errorActorNotFound: 'Authentication account information could not be found.',
+    errorOwnerAlreadyActive: 'This account has already been activated.',
+    errorOwnerNotFound: 'No account found associated with this email address.',
+    errorValidationOtp: 'Invalid data. Please verify your email format or OTP code.',
+    
+    // Refresh Token
+    errorInvalidRefreshToken: 'Invalid login session. Please log in again.',
+    errorExpiredRefreshToken: 'Your login session has expired. Please log in again.',
+    errorValidationRefreshToken: 'Invalid session data.',
 };

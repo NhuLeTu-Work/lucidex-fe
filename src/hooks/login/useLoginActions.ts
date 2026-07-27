@@ -21,14 +21,10 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
       return;
     }
     
+    const isEmail = loginIdentifier.includes('@'); 
     try {
-      // Phương pháp loại trừ: Kiểm tra xem chuỗi nhập vào có phải là Email không
-      const isEmail = loginIdentifier.includes('@'); 
-
       if (!isEmail) {
-        // ==========================================
         // LUỒNG 1: KHÔNG PHẢI EMAIL -> LÀ ADMIN HOẶC SUPER ADMIN
-        // ==========================================
         const response = await loginAdminApi({
           username: loginIdentifier.trim(),
           password: userPwd
@@ -53,9 +49,7 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
           }
         }
       } else {
-        // ==========================================
         // LUỒNG 2: LÀ EMAIL -> CÁC ROLE CÒN LẠI
-        // ==========================================
         const response = await authLoginApi({
           email: loginIdentifier.trim(),
           password: userPwd
@@ -77,7 +71,7 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
       // Cập nhật xử lý lỗi theo API document mới nhất
       if (err.response) {
         const status = err.response.status;
-        
+        const errorCode = err.response.error_code;
         if (status === 401) {
           setError('errorInvalidCredentials');
         } else if (status === 403) {
@@ -86,12 +80,13 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
           setError('errorAccountNotFound');
         } else if (status === 422) {
           setError('errorInvalidData');
-        } else {
-          // Bắt các lỗi server (500) hoặc các lỗi khác kèm message từ BE (nếu có)
-          setError('errorServer');
+        } else if (status === 409 && errorCode == "GOOGLE_ACCOUNT_PASSWORD_LOGIN_NOT_ALLOWED") {
+          setError('errorEmailExistsGoogle');
+        }else {
+          if(isEmail) setError('errorAdminAuthentication')
+          else setError('errorServer');
         }
       } else {
-        // Lỗi không có response (không có mạng, sập server...)
         setError('errorNetwork');
       }
     } finally {

@@ -19,7 +19,7 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
       }
       return { success: true };
     } catch (error: any) {
-      return { success: false, errorKey: error.message };
+      handleApiError(error.response?.status, error.response?.error_code);
     } finally {
       setIsProcessing(false);
     }
@@ -48,7 +48,7 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
       showToast('success', 'rejectPasswordSuccess');
       return true;
     } catch (error: any) {
-      handleApiError(error.response?.status);
+      handleApiError(error.response?.status, error.response?.error_code);
       return false;
     } finally {
       setIsRejectingId(null);
@@ -56,13 +56,13 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
   };
 
   // Hàm helper xử lý mã lỗi chung
-  const handleApiError = (status?: number) => {
+  const handleApiError = (status?: number, errorCode?: string) => {
     if (status === 401) {
       showToast('error', 'errorAdminSession');
     } else if (status === 404) {
       showToast('error', 'errorAccountNotFound');
-    } else if (status === 422) {
-      showToast('error', 'errorInvalidRequestData');
+    } else if (status === 403 && errorCode == "SUPER_ADMIN_REQUIRED") {
+      showToast('error', 'notEnoughPowerAdmin');
     } else {
       showToast('error', 'errorActionFailed');
     }

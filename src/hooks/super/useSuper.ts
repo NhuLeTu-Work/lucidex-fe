@@ -11,7 +11,7 @@ export function useSuper(showToast: (type: 'success' | 'error' | 'warning', mess
   const { isCreating, newAdminCredentials, handleCreateAdmin, closeCreateModal } = useCreateAdmin(fetchAccounts, showToast);
 
   // 3. Danh sách request reset (password/totp) từ các admin
-  const { requests, isLoading: isLoadingRequests, errorKey: requestsErrorKey, refetch: refetchRequests } = useAdminResetRequests();
+  const { requests, isLoading: isLoadingRequests, errorKey: requestsErrorKey, refetch: refetchRequests } = useAdminResetRequests(showToast);
 
   // 4. Xử lý approve/reject request reset
   const {

@@ -26,8 +26,14 @@ export function useGetAdmins(
       }));
 
       setAccounts(mappedAccounts);
-    } catch (error) {
-      showToast('error', 'errorFetchAdmins');
+    } catch (error:any) {
+      if (error.response.code === 401) {
+      showToast('error', 'errorAdminSession');
+    } else if (error.response.code === 403) {
+      showToast('error', 'notEnoughPowerAdmin');
+    } else {
+      showToast('error', 'errorNetwork');
+    }
     } finally {
       setIsLoadingAccounts(false);
     }

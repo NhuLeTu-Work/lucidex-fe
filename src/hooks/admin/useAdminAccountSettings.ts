@@ -34,7 +34,11 @@ export function useAdminAccountSettings(
       setTotpCooldown(!data.totp_reset_requested && isCooldownActive(data.totp_reset_requested_at));
       
     } catch (error: any) {
-      showToast('error', 'errorFetchRequestStatus');
+      if (error.response.status === 401) {
+        showToast('error', 'errorAdminSession');
+      } else {
+        showToast('error', 'errorNetwork');
+      } 
     } finally {
       setIsInitializing(false);
     }
@@ -54,8 +58,11 @@ export function useAdminAccountSettings(
         await fetchStatus(); // Tải lại trạng thái mới nhất để đồng bộ Cooldown 24h
       }
     } catch (err: any) {
-      const errKey = err.message === 'errorServer' ? 'errorServer' : 'errorNetwork';
-      showToast('error', errKey);
+      if (err.response.status === 401) {
+        showToast('error', 'errorAdminSession');
+      } else {
+        showToast('error', 'errorNetwork');
+      } 
     } finally {
       setLoadingType(null);
     }
@@ -70,8 +77,11 @@ export function useAdminAccountSettings(
         await fetchStatus(); // Tải lại trạng thái mới nhất để đồng bộ Cooldown 24h
       }
     } catch (err: any) {
-      const errKey = err.message === 'errorServer' ? 'errorServer' : 'errorNetwork';
-      showToast('error', errKey);
+      if (err.response.status === 401) {
+        showToast('error', 'errorAdminSession');
+      } else {
+        showToast('error', 'errorNetwork');
+      } 
     } finally {
       setLoadingType(null);
     }

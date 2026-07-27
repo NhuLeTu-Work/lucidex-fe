@@ -29,8 +29,6 @@ export function useAdminOrganizations(
         showToast('error', 'errorAdminSession'); 
       } else if (status === 422) {
         showToast('error', 'errorInvalidRequestData'); 
-      } else if (status === 500) {
-        showToast('error', 'errorServerNotification'); 
       }
     } finally {
       setIsLoading(false);

@@ -37,6 +37,8 @@ export function useAdminRequests(
         showToast('error', 'errorOrgNotFound'); // Đã map key
       } else if (status === 409) {
         showToast('error', 'errorOrgAlreadyProcessed'); // Đã map key
+      } else if (status === 500) {
+        showToast('error', 'errorApproveOrgInternal'); // Đã map key
       } else if (status === 502) {
         showToast('warning', 'errorEmailDeliveryFailed'); // Đã map key
         return true; 
@@ -70,20 +72,20 @@ export function useAdminRequests(
       const status = error.response?.status;
       
       if (status === 401) {
-        showToast('error', 'errorAdminSession'); // Đã map key
+        showToast('error', 'errorAdminSession'); 
       } else if (status === 404) {
-        showToast('error', 'errorOrgNotFound'); // Đã map key
+        showToast('error', 'errorOrgNotFound'); 
       } else if (status === 409) {
-        showToast('error', 'errorOrgAlreadyProcessed'); // Đã map key
+        showToast('error', 'errorOrgAlreadyProcessed'); 
       } else if (status === 422) {
-        showToast('error', 'errorEmptyRejectReason'); // Đã map key
+        showToast('error', 'errorEmptyRejectReason'); 
       } else if (status === 500) {
-        showToast('error', 'errorServerNotification'); // Đã map key
+        showToast('error', 'errorServerNotification'); 
       } else if (status === 502) {
-        showToast('warning', 'errorEmailDeliveryFailed'); // Đã map key
+        showToast('warning', 'errorEmailDeliveryFailed'); 
         return true; 
       } else {
-        showToast('error', 'errorRejectFailed'); // Đã map key
+        showToast('error', 'errorRejectFailed'); 
       }
       return false;
     } finally {

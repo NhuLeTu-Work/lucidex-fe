@@ -32,17 +32,23 @@ export function useGoogleAuth(
     } catch (err: any) {
       const errorCode = err.response?.data?.error_code;
       const status = err.response?.status;
-
-      if (errorCode === 'PASSWORD_ACCOUNT_OAUTH_LOGIN_NOT_ALLOWED') {
-        setError('errorPasswordAccountOauth');
-      } else if (errorCode === 'INVALID_GOOGLE_TOKEN') {
+      if (status === 401 && errorCode === 'INVALID_GOOGLE_TOKEN') {
         setError('errorInvalidGoogleToken');
-      } else if (errorCode === 'GOOGLE_EMAIL_NOT_VERIFIED') {
+      } else if (status === 403 && errorCode === 'GOOGLE_EMAIL_NOT_VERIFIED') {
         setError('errorGoogleEmailNotVerified');
-      } else if (status === 409) {
-        setError('errorGoogleAccountConflict');
+      } else if (status === 403 && errorCode === 'INACTIVE_ACCOUNT') {
+        setError('errorInactiveAccount');
+      } else if (status === 409 && errorCode === 'GOOGLE_ACCOUNT_MISMATCH') {
+        setError('errorGoogleAccountMismatch');
+      } else if (status === 409 && errorCode === 'PASSWORD_ACCOUNT_OAUTH_LOGIN_NOT_ALLOWED') {
+        setError('errorEmailExistsPassword');
+      } else if (status === 422) {
+        setError('errorValidationGoogleAuth');
+      } else if (status === 503 && errorCode === 'GOOGLE_OAUTH_UNAVAILABLE') {
+        setError('errorGoogleOauthUnavailable');
       } else {
-        setError('errorServer');
+        // Fallback
+        setError('errorActionFailed');
       }
     } finally {
       setIsLoading(false);

@@ -440,4 +440,43 @@ export const vi: Record<string, string> = {
     processingDuplicates: "Đang áp dụng các thay đổi...",
     pleaseWait: "Vui lòng đợi một chút trong khi hệ thống xử lý hàng đợi.",
     finalUploadCompleted: "Tải lên thành công. Tất cả hồ sơ đã được xử lý.",
+    notEnoughPowerAdmin: 'Bạn không có đủ quyền truy cập cho yêu cầu này. Vui lòng đăng nhập vào tài khoản phù hợp.',
+    errorAdminAuthentication: 'Không thể khởi tạo xác thực hai yếu tố. Vui lòng thử lại sau.',
+    errorApproveOrgInternal: 'Đã xảy ra lỗi hệ thống trong quá trình lưu trữ dữ liệu phê duyệt tổ chức và lời mời. Vui lòng liên hệ bộ phận kỹ thuật.',
+
+    // Issuer Registration (Register_Reg)
+    errorRegDocumentRequired: 'Vui lòng đính kèm tài liệu minh chứng.',
+    errorRegInvalidFileType: 'Tài liệu phải ở định dạng PDF.',
+    errorRegFileEmpty: 'Tệp tài liệu tải lên bị trống (0 byte). Vui lòng kiểm tra lại.',
+    errorRegFileTooLarge: 'Kích thước tệp tài liệu vượt quá giới hạn tối đa 20MB.',
+    errorRegTaxCodeExists: 'Mã số thuế này đã được đăng ký trong hệ thống.',
+    errorRegPhoneExists: 'Số điện thoại này đã được sử dụng cho một đăng ký khác.',
+    errorRegEmailExists: 'Địa chỉ email này đã được sử dụng cho một đăng ký khác.',
+    errorRegValidation: 'Thông tin hồ sơ không hợp lệ. Vui lòng kiểm tra lại dữ liệu đã nhập.',
+    errorRegInternalServer: 'Đã xảy ra lỗi hệ thống khi tải lên tài liệu. Vui lòng thử lại sau.',
+    errorRegEmailFailed: 'Hệ thống không thể gửi email xác nhận. Quá trình đăng ký đã bị hủy, vui lòng thử lại.',
+
+    // Invitations
+    errorInviteInvalid: 'Đường dẫn liên kết không hợp lệ, đã hết hạn hoặc không tồn tại.',
+
+    // Generic Validation & Emails
+    errorValidation: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.',
+    errorOtpEmailFailed: 'Không thể gửi mã OTP qua email. Quá trình tạo mã đã bị hủy, vui lòng thử lại.',
+
+    // Google OAuth
+    errorGoogleAccountMismatch: 'Thông tin tài khoản Google không khớp hoặc có lỗi xung đột dữ liệu.',
+    errorValidationGoogleAuth: 'Dữ liệu xác thực không hợp lệ.',
+    errorGoogleOauthUnavailable: 'Tính năng đăng nhập bằng Google hiện đang bảo trì hoặc chưa được cấu hình.',
+
+    // OTP & Tokens
+    errorTempTokenInvalid: 'Phiên xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.',
+    errorActorNotFound: 'Không tìm thấy thông tin tài khoản xác thực.',
+    errorOwnerAlreadyActive: 'Tài khoản này đã được kích hoạt trước đó.',
+    errorOwnerNotFound: 'Không tìm thấy tài khoản nào tương ứng với email này.',
+    errorValidationOtp: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại định dạng email hoặc mã OTP.',
+
+    // Refresh Token
+    errorInvalidRefreshToken: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.',
+    errorExpiredRefreshToken: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+    errorValidationRefreshToken: 'Dữ liệu phiên làm việc không hợp lệ.',
 };

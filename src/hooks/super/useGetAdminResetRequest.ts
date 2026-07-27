@@ -9,7 +9,12 @@ export interface FlattenedRequest {
   timestamp: string;
 }
 
-export function useAdminResetRequests() {
+export function useAdminResetRequests(
+  showToast: (
+  type: 'success' | 'error' | 'warning',
+  messageKey: string
+) => void
+) {
   const [requests, setRequests] = useState<FlattenedRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -55,7 +60,13 @@ export function useAdminResetRequests() {
 
       setRequests(flatRequests);
     } catch (err: any) {
-      setErrorKey(err.message === 'errorServer' ? 'errorServer' : 'errorNetwork');
+      if (err.response.status  === 401) {
+      showToast('error', 'errorAdminSession');
+    } else if (err.response.status  === 403) {
+      showToast('error', 'notEnoughPowerAdmin');
+    } else {
+      showToast('error', 'errorNetwork');
+    }
     } finally {
       setIsLoading(false);
     }

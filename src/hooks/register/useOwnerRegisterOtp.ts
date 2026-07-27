@@ -45,12 +45,17 @@ export function useOwnerRegisterOtp(
         setOtpError('errorOtpInvalid');
       }
     } catch (err: any) {
-      if (err.response) {
-        if (err.response.status === 422) {
-          setOtpError('errorOtpInvalid');
-        }
+      if (err.response.status === 400 && err.response.error_code === 'OWNER_ALREADY_ACTIVE') {
+        setOtpError('errorOwnerAlreadyActive');
+      } else if (err.response.status === 400 && err.response.error_code === 'INVALID_OTP') {
+        setOtpError('errorInvalidOtp');
+      } else if (err.response.status === 404 && err.response.error_code === 'OWNER_NOT_FOUND') {
+        setOtpError('errorOwnerNotFound');
+      } else if (err.response.status === 422) {
+        setOtpError('errorValidationOtp');
       } else {
-        setOtpError('Lỗi kết nối mạng.');
+        // Fallback
+        setOtpError('errorActionFailed');
       }
     } finally {
       setIsOtpLoading(false);
