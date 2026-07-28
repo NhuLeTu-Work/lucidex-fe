@@ -74,7 +74,7 @@ export function useBusinessRegister( state: RegisterState ) {
       fErrors.address = 'fmtTextLength'; // CHỈ LƯU KEY
     }
 
-    if (roleType === 'verifier' && (bizData.regTitle.length < 3 || bizData.regTitle.length > 200)) {
+    if (roleType === 'verifier' && (bizData.regTitle.length < 3 || bizData.regTitle.length > 200 || !nameRegex.test(bizData.regTitle.trim()))) {
       fErrors.regTitle = 'fmtTextLength'; // CHỈ LƯU KEY
     }
     
@@ -83,7 +83,7 @@ export function useBusinessRegister( state: RegisterState ) {
         fErrors.legalRep = 'fmtNameLettersOnly';
       }
     } else {
-      if (bizData.legalRep.length < 3 || bizData.legalRep.length > 200) {
+      if (bizData.legalRep.length < 3 || bizData.legalRep.length > 200 || !nameRegex.test(bizData.legalRep.trim())) {
         fErrors.legalRep = 'fmtTextLength';
       }
     }
@@ -103,7 +103,7 @@ export function useBusinessRegister( state: RegisterState ) {
         fErrors.regName = 'fmtNameLettersOnly';
       }
     } else {
-      if (bizData.regName.length < 3 || bizData.regName.length > 200) {
+      if (bizData.regName.length < 3 || bizData.regName.length > 200 || !nameRegex.test(bizData.regName.trim())) {
         fErrors.regName = 'fmtTextLength';
       }
     }
