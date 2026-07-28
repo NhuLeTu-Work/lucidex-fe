@@ -16,7 +16,7 @@ export function useUpdateAdminStatus(
       return true;
     } catch (error: any) {
       const code = error.response?.status;
-      const errCode = error.response?.data?.error_code || error.response?.error_code;
+      const errCode = error.response?.data?.error_code || error.response?.data.error_code;
 
       if (code === 400 && errCode === 'REASON_REQUIRED') {
         showToast('error', 'errorReasonRequired');

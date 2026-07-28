@@ -20,7 +20,7 @@ export function useCheckValidLink(token: string | null) {
         }
       } catch (error: any) {
         const status = error.response?.status;
-        const errorCode = error.response?.data?.error_code || error.response?.error_code;
+        const errorCode = error.response?.data?.error_code || error.response?.data.error_code;
         
         // Bắt chính xác lỗi 400 INVALID_INVITE theo doc
         if (status === 400 && errorCode === 'INVALID_INVITE') {

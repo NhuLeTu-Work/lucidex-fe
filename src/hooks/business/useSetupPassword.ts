@@ -56,7 +56,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
     } catch (err: any) {
       // Dùng optional chaining để tránh lỗi crash app nếu không có response
       const status = err.response?.status;
-      const errorCode = err.response?.data?.error_code || err.response?.error_code;
+      const errorCode = err.response?.data?.error_code || err.response?.data.error_code;
 
       if (status === 400 && errorCode === 'INVALID_INVITE') {
         // Thay vì set Error message, ta bật cờ isLinkInvalid để render UI riêng
@@ -103,7 +103,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
       }
     } catch (err: any) {
       const status = err.response?.status;
-      const errorCode = err.response?.data?.error_code || err.response?.error_code;
+      const errorCode = err.response?.data?.error_code || err.response?.data.error_code;
 
       if (status === 400 && errorCode === 'INVALID_INVITE') {
         // Trong trường hợp OTP call cũng trả về INVALID_INVITE, ta cũng bật cờ

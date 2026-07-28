@@ -49,7 +49,7 @@ export function useProcessAdminRequest(showToast: (type: 'success' | 'error' | '
       showToast('success', 'rejectPasswordSuccess');
       return true;
     } catch (error: any) {
-      handleApiError(error.response?.status, error.response?.error_code);
+      handleApiError(error.response?.status, error.response?.data.error_code);
       return false;
     } finally {
       setIsRejectingId(null);
