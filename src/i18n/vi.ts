@@ -374,8 +374,6 @@ export const vi: Record<string, string> = {
     setuppassword: "Cài đặt Mật khẩu",
     "errorInvalidOtpLength": "Vui lòng nhập đầy đủ 6 số OTP.",
     "errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin.",
-    "linkInvalidTitle": "Đường dẫn không hợp lệ hoặc đã hết hạn",
-    "linkInvalidDesc": "Đường dẫn này đã được sử dụng, hết hạn hoặc không còn hợp lệ. Bạn không thể truy cập trang này nữa.",
     csvFormatLimit: "Chỉ chấp nhận file định dạng .csv, tối đa 10MB",
     validating: "Đang kiểm tra cấu trúc và dữ liệu file...",
     creating: "Đang tạo hồ sơ kỹ thuật số...",
@@ -454,5 +452,7 @@ export const vi: Record<string, string> = {
     mobileInstructionTitle: "Tiếp tục trên Điện thoại",
     mobileInstructionDesc: "Nhấn vào nút bên dưới để mở trực tiếp hệ thống xác thực danh tính trên thiết bị của bạn.",
     startEkycBtn: "Bắt đầu Xác thực",
-    ekycMobileStarted: "Đang chuyển hướng đến hệ thống xác thực danh tính..."
+    ekycMobileStarted: "Đang chuyển hướng đến hệ thống xác thực danh tính...",
+    linkInvalidTitle: 'Liên kết không hợp lệ hoặc đã hết hạn',
+    linkInvalidDesc: 'Liên kết này đã được sử dụng, hết hạn hoặc không còn hiệu lực. Bạn không thể truy cập trang này nữa.',
 };

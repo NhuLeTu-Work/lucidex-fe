@@ -374,8 +374,6 @@ export const en: Record<string, string> = {
     setuppassword: "Set Up Password",
     "errorInvalidOtpLength": "Please enter a complete 6-digit OTP.",
     "errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin.",
-    "linkInvalidTitle": "Link Invalid or Expired",
-    "linkInvalidDesc": "This link has been used, expired, or is no longer valid. You cannot access this page anymore.",
     csvFormatLimit: "Only files with .csv format, max size 10MB",
     validating: "Validating file structure and content...",
     creating: "Creating digital representations...",
@@ -455,4 +453,6 @@ export const en: Record<string, string> = {
     mobileInstructionDesc: "Click the button below to launch the verification process directly on your device.",
     startEkycBtn: "Start Verification",
     ekycMobileStarted: "Redirecting to the identity verification system...",
+    linkInvalidTitle: 'Link Invalid or Expired',
+    linkInvalidDesc: 'This link has been used, expired, or is no longer valid. You cannot access this page anymore.',
 };

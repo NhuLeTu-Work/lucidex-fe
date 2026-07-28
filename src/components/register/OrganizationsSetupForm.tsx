@@ -10,7 +10,6 @@ export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
     isLoading, handleSetupPassword, 
     t, isLinkInvalid
   } = hookProps;
-  console.log("eeeeeeeeeeeeeeee", isLinkInvalid)
   if (isLinkInvalid) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8 text-center animate-in fade-in zoom-in-95">
@@ -18,10 +17,10 @@ export function OrgSetupPasswordForm({ hookProps }: { hookProps: any }) {
           <AlertTriangle size={32} className="text-red-500" />
         </div>
         <h3 className="text-xl font-semibold" style={{ color: 'var(--ct-text)' }}>
-          {t('linkInvalidTitle') || 'Link Invalid or Expired'}
+          {t('linkInvalidTitle')}
         </h3>
         <p className="text-sm opacity-70 mb-4 text-balance max-w-sm" style={{ color: 'var(--ct-text)' }}>
-          {t('linkInvalidDesc') || 'This link has been used, expired, or is no longer valid. You cannot access this page anymore.'}
+          {t('linkInvalidDesc')}
         </p>
         <button
           type="button"
