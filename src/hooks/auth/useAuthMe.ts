@@ -20,7 +20,7 @@ export function useAuthMe(showToast: (type: 'success' | 'error' | 'warning', mes
       }
     } catch (error: any) {
       const status = error.response?.status;
-      if (status === 401) {
+      if (status === 401 && (error.response?.error_code === 'INVALID_REFRESH_TOKEN' || error.response?.error_code === 'EXPIRED_REFRESH_TOKEN')) {
         showToast('error', 'errorSessionExpired');
         logout();
         navigate("/")

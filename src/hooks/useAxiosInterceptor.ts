@@ -6,6 +6,7 @@ import { refreshTokenApi } from '../api/endpoints/authentication/refreshTokenApi
 // Biến cục bộ giữ hàng đợi (Queue) khi có nhiều API cùng lỗi 401 một lúc
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
+const EXCLUDED_PATHS = ['/refresh', '/login'];
 
 const subscribeTokenRefresh = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
@@ -48,6 +49,12 @@ export function useAxiosInterceptor(
         if (error.response?.status !== 401 || originalRequest._retry) {
           return Promise.reject(error);
         }
+
+        if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
+          return Promise.reject(error);
+        }
+
+        // originalRequest._retry = true;
 
         // Loại trừ vòng lặp vô hạn nếu chính API refresh cũng trả về 401
         if (originalRequest.url?.includes('/auth/refresh')) {
@@ -97,14 +104,12 @@ export function useAxiosInterceptor(
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_role'); // Thêm dòng này để xoá role, reset UI về trạng thái guest
-          console.log('🔴 Before navigate, current path:', window.location.pathname);
-          navigateRef.current('/');
-          console.log('🔴 navigate called');
-          // Chỉ show Toast báo lỗi NẾU trước đó user đã từng đăng nhập
+          console.log('🔵 originalRequest.url:', originalRequest.url);
+          console.log('🔵 baseURL:', originalRequest.baseURL);
           if (hadSession) {
             const status = refreshError.response?.status;
             const errorCode = refreshError.response?.data?.error_code || refreshError.response?.error_code;
-
+            console.log(refreshError.response?.data?.error_code || refreshError.response?.error_code)
             // Xử lý chung các case 401 (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN, hoặc 401 Undocumented)
             if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN')) {
               showToast('error', 'errorSessionExpired');

@@ -71,8 +71,8 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
       // Cập nhật xử lý lỗi theo API document mới nhất
       if (err.response) {
         const status = err.response.status;
-        const errorCode = err.response.error_code;
-        if (status === 401) {
+        const errorCode = err.response.data.error_code;
+        if (status === 401 && errorCode == "INVALID_CREDENTIALS") {
           setError('errorInvalidCredentials');
         } else if (status === 403) {
           setError('errorInactiveAccount');

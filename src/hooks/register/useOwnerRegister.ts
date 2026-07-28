@@ -53,15 +53,15 @@ export function useOwnerRegister(
         setError(response.message || 'Registration failed.');
       }
     } catch (err: any) {
-      if (err.response.status === 400 && err.response.error_code === 'PASSWORD_MISMATCH') {
+      if (err.response.status === 400 && err.response.data.error_code === 'PASSWORD_MISMATCH') {
         setError('errorPasswordMismatch');
-      } else if (err.response.status === 400 && err.response.error_code === 'WEAK_PASSWORD') {
+      } else if (err.response.status === 400 && err.response.data.error_code === 'WEAK_PASSWORD') {
         setError('errorWeakPassword');
       } else if (err.response.status === 422) {
         setError('errorValidation');
       } else if (err.response.status === 409) {
         setError('errorEmailExists');
-      } else if (err.response.status === 500 && err.response.error_code === 'EMAIL_SENDING_FAILED') {
+      } else if (err.response.status === 500 && err.response.data.error_code === 'EMAIL_SENDING_FAILED') {
         setError('errorOtpEmailFailed');
       } else {
         setError('errorActionFailed');
