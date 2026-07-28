@@ -160,7 +160,7 @@ export function useBusinessRegister( state: RegisterState ) {
       } else if (err.response.status === 500) {
         setError('errorRegInternalServer');
       } else if (err.response.status === 502 && err.response.error_code === 'ORGANIZATION_EMAIL_SENDING_FAILED') {
-        setError('errorRegEmailFailed');
+        setError('errorNetwork');
       } else {
         // Fallback cho các lỗi không xác định
         setError('errorActionFailed');

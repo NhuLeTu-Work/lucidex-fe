@@ -420,7 +420,6 @@ export const vi: Record<string, string> = {
     errorRegEmailExists: 'Địa chỉ email này đã được sử dụng cho một đăng ký khác.',
     errorRegValidation: 'Thông tin hồ sơ không hợp lệ. Vui lòng kiểm tra lại dữ liệu đã nhập.',
     errorRegInternalServer: 'Đã xảy ra lỗi hệ thống khi tải lên tài liệu. Vui lòng thử lại sau.',
-    errorRegEmailFailed: 'Hệ thống không thể gửi email xác nhận. Quá trình đăng ký đã bị hủy, vui lòng thử lại.',
     errorInviteInvalid: 'Đường dẫn liên kết không hợp lệ, đã hết hạn hoặc không tồn tại.',
     errorValidation: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.',
     errorOtpEmailFailed: 'Không thể gửi mã OTP qua email. Quá trình tạo mã đã bị hủy, vui lòng thử lại.',

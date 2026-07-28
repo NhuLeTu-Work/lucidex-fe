@@ -420,7 +420,6 @@ export const en: Record<string, string> = {
     errorRegEmailExists: 'This email address is already associated with another registration.',
     errorRegValidation: 'Invalid application information. Please verify the entered data.',
     errorRegInternalServer: 'A system error occurred while uploading the document. Please try again later.',
-    errorRegEmailFailed: 'The system failed to send a confirmation email. The registration process was cancelled, please try again.',
     errorInviteInvalid: 'The invitation link is invalid, expired, or does not exist.',
     errorValidation: 'Invalid data. Please check your inputs.',
     errorOtpEmailFailed: 'Failed to send OTP email. The verification code has been invalidated, please try again.',
