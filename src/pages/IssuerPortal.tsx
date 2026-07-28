@@ -10,7 +10,7 @@ import { IssuerReview } from '../components/issuer/IssuerReview';
 import { IssuerAnalytics } from '../components/issuer/IssuerAnalytics';
 
 export function IssuerPortal() {
-  const { t, showToast } = useApp();
+  const { t, showToast, logout } = useApp();
   const {
     activeTab, setActiveTab,
     reviewItems,
@@ -18,7 +18,7 @@ export function IssuerPortal() {
     handleApprove, handleReject, 
     pendingCount
   } = useIssuerPortal();
-  const { userProfile, fetchProfile } = useAuthMe(showToast);
+  const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
 
   useEffect(() => {
     fetchProfile();

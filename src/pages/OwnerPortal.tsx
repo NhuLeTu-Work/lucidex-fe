@@ -12,13 +12,13 @@ import { CreateLinkModal } from '../components/owner/OwnerLinkModal';
 import { OwnerEkycSetup } from '@/components/owner/OwnerEkycSetup';
 
 export function OwnerPortal() {
-  const { t,showToast } = useApp();
+  const { t,showToast, logout } = useApp();
   const {
     activeTab, setActiveTab,
     links, showCreateModal, setShowCreateModal,
     handleRevokeLink, handleCreateLink
   } = useOwnerPortal();
-  const { userProfile, fetchProfile } = useAuthMe(showToast);
+  const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
   
     useEffect(() => {
       fetchProfile();

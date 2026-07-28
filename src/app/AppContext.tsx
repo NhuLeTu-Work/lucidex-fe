@@ -44,9 +44,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setRoleState('guest');
     localStorage.removeItem('user_role');
     localStorage.removeItem('access_token');
-    
-    // Tùy chọn: Đá người dùng về trang login ngay lập tức
-    // window.location.href = '/login'; 
+    localStorage.removeItem('refresh_token');
+    window.location.href = '/'; 
   }, []);
 
   const switchLang = useCallback(() => setLang(lang === 'vi' ? 'en' : 'vi'), [lang, setLang]);

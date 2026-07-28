@@ -18,7 +18,8 @@ const onRefreshed = (token: string) => {
 
 export function useAxiosInterceptor(
   t: (key: string) => string,
-  showToast: (type: 'success' | 'error' | 'warning', message: string) => void
+  showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
+  logout: () => void 
 ) {
   const navigate = useNavigate();
   // Dùng ref để đảm bảo interceptor luôn lấy được hàm navigate mới nhất mà không bị re-render loop
@@ -92,19 +93,22 @@ export function useAxiosInterceptor(
           refreshSubscribers = [];
           
           const hadSession = !!localStorage.getItem('refresh_token');
-          
+          logout(); // thay cho 3 dòng localStorage.removeItem
+          navigateRef.current('/');
           // Xóa rác phiên đăng nhập (Đảm bảo clean sạch)
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_role'); // Thêm dòng này để xoá role, reset UI về trạng thái guest
-
+          console.log('🔴 Before navigate, current path:', window.location.pathname);
+          navigateRef.current('/');
+          console.log('🔴 navigate called');
           // Chỉ show Toast báo lỗi NẾU trước đó user đã từng đăng nhập
           if (hadSession) {
             const status = refreshError.response?.status;
             const errorCode = refreshError.response?.data?.error_code || refreshError.response?.error_code;
 
             // Xử lý chung các case 401 (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN, hoặc 401 Undocumented)
-            if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN' || !errorCode)) {
+            if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN')) {
               showToast('error', 'errorSessionExpired');
             } else if (status === 422) {
               showToast('error', 'errorValidationRefreshToken');
@@ -113,10 +117,6 @@ export function useAxiosInterceptor(
               showToast('error', 'errorSessionExpired');  
             }
           }
-
-          // YÊU CẦU: Bất kể đang ở path nào, luôn đẩy về trang chủ "/"
-          navigateRef.current('/');
-          
           return Promise.reject(refreshError);
         }
       }

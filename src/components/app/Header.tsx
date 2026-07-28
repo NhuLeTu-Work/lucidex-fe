@@ -1,13 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-// Bổ sung thêm LayoutDashboard vào danh sách import
 import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut, LayoutDashboard } from 'lucide-react';
 import { useApp } from '../../app/AppContext';
 
 export function Header() {
   const { role, t, lang, setLang, theme, toggleTheme, setRole} = useApp();
   const navigate = useNavigate();
-
-  // ĐỊNH NGHĨA HÀM LOGOUT VỚI 3 BƯỚC CHUẨN MỰC
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');

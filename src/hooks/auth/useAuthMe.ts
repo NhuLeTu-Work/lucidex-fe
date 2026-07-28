@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import { getAuthMeApi } from '@/api/endpoints/authentication/authMeApi';
 import type { UserProfile } from '@/api/types/auth.types';
+import { useNavigate } from 'react-router-dom';
 
-export function useAuthMe(showToast: (type: 'success' | 'error' | 'warning', message: string) => void) {
+export function useAuthMe(showToast: (type: 'success' | 'error' | 'warning', message: string) => void, logout: () => void ) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
-
+  const navigate = useNavigate()
   const fetchProfile = useCallback(async () => {
     // Nếu chưa có token thì không gọi API để tránh lỗi 401 không cần thiết
     const token = localStorage.getItem('access_token');
@@ -21,7 +22,9 @@ export function useAuthMe(showToast: (type: 'success' | 'error' | 'warning', mes
       const status = error.response?.status;
       if (status === 401) {
         showToast('error', 'errorSessionExpired');
-        // Xử lý logout tự động nếu cần (vd: clear localStorage)
+        logout();
+        navigate("/")
+        return;
       } else {
         showToast('error', 'errorFetchProfile');
       }
