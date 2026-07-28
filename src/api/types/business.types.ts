@@ -47,3 +47,17 @@ export interface VerifyOtpResponse {
   message: string;
   error_code?: string;
 }
+
+export interface ValidateInviteResponse {
+  success: boolean;
+  data: {
+    invite_id: string;
+    org_id: string;
+    org_name: string;
+    contact_email: string;
+    expires_at: string;
+    role: string;
+  };
+  message: string;
+  error_code: string | null;
+}
