@@ -8,16 +8,14 @@ import { OwnerCredentials } from '../components/owner/OwnerCredentials';
 import { OwnerLinks } from '../components/owner/OwnerLinks';
 import { OwnerAudit } from '../components/owner/OwnerAudit';
 import { OwnerConsent } from '../components/owner/OwnerConsent';
-import { OwnerClaim } from '../components/owner/OwnerClaim';
 import { CreateLinkModal } from '../components/owner/OwnerLinkModal';
+import { OwnerEkycSetup } from '@/components/owner/OwnerEkycSetup';
 
 export function OwnerPortal() {
-  const { t, showToast } = useApp();
+  const { t,showToast } = useApp();
   const {
     activeTab, setActiveTab,
     links, showCreateModal, setShowCreateModal,
-    claimStep, setClaimStep, otpValue, setOtpValue,
-    showOtpMock, setShowOtpMock,
     handleRevokeLink, handleCreateLink
   } = useOwnerPortal();
   const { userProfile, fetchProfile } = useAuthMe(showToast);
@@ -46,13 +44,7 @@ export function OwnerPortal() {
         {activeTab === 'links' && <OwnerLinks t={t} links={links} onRevoke={handleRevokeLink} onCreate={() => setShowCreateModal(true)} />}
         {activeTab === 'audit' && <OwnerAudit t={t} />}
         {activeTab === 'consent' && <OwnerConsent t={t} />}
-        {activeTab === 'claim' && (
-          <OwnerClaim 
-            t={t} step={claimStep} setStep={setClaimStep} 
-            otpValue={otpValue} setOtpValue={setOtpValue} 
-            showOtpMock={showOtpMock} setShowOtpMock={setShowOtpMock} 
-          />
-        )}
+        {activeTab === 'ekyc' && <OwnerEkycSetup t={t}/>}
       </main>
 
       {showCreateModal && (

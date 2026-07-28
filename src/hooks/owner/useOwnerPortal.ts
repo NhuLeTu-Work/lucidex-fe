@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { mockVerifiedLinks } from '../../data/mockData';
-import type { OwnerTab, ClaimStep, VerifiedLink } from '../../types/owner';
+import type { OwnerTab, VerifiedLink } from '../../types/owner';
 
 export function useOwnerPortal() {
   const [activeTab, setActiveTab] = useState<OwnerTab>('dashboard');
   const [links, setLinks] = useState<VerifiedLink[]>(mockVerifiedLinks as VerifiedLink[]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [claimStep, setClaimStep] = useState<ClaimStep>('form');
-  const [otpValue, setOtpValue] = useState('');
-  const [showOtpMock, setShowOtpMock] = useState(false);
 
   const handleRevokeLink = (linkId: string) => {
     setLinks(prev => prev.map(l => l.id === linkId ? { ...l, status: 'revoked', revokedAt: new Date().toISOString() } : l));
@@ -33,9 +30,6 @@ export function useOwnerPortal() {
     activeTab, setActiveTab,
     links,
     showCreateModal, setShowCreateModal,
-    claimStep, setClaimStep,
-    otpValue, setOtpValue,
-    showOtpMock, setShowOtpMock,
     handleRevokeLink, handleCreateLink
   };
 }

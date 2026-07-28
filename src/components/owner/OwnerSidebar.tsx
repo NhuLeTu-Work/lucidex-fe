@@ -16,7 +16,7 @@ export function OwnerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }:
     { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <Link2 size={18} /> },
     { id: 'audit' as OwnerTab, label: t('auditLog'), icon: <ClipboardList size={18} /> },
     { id: 'consent' as OwnerTab, label: t('consentSettings'), icon: <Settings size={18} /> },
-    { id: 'claim' as OwnerTab, label: t('claimDegree'), icon: <Award size={18} /> },
+    { id: 'ekyc' as OwnerTab, label: t('ekycTitle'), icon: <Award size={18} /> }
   ];
 
   // Xử lý dữ liệu fallback nếu userProfile chưa load xong
@@ -56,7 +56,7 @@ export function OwnerSidebarMobile({ activeTab, setActiveTab, t }: SidebarProps)
     { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <Link2 size={18} /> },
     { id: 'audit' as OwnerTab, label: t('auditLog'), icon: <ClipboardList size={18} /> },
     { id: 'consent' as OwnerTab, label: t('consentSettings'), icon: <Settings size={18} /> },
-    { id: 'claim' as OwnerTab, label: t('claimDegree'), icon: <Award size={18} /> },
+    { id: 'ekyc' as OwnerTab, label: t('ekycTitle'), icon: <Award size={18} /> }
   ];
 
   return (

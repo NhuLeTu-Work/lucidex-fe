@@ -1,4 +1,4 @@
-export type OwnerTab = 'dashboard' | 'credentials' | 'links' | 'audit' | 'consent' | 'claim';
+export type OwnerTab = 'dashboard' | 'credentials' | 'links' | 'audit' | 'consent' | 'ekyc';
 export type ClaimStep = 'form' | 'otp' | 'success';
 
 export interface VerifiedLink {
