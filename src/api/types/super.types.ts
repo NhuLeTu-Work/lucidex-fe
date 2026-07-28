@@ -32,3 +32,8 @@ export interface ResetTotpResponse {
   password_reset_requested: boolean;
   password_reset_requested_at: string;
 }
+
+export interface UpdateAdminStatusPayload {
+  status: 'active' | 'locked';
+  reason: string | null;
+}

@@ -1,18 +1,106 @@
+import { useState } from 'react';
 import { Key, RotateCcw, Lock, Unlock, Trash2, Plus, Loader2 } from 'lucide-react';
-import type { UIAdminAccount } from '../../types/superAdmin'; // Đảm bảo type này khớp với UIAdminAccount
+import type { UIAdminAccount } from '../../types/superAdmin';
+import { ConfirmationModal } from '@/components/ui/confirmationModal'; // Chỉnh lại path nếu cần
+import { AdminCredentialDisplay } from '@/components/super/ResetCredentials';
+import { useProcessAdminRequest } from '@/hooks/super/useProcessAdminRequest';
+import { useUpdateAdminStatus } from '@/hooks/super/useUpdateAdminStatus';
+import { useDeleteAdmin } from '@/hooks/super/useDeleteAdmin';
 
 interface Props {
-  // 2. Gán đúng type cho accounts
   accounts: UIAdminAccount[]; 
-  
-  // 3. Khai báo chặt chẽ các action type giống hệt như trong ConfirmModalState
   openConfirm: (title: string, msg: string, type: 'resetTotp' | 'resetPassword' | 'lock' | 'delete', id: string) => void;
-  
   onOpenCreate: () => void;
   t: (key: string) => string;
   isCreating?: boolean; 
+  confirmState: any;
+  closeConfirm: () => void;
+  showToast: (type: 'success' | 'error' | 'warning', message: string) => void;
+  fetchAccounts: () => void;
 }
-export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCreating }: Props) {
+export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCreating, confirmState, closeConfirm, showToast, fetchAccounts }: Props) {
+  const [lockReason, setLockReason] = useState('');
+  const {
+    isProcessing: isResetting,
+    credentialData,
+    processApproval,
+    clearCredentialData,
+  } = useProcessAdminRequest(showToast);
+
+  const { updateStatus, isUpdating } = useUpdateAdminStatus(showToast, fetchAccounts);
+  const { deleteAdmin, isDeleting } = useDeleteAdmin(showToast, fetchAccounts);
+  // Đóng modal và clear state lý do
+  const handleCloseModal = () => {
+    setLockReason('');
+    closeConfirm();
+  };
+  const handleConfirm = async () => {
+    if (!confirmState.targetId) return;
+
+    if (confirmState.actionType === 'resetPassword') {
+      const res = await processApproval(confirmState.targetId, 'password');
+      if (res.success) fetchAccounts(); 
+      handleCloseModal();
+    } else if (confirmState.actionType === 'resetTotp') {
+      const res = await processApproval(confirmState.targetId, 'totp');
+      if (res.success) fetchAccounts();
+      handleCloseModal();
+    } else if (confirmState.actionType === 'lock') {
+      // Logic Khóa / Mở khóa
+      const targetAcc = accounts.find(a => a.id === confirmState.targetId);
+      const newStatus = targetAcc?.locked ? 'active' : 'locked';
+
+      // Kiểm tra validate lý do nếu đang thao tác Khóa
+      if (newStatus === 'locked' && !lockReason.trim()) {
+        showToast('error', 'errorReasonRequired');
+        return;
+      }
+
+      const res = await updateStatus(confirmState.targetId, newStatus, newStatus === 'locked' ? lockReason : null);
+      if (res) handleCloseModal();
+    } else if (confirmState.actionType === 'delete') {
+      // Logic Xóa Admin
+      const res = await deleteAdmin(confirmState.targetId);
+      if (res) handleCloseModal();
+    }
+  };
+  const renderModalContent = () => {
+    if (confirmState.actionType === 'lock') {
+      const targetAcc = accounts.find(a => a.id === confirmState.targetId);
+      // Chỉ hiện ô nhập lý do khi tài khoản ĐANG ACTIVE (chuẩn bị bị khóa)
+      if (targetAcc && !targetAcc.locked) {
+        return (
+          <div className="flex flex-col gap-2 mt-2 text-left">
+            <p className="text-sm opacity-80 mb-2">{confirmState.message}</p>
+            <label className="text-xs font-semibold opacity-70 tracking-wide uppercase">
+              {t('lockReasonLabel') || 'Lý do khóa tài khoản *'}
+            </label>
+            <textarea
+              value={lockReason}
+              onChange={(e) => setLockReason(e.target.value)}
+              placeholder={t('lockReasonPlaceholder') || 'Vui lòng nhập lý do...'}
+              className="w-full p-3 text-sm rounded-xl border outline-none transition-all focus:border-neutral-400 focus:ring-2 focus:ring-neutral-400/20"
+              style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
+              rows={3}
+            />
+          </div>
+        );
+      }
+    }
+    if (confirmState.actionType === 'delete') {
+      return (
+        <div className="flex flex-col gap-2 mt-2 text-left">
+          <p className="text-sm opacity-80 mb-2">{confirmState.message}</p>
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <p className="text-xs text-red-600 dark:text-red-400 font-semibold uppercase tracking-wide">
+              {t('deleteAdminWarning') || 'Cảnh báo: Hành động này không thể hoàn tác.'}
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return <p>{confirmState.message}</p>;
+  };
   return (
     <div className="animate-in fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -77,6 +165,27 @@ export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCre
           </tbody>
         </table>
       </div>
+      <ConfirmationModal
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        content={renderModalContent()} // <-- Sử dụng hàm render Content động
+        onConfirm={handleConfirm}
+        onCancel={handleCloseModal}      // <-- Dùng hàm đóng có clear state
+        isLoading={isResetting || isUpdating || isDeleting} // <-- Gộp trạng thái loading
+        confirmStyle={confirmState.actionType === 'delete' || (confirmState.actionType === 'lock' && !accounts.find(a => a.id === confirmState.targetId)?.locked) ? 'danger' : 'primary'}
+        t={t}
+      />
+
+      {credentialData && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <AdminCredentialDisplay 
+            username={credentialData.username}
+            newPassword={credentialData.temporary_password}
+            onClose={clearCredentialData}
+            t={t}
+          />
+        </div>
+      )}
     </div>
   );
 }

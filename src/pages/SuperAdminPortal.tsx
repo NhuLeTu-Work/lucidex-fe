@@ -10,7 +10,7 @@ import { AdminResetRequestTab } from '@/components/super/AdminResetRequests';
 export function SuperAdminPortal() {
   const { t, showToast } = useApp();
 
-  const { activeTab, setActiveTab, confirmState, openConfirm, closeConfirm, executeAction } = useSuperPortal();
+  const { activeTab, setActiveTab, confirmState, openConfirm, closeConfirm } = useSuperPortal();
 
   const {
     accounts,
@@ -18,6 +18,7 @@ export function SuperAdminPortal() {
     newAdminCredentials,
     handleCreateAdmin,
     closeCreateModal,
+    fetchAccounts,
   } = useSuper(showToast);
 
   return (
@@ -32,11 +33,12 @@ export function SuperAdminPortal() {
             isCreating={isCreating}
             openConfirm={openConfirm}
             onOpenCreate={handleCreateAdmin}
+            confirmState={confirmState}
+            closeConfirm={closeConfirm}
+            showToast={showToast}
+            fetchAccounts={fetchAccounts}
           />
         )}
-
-        {/* TODO: AuditLogTab hiện chưa có nguồn dữ liệu thật (chưa có API audit logs).
-            Cần bổ sung useAuditLogs (gọi API) trước khi tab này hiển thị đúng. */}
         {activeTab === 'audit' && <AuditLogTab t={t} logs={[]} />}
 
         {activeTab === 'admin_requests' && <AdminResetRequestTab t={t} />}
@@ -50,31 +52,7 @@ export function SuperAdminPortal() {
           showToast={showToast}
         />
       )}
-
-      {confirmState.isOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-2xl p-6 bg-[var(--ct-surface)] border border-[var(--ct-border)] shadow-xl animate-in zoom-in-95">
-            <h3 className="font-display text-xl font-semibold mb-2 text-[var(--ct-text)]">{confirmState.title}</h3>
-            <p className="text-sm opacity-70 mb-6 text-[var(--ct-text)]">{confirmState.message}</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={closeConfirm}
-                className="px-4 py-2 text-sm rounded-xl border border-[var(--ct-border)] text-[var(--ct-text)] hover:bg-black/5"
-              >
-                {t('cancel') || 'Cancel'}
-              </button>
-              <button
-                onClick={() => executeAction(/* onLock */ undefined, /* onDelete */ undefined)}
-                className={`px-4 py-2 text-sm font-semibold text-white rounded-xl ${
-                  confirmState.actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:opacity-80'
-                }`}
-              >
-                {t('confirm') || 'Confirm'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 }

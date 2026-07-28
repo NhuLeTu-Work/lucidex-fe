@@ -455,4 +455,13 @@ export const en: Record<string, string> = {
     ekycMobileStarted: "Redirecting to the identity verification system...",
     linkInvalidTitle: 'Link Invalid or Expired',
     linkInvalidDesc: 'This link has been used, expired, or is no longer valid. You cannot access this page anymore.',
+    lockSuccess: 'Admin account locked successfully.',
+    unlockSuccess: 'Admin account unlocked successfully.',
+    errorReasonRequired: 'A reason is required to lock an account.',
+    errorCannotLockSuperAdmin: 'You cannot lock a Super Admin account or your own account.',
+    lockReasonLabel: 'Reason for locking *',
+    lockReasonPlaceholder: 'Enter reason (Required)...',
+    deleteAdminSuccess: 'Admin account deleted successfully.',
+    errorCannotDeleteSuperAdmin: 'You cannot delete a Super Admin account or your own account.',
+    deleteAdminWarning: 'Warning: This action will permanently delete the account and cannot be undone.',
 };

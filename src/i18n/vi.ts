@@ -455,4 +455,13 @@ export const vi: Record<string, string> = {
     ekycMobileStarted: "Đang chuyển hướng đến hệ thống xác thực danh tính...",
     linkInvalidTitle: 'Liên kết không hợp lệ hoặc đã hết hạn',
     linkInvalidDesc: 'Liên kết này đã được sử dụng, hết hạn hoặc không còn hiệu lực. Bạn không thể truy cập trang này nữa.',
+    lockSuccess: 'Khóa tài khoản quản trị thành công.',
+    unlockSuccess: 'Mở khóa tài khoản quản trị thành công.',
+    errorReasonRequired: 'Vui lòng nhập lý do khóa tài khoản.',
+    errorCannotLockSuperAdmin: 'Không thể khóa tài khoản Super Admin hoặc tài khoản của chính bạn.',
+    lockReasonLabel: 'Lý do khóa tài khoản *',
+    lockReasonPlaceholder: 'Nhập lý do khóa (Bắt buộc)...',
+    deleteAdminSuccess: 'Xóa tài khoản quản trị thành công.',
+    errorCannotDeleteSuperAdmin: 'Không thể xóa tài khoản Super Admin hoặc tài khoản của chính bạn.',
+    deleteAdminWarning: 'Cảnh báo: Hành động này sẽ xóa vĩnh viễn và không thể hoàn tác.',
 };
