@@ -10,15 +10,6 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
   } = hookProps;
   const navigate = useNavigate()
 
-  // const getRoleIcon = (type: string) => {
-  //   switch (type) {
-  //     case 'admin': return <ShieldCheck size={16} />;
-  //     case 'verifier': return <Building2 size={16} />;
-  //     case 'issuer': return <Award size={16} />;
-  //     default: return <GraduationCap size={16} />;
-  //   }
-  // };
-
   return (
     <>
       <div className="p-8 rounded-2xl border shadow-xl flex flex-col gap-6 transition-all" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
@@ -85,7 +76,6 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
                 }
               }}
               onError={() => {
-                // Bạn có thể xử lý khi user tắt popup hiển thị Google hoặc lỗi mạng
                 console.log('Login Failed');
               }}
               useOneTap

@@ -19,7 +19,6 @@ const onRefreshed = (token: string) => {
 export function useAxiosInterceptor(
   t: (key: string) => string,
   showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
-  logout: () => void 
 ) {
   const navigate = useNavigate();
   // Dùng ref để đảm bảo interceptor luôn lấy được hàm navigate mới nhất mà không bị re-render loop
@@ -93,7 +92,6 @@ export function useAxiosInterceptor(
           refreshSubscribers = [];
           
           const hadSession = !!localStorage.getItem('refresh_token');
-          logout(); // thay cho 3 dòng localStorage.removeItem
           navigateRef.current('/');
           // Xóa rác phiên đăng nhập (Đảm bảo clean sạch)
           localStorage.removeItem('access_token');
