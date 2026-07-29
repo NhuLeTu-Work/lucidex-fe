@@ -1,7 +1,7 @@
 import { ChevronRight, Loader2 } from 'lucide-react';
 import type { RequestSubTab } from '../../types/admin';
-// Import type thật từ API thay vì Account cũ
 import type { OrganizationRecord } from '@/api/types/admin.types'; 
+import { timeUtil } from '@/utils/timeUtils';
 
 export function AdminRequests({ 
   pendingIssuers, 
@@ -64,7 +64,7 @@ export function AdminRequests({
 
                   <p className="text-xs opacity-60 font-mono break-words text-[var(--ct-text)]">
                     {t('submittedAt') || 'Submitted'}:{' '}
-                    {new Date(req.created_at).toLocaleString()}
+                    {timeUtil(req.created_at)}
                   </p>
                 </div>
 

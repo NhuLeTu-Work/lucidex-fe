@@ -99,15 +99,13 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
       if (err.response) {
         const status = err.response.status;
         const errorCode = err.response.data?.error_code;
-        if (currentAcc?.type === 'super' || currentAcc?.type === 'admin') {
+        if (currentAcc?.type == 'super' || currentAcc?.type == 'admin') {
           if (status === 401 && errorCode === 'INVALID_ADMIN_TOKEN') {
             setOtpError('errorAdminToken');
           } else if (status === 422 && errorCode === 'VALIDATION_ERROR') {
             setOtpError('errorOtpInvalidLength');
           } else if (status === 401 && errorCode === 'INVALID_AUTHENTICATION_CODE') {
             setOtpError('errorOtpInvalid');
-          } else {
-            setOtpError('errorServer');
           }
         } else {
           if (status === 400 && errorCode === 'INVALID_OTP') {
@@ -123,7 +121,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           }
         }
       } else {
-        setOtpError('errorNetwork'); // chỉ chạy khi thực sự không có response (mất mạng)
+        setOtpError('errorNetwork');
       }
     } finally {
       setIsOtpLoading(false);

@@ -4,6 +4,16 @@ import { refreshTokenApi } from '@/api/endpoints/authentication/refreshTokenApi'
 import { getIsLoggedOutGlobally } from '@/app/authFlag';
 import axios from 'axios';
 
+const EXCLUDED_PATHS = [
+  '/auth/refresh',
+  '/auth/login',
+  '/admin/auth/login',
+  '/totp/login/verify',
+  '/totp/setup/verify',
+  '/auth/otp/verify',
+  // liệt kê đủ các endpoint thuộc luồng login/OTP
+];
+
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 let logoutHandler: (() => void) | null = null;
@@ -36,7 +46,9 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
     const errorCode = error.response?.data?.error_code;
-
+    if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
+      return Promise.reject(error); // trả lỗi gốc nguyên vẹn, không đụng gì cả
+    }
     if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
       toastHandler?.('error', 'errorAdminSession');
       logoutHandler?.();

@@ -5,6 +5,7 @@ import { ConfirmationModal } from '../ui/confirmationModal';
 import { AdminCredentialDisplay } from './ResetCredentials';
 import { useAdminResetRequests as useGetAdminResetRequests } from '@/hooks/super/useGetAdminResetRequest';
 import { useProcessAdminRequest } from '@/hooks/super/useProcessAdminRequest';
+import { timeUtil } from '@/utils/timeUtils';
 
 type SelectedRequest = {
   accountId: string;
@@ -106,10 +107,10 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
         <table className="w-full text-sm text-left">
           <thead style={{ background: 'var(--ct-bg)', borderBottom: '1px solid var(--ct-border)', color: 'var(--ct-text)' }}>
             <tr>
-              <th className="px-4 py-3 font-semibold">{translate('adminId') || 'Admin Account'}</th>
-              <th className="px-4 py-3 font-semibold">{translate('requestTime') || 'Time'}</th>
-              <th className="px-4 py-3 font-semibold">{translate('requestType') || 'Request Type'}</th>
-              <th className="px-4 py-3 font-semibold text-center">{translate('actions') || 'Actions'}</th>
+              <th className="px-4 py-3 font-semibold">{translate('adminId')}</th>
+              <th className="px-4 py-3 font-semibold">{translate('requestTime')}</th>
+              <th className="px-4 py-3 font-semibold">{translate('requestType')}</th>
+              <th className="px-4 py-3 font-semibold text-center">{translate('actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -137,7 +138,7 @@ export function AdminResetRequestTab({ t: externalT }: { t?: any }) {
                       <p className="text-xs opacity-60 font-mono">ID: {req.accountId}</p>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs opacity-70">
-                      {new Date(req.timestamp).toLocaleString()}
+                      {timeUtil(req.timestamp)}
                     </td>
                     <td className="px-4 py-3 font-medium">
                       {req.type === 'password' 
