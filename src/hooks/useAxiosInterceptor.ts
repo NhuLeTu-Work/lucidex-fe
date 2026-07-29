@@ -2,11 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/api';
 import { refreshTokenApi } from '../api/endpoints/authentication/refreshTokenApi';
-
+import { getIsLoggedOutGlobally } from '@/app/authFlag';
+import axios from 'axios';
 // Biến cục bộ giữ hàng đợi (Queue) khi có nhiều API cùng lỗi 401 một lúc
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
-const EXCLUDED_PATHS = ['/refresh', '/login'];
+// const EXCLUDED_PATHS = ['/refresh', '/login'];
 
 const subscribeTokenRefresh = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
@@ -29,10 +30,12 @@ export function useAxiosInterceptor(
   useEffect(() => {
     navigateRef.current = navigate;
   }, [navigate]);
-
   useEffect(() => {
     // 1. REQUEST INTERCEPTOR (Gắn token vào mọi API)
     const reqInterceptor = apiClient.interceptors.request.use((config) => {
+      if (getIsLoggedOutGlobally()) {
+        return Promise.reject(new axios.Cancel('Logged out'));
+      }
       const token = localStorage.getItem('access_token');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -41,15 +44,20 @@ export function useAxiosInterceptor(
     });
     // 2. RESPONSE INTERCEPTOR (Xử lý 401 & Refresh Token)
     const resInterceptor = apiClient.interceptors.response.use(
+      
       (response) => response,
-      async (error) => {
+          async (error) => {
+            if (axios.isCancel(error)) {
+          return Promise.reject(error);
+        }
         const originalRequest = error.config;
         const status = error.response?.status;
         const errorCode = error.response?.data?.error_code;
+        console.log(status, errorCode)
 
-  if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
-    return Promise.reject(error);
-  }
+  // if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
+  //   return Promise.reject(error);
+  // }
 
   // Check này đặt TRƯỚC check _retry — vì lỗi này cần logout dù đã retry hay chưa
   if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useI18n } from '../hooks/useI18n';
-
+import { markLoggedOut } from './authFlag';
 export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin' | 'super';
 
 interface AppContextType {
@@ -41,10 +41,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // 3. Hàm Đăng xuất: Xóa sạch token & role khỏi bộ nhớ trình duyệt
   const logout = useCallback(() => {
+    markLoggedOut();
     setRoleState('guest');
     localStorage.removeItem('user_role');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    // window.dispatchEvent(new Event('app:logout'));
     window.location.href = '/'; 
   }, []);
 
