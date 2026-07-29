@@ -11,84 +11,76 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
     email, password
   } = state;
 
+  // useLoginActions.ts
+  const processUserLogin = async (email: string, userPwd: string) => {
+    const response = await authLoginApi({ email: email.trim(), password: userPwd });
+    if (response.success && response.data.otp_token) {
+      setTempOtpToken(response.data.otp_token);
+      const userRole = response.data.role || 'owner';
+      setCurrentAcc({ email: email.trim(), type: userRole } as any);
+      setOtpValue('');
+      setOtpMethod('email');
+      setView('login_2fa');
+    }
+  };
+
+  const processAdminLogin = async (username: string, userPwd: string) => {
+    const response = await loginAdminApi({ username: username.trim(), password: userPwd });
+    if (response.success) {
+      const { requires_totp_setup, requires_totp, setup_token, challenge_token, qr_code, manual_entry_key, role } = response.data as any;
+      const actualRole = role === 'super' || username.trim() === 'super-admin' ? 'super' : 'admin';
+      setCurrentAcc({ username: username.trim(), type: actualRole } as any);
+      setOtpValue('');
+      if (requires_totp_setup) {
+        setSetupToken(setup_token || null);
+        setQrCode(qr_code || null);
+        setManualEntryKey(manual_entry_key || null);
+        setView('setup_2fa');
+      } else if (requires_totp) {
+        setChallengeToken(challenge_token || null);
+        setView('login_2fa');
+      }
+    }
+  };
+
+  const handleUserLoginError = (err: any) => {
+    if (!err.response) return setError('errorNetwork');
+    const { status, data } = err.response;
+    const code = data?.error_code;
+    if (status === 401 && code === 'INVALID_CREDENTIALS') setError('errorInvalidCredentials');
+    else if (status === 403) setError('errorInactiveAccount');
+    else if (status === 404) setError('errorAccountNotFound');
+    else if (status === 409 && code === 'GOOGLE_ACCOUNT_PASSWORD_LOGIN_NOT_ALLOWED') setError('errorEmailExistsGoogle');
+    else setError('errorAdminAuthentication'); // tên constant nên đổi cho đúng ngữ nghĩa, xem ghi chú bên dưới
+  };
+
+  const handleAdminLoginError = (err: any) => {
+    if (!err.response) return setError('errorNetwork');
+    const { status, data } = err.response;
+    const code = data?.error_code;
+    if (status === 401 && code === 'INVALID_ADMIN_CREDENTIALS') setError('errorInvalidCredentials');
+    else if (status === 422 && code === 'VALIDATION_ERROR') setError('errorInactiveAccount');
+    else if (status === 404) setError('errorAccountNotFound');
+    else setError('errorServer');
+  };
+
   const processLogin = async (loginIdentifier: string, userPwd?: string) => {
     setError(null);
     setIsLoading(true);
-
     if (!loginIdentifier || !userPwd) {
       setError('errorMissingCreds');
       setIsLoading(false);
       return;
     }
-    
-    const isEmail = loginIdentifier.includes('@'); 
+    const isEmail = loginIdentifier.includes('@');
     try {
-      if (!isEmail) {
-        // LUỒNG 1: KHÔNG PHẢI EMAIL -> LÀ ADMIN HOẶC SUPER ADMIN
-        const response = await loginAdminApi({
-          username: loginIdentifier.trim(),
-          password: userPwd
-        });
-
-        if (response.success) {
-          const { requires_totp_setup, requires_totp, setup_token, challenge_token, qr_code, manual_entry_key, role } = response.data as any;
-
-          const actualRole = role === 'super' || loginIdentifier.trim() === 'super-admin' ? 'super' : 'admin';
-
-          setCurrentAcc({ username: loginIdentifier.trim(), type: actualRole } as any);
-          setOtpValue('');
-
-          if (requires_totp_setup) {
-            setSetupToken(setup_token || null);
-            setQrCode(qr_code || null);
-            setManualEntryKey(manual_entry_key || null);
-            setView('setup_2fa'); 
-          } else if (requires_totp) {
-            setChallengeToken(challenge_token || null);
-            setView('login_2fa'); 
-          }
-        }
+      if (isEmail) {
+        await processUserLogin(loginIdentifier, userPwd);
       } else {
-        // LUỒNG 2: LÀ EMAIL -> CÁC ROLE CÒN LẠI
-        const response = await authLoginApi({
-          email: loginIdentifier.trim(),
-          password: userPwd
-        });
-
-        if (response.success && response.data.otp_token) {
-          setTempOtpToken(response.data.otp_token);
-          
-          const userRole = response.data.role || 'owner'; // fallback an toàn
-          
-          setCurrentAcc({ email: loginIdentifier.trim(), type: userRole } as any); 
-          setOtpValue('');
-          setOtpMethod('email'); 
-          setView('login_2fa');
-        }
+        await processAdminLogin(loginIdentifier, userPwd);
       }
-
     } catch (err: any) {
-      // Cập nhật xử lý lỗi theo API document mới nhất
-      if (err.response) {
-        const status = err.response.status;
-        const errorCode = err.response.data.error_code;
-        if (status === 401 && errorCode == "INVALID_CREDENTIALS") {
-          setError('errorInvalidCredentials');
-        } else if (status === 403) {
-          setError('errorInactiveAccount');
-        } else if (status === 404) {
-          setError('errorAccountNotFound');
-        } else if (status === 422) {
-          setError('errorInvalidData');
-        } else if (status === 409 && errorCode == "GOOGLE_ACCOUNT_PASSWORD_LOGIN_NOT_ALLOWED") {
-          setError('errorEmailExistsGoogle');
-        }else {
-          if(isEmail) setError('errorAdminAuthentication')
-          else setError('errorServer');
-        }
-      } else {
-        setError('errorNetwork');
-      }
+      isEmail ? handleUserLoginError(err) : handleAdminLoginError(err);
     } finally {
       setIsLoading(false);
     }
