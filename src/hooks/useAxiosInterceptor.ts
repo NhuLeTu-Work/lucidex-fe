@@ -46,7 +46,6 @@ export function useAxiosInterceptor(
         const originalRequest = error.config;
         const status = error.response?.status;
         const errorCode = error.response?.data?.error_code;
-        console.log('interceptor caught', status, errorCode);
 
   if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
     return Promise.reject(error);
@@ -109,7 +108,6 @@ export function useAxiosInterceptor(
           } else if (hadSession) {
             const status = refreshError.response?.status;
             const errorCode = refreshError.response?.data?.error_code || refreshError.response?.data.error_code;
-            console.log(refreshError.response?.data?.error_code || refreshError.response?.data.error_code)
             // Xử lý chung các case 401 (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN, hoặc 401 Undocumented)
             if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN')) {
               showToast('error', 'errorSessionExpired');

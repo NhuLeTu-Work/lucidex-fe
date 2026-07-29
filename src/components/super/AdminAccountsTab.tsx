@@ -101,6 +101,11 @@ export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCre
     }
     return <p>{confirmState.message}</p>;
   };
+  const sortedAccounts = [...accounts].sort((a, b) => {
+    if (a.username === 'super-admin') return -1;
+    if (b.username === 'super-admin') return 1;
+    return 0;
+  });
   return (
     <div className="animate-in fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -129,7 +134,7 @@ export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCre
             </tr>
           </thead>
           <tbody>
-            {accounts.map(acc => (
+            {sortedAccounts.map(acc => (
               <tr key={acc.id} className={`border-t transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${acc.locked ? 'opacity-50' : ''}`} style={{ borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
                 <td className="px-4 py-4 font-mono font-bold">{acc.username}</td>
                 <td className="px-4 py-4">
@@ -149,7 +154,7 @@ export function AdminAccountsTab({ accounts, openConfirm, onOpenCreate, t, isCre
                   <button onClick={() => openConfirm(t('resetTotpKey'), `${t('resetTotpKey')} ${acc.username}?`, 'resetTotp', acc.id)} className="p-1.5 rounded-md hover:bg-black/10 dark:hover:bg-white/10 text-[var(--ct-text)]" title={t('resetTotpKey')}>
                     <RotateCcw size={16} />
                   </button>
-                  {acc.role !== 'Super Admin' && (
+                  {acc.role !== 'Super Admin' && acc.username !== 'super-admin' && (
                     <>
                       <button onClick={() => openConfirm(acc.locked ? t('unlockAccount') : t('lockAccount'), `${acc.locked ? t('unlockAccount') : t('lockAccount')} ${acc.username}?`, 'lock', acc.id)} className="p-1.5 rounded-md hover:bg-black/10 dark:hover:bg-white/10 text-[var(--ct-text)]" title={acc.locked ? t('unlockAccount') : t('lockAccount')}>
                         {acc.locked ? <Unlock size={16} /> : <Lock size={16} />}
