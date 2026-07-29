@@ -85,7 +85,7 @@ export function useSetupPassword(inviteToken: string, orgType: OrgType, emailUrl
 
     const cleanOtp = (rawOtpValue || '').toString().replace(/[^0-9]/g, '');
     if (!cleanOtp || cleanOtp.length !== 6) {
-      setOtpError('errorInvalidOtpLength');
+      setOtpError('errorOtpInvalidLength');
       return;
     }
 

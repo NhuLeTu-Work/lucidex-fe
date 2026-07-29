@@ -18,7 +18,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
 
     const cleanOtp = (otpValue || '').toString().replace(/[^0-9]/g, '');
     if (!cleanOtp || cleanOtp.length !== 6) {
-      setOtpError('errorInvalidOtpLength'); 
+      setOtpError('errorOtpInvalidLength'); 
       return;
     }
 
@@ -101,7 +101,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           if (status === 401 && errorCode === 'INVALID_ADMIN_TOKEN') {
             setOtpError('errorAdminToken');
           } else if (status === 422 && errorCode === 'VALIDATION_ERROR') {
-            setOtpError('errorInvalidOtpLength');
+            setOtpError('errorOtpInvalidLength');
           } else if (status === 401 && errorCode === 'INVALID_AUTHENTICATION_CODE') {
             setOtpError('errorOtpInvalid');
           } else {
@@ -109,7 +109,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           }
         } else {
           if (status === 400 && errorCode === 'INVALID_OTP') {
-            setOtpError('errorInvalidOtp');
+            setOtpError('errorOtpInvalid');
           } else if (status === 401 && errorCode === 'HTTP_401') {
             setOtpError('errorSessionExpired');
           } else if (status === 401 && errorCode === 'INVALID_CREDENTIALS') {

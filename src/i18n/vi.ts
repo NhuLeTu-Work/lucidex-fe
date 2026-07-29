@@ -373,7 +373,7 @@ export const vi: Record<string, string> = {
     "errorFetchProfile": "Không thể tải thông tin hồ sơ người dùng.",
     setupAccount: 'Cài đặt Tài khoản',
     setuppassword: "Cài đặt Mật khẩu",
-    "errorInvalidOtpLength": "Vui lòng nhập đầy đủ 6 số OTP.",
+    "errorOtpInvalidLength": "Vui lòng nhập đầy đủ 6 số OTP.",
     "errorInvalidInviteLink": "Link lời mời đã hết hạn hoặc không hợp lệ. Vui lòng liên hệ Admin.",
     csvFormatLimit: "Chỉ chấp nhận file định dạng .csv, tối đa 10MB",
     validating: "Đang kiểm tra cấu trúc và dữ liệu file...",

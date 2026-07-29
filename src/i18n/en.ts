@@ -373,7 +373,7 @@ export const en: Record<string, string> = {
     "errorFetchProfile": "Failed to load user profile information.",
     setupAccount: 'Set Up Your Account',
     setuppassword: "Set Up Password",
-    "errorInvalidOtpLength": "Please enter a complete 6-digit OTP.",
+    "errorOtpInvalidLength": "Please enter a complete 6-digit OTP.",
     "errorInvalidInviteLink": "The invite link has expired or is invalid. Please contact Admin.",
     csvFormatLimit: "Only files with .csv format, max size 10MB",
     validating: "Validating file structure and content...",
