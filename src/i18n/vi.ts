@@ -307,6 +307,7 @@ export const vi: Record<string, string> = {
     errorInvalidData: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.',
     errorServer: 'Lỗi máy chủ. Vui lòng thử lại sau.',
     errorNetwork: 'Lỗi mạng. Không thể kết nối đến máy chủ.',
+    errorAdminToken: 'Đã hết phiên xác thực. Vui lòng đăng nhập lại.',
     errorAccountNotFound: 'Tài khoản không tồn tại.',
     cantScanQR: "Không quét được QR? Hãy nhập mã này.", 
     errorInvalidGoogleToken: "Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",

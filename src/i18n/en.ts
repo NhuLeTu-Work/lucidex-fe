@@ -308,6 +308,7 @@ export const en: Record<string, string> = {
     errorServer: 'Server error. Please try again later.',
     errorNetwork: 'Network error. Unable to connect to the server.',
     errorAccountNotFound: 'Account does not exist.',
+    errorAdminToken: 'Verify session is expired. Please log in again.',
     cantScanQR: "Can't scan the QR code? Use this setup key", 
     errorInvalidGoogleToken: "Invalid or expired Google token. Please log in again.",
     errorGoogleEmailNotVerified: "Google email is not verified. Please verify your email before continuing.",

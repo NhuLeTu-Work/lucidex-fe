@@ -96,14 +96,14 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
     } catch (err: any) {
       if (err.response) {
         const status = err.response.status;
-        const errorCode = err.response.eror_code;
+        const errorCode = err.response.data?.error_code;
         if (currentAcc?.type === 'super' || currentAcc?.type === 'admin') {
-          if (status === 401) {
+          if (status === 401 && errorCode === 'INVALID_ADMIN_TOKEN') {
+            setOtpError('errorAdminToken');
+          } else if (status === 422 && errorCode === 'VALIDATION_ERROR') {
+            setOtpError('errorInvalidOtpLength');
+          } else if (status === 401 && errorCode === 'INVALID_AUTHENTICATION_CODE') {
             setOtpError('errorOtpInvalid');
-          } else if (status === 422) {
-            setOtpError('errorInvalidOtpLength'); 
-          } else if (status === 401) {
-            setOtpError('errorSessionExpired');
           } else {
             setOtpError('errorServer');
           }
@@ -114,14 +114,15 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
             setOtpError('errorSessionExpired');
           } else if (status === 401 && errorCode === 'INVALID_CREDENTIALS') {
             setOtpError('errorActorNotFound');
-          } else if (status === 422) {
+          } else if (status === 422 && errorCode === 'VALIDATION_ERROR') {
             setOtpError('errorValidation');
           } else {
             setOtpError('errorActionFailed');
           }
         }
+      } else {
+        setOtpError('errorNetwork'); // chỉ chạy khi thực sự không có response (mất mạng)
       }
-      setOtpError('errorNetwork');
     } finally {
       setIsOtpLoading(false);
     }
