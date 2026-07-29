@@ -106,7 +106,7 @@ export function Register() {
 
               {error && (
                 <div 
-                  className="p-4 rounded-xl border flex items-start gap-3 text-sm animate-in shake duration-300" 
+                  className="w-fit max-w-full mx-auto p-4 rounded-xl border flex items-start gap-3 text-sm animate-in shake duration-300" 
                   style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}
                 >
                   <AlertCircle size={18} className="shrink-0 mt-[2px]" />
