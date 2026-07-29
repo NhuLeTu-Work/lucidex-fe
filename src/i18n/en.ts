@@ -432,7 +432,6 @@ export const en: Record<string, string> = {
     errorOwnerNotFound: 'No account found associated with this email address.',
     errorValidationOtp: 'Invalid data. Please verify your email format or OTP code.',
     errorValidationRefreshToken: 'Invalid session data.',
-    deleteBothRecords: "Delete both records",
     dataSource: 'Data Source',
     fileErrorsDetected: "Issues Found in CSV File",
     fileErrorsDesc: "We detected formatting errors or duplicate rows within the uploaded file. You can cancel the upload to fix the file, or proceed and we will skip these invalid rows.",

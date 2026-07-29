@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { getAdminsApi } from '@/api/endpoints/super/getAdminsApi';
 import type { UIAdminAccount } from '../../types/superAdmin';
 import axios from 'axios';
@@ -40,10 +40,6 @@ export function useGetAdmins(
       setIsLoadingAccounts(false);
     }
   }, [showToast]);
-
-  useEffect(() => {
-    fetchAccounts();
-  }, [fetchAccounts]);
 
   return {
     accounts,

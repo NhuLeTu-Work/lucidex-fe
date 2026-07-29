@@ -1,22 +1,11 @@
 import { useState } from 'react';
-import { AlertCircle, Loader2, Trash2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+import { Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+import { Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow,
 } from '@/components/ui/table';
 
 export interface DuplicateRecord {
@@ -33,32 +22,17 @@ interface IssuerDuplicateComparisonProps {
 }
 
 export function IssuerDuplicateComparison({
-  isOpen,
-  t,
+  isOpen, t,
   duplicates,
   onComplete,
 }: IssuerDuplicateComparisonProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [deleteBoth, setDeleteBoth] = useState(false);
 
   // Store request: Lưu trữ danh sách các Student ID cần xóa khỏi DB cũ
   const [_deletedRecords, setDeletedRecords] = useState<string[]>([]);
 
-  const handleResolve = (action: 'overwrite' | 'skip' | 'deleteBoth') => {
-    const currentRecord = duplicates[currentIndex];
-
-    // Xử lý action
-    if (action === 'deleteBoth') {
-      setDeletedRecords((prev) => [...prev, currentRecord.studentId]);
-    } else if (action === 'overwrite') {
-      // Logic ghi đè (gọi API hoặc lưu queue)
-    } else {
-      // Logic bỏ qua
-    }
-
-    setDeleteBoth(false);
-
+  const handleResolve = (_action: 'overwrite' | 'skip') => {
     if (currentIndex < duplicates.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -155,43 +129,15 @@ export function IssuerDuplicateComparison({
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
                   {currentIndex + 1} / {duplicates.length} {t('duplicatesRemaining')}
                 </span>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="delete-both"
-                    checked={deleteBoth}
-                    onCheckedChange={(c) => setDeleteBoth(c as boolean)}
-                  />
-                  <label
-                    htmlFor="delete-both"
-                    // Thêm whitespace-nowrap để cấm rớt dòng gây hỏng UI
-                    className="text-sm font-medium leading-none cursor-pointer text-destructive whitespace-nowrap peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {t('deleteBothRecords')}
-                  </label>
-                </div>
               </div>
 
               <div className="flex gap-2 w-full sm:w-auto justify-end flex-shrink-0">
-                {deleteBoth ? (
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleResolve('deleteBoth')}
-                    className="w-full sm:w-auto"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    {t('confirm')}
-                  </Button>
-                ) : (
-                  <>
-                    <Button variant="outline" onClick={() => handleResolve('skip')} className="whitespace-nowrap">
-                      {t('doNotOverwrite')}
-                    </Button>
-                    <Button onClick={() => handleResolve('overwrite')} className="whitespace-nowrap">
-                      {t('overwrite')}
-                    </Button>
-                  </>
-                )}
+                <Button variant="outline" onClick={() => handleResolve('skip')} className="whitespace-nowrap">
+                  {t('doNotOverwrite')}
+                </Button>
+                <Button onClick={() => handleResolve('overwrite')} className="whitespace-nowrap">
+                  {t('overwrite')}
+                </Button>
               </div>
             </DialogFooter>
           </>

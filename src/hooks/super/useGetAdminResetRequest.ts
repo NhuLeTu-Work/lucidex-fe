@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getAdminResetRequests } from '@/api/endpoints/super/getAdminResetRequestApi';
 import axios from 'axios';
 export interface FlattenedRequest {
@@ -72,10 +72,6 @@ export function useAdminResetRequests(
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchRequests();
-  }, []);
 
   return {
     requests,

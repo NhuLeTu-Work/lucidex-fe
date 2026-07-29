@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createAdminApi } from '@/api/endpoints/super/createAdminApi';
-
+import axios from 'axios';
 export function useCreateAdmin(
   fetchAccounts: () => Promise<void>,
   showToast: (
@@ -31,13 +31,14 @@ export function useCreateAdmin(
       // Chờ cập nhật lại danh sách table sau khi tạo xong
       await fetchAccounts();
     } catch (error: any) {
+      if (axios.isCancel(error)) return;
       if (error.response.code === 401) {
-      showToast('error', 'errorAdminSession');
-    } else if (error.response.code === 403) {
-      showToast('error', 'notEnoughPowerAdmin');
-    } else {
-      showToast('error', 'errorNetwork');
-    }
+        showToast('error', 'errorAdminSession');
+      } else if (error.response.code === 403) {
+        showToast('error', 'notEnoughPowerAdmin');
+      } else {
+        showToast('error', 'errorNetwork');
+      }
     } finally {
       setIsCreating(false);
     }

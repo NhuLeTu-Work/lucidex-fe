@@ -432,7 +432,6 @@ export const vi: Record<string, string> = {
     errorOwnerNotFound: 'Không tìm thấy tài khoản nào tương ứng với email này.',
     errorValidationOtp: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại định dạng email hoặc mã OTP.',
     errorValidationRefreshToken: 'Dữ liệu phiên làm việc không hợp lệ.',
-    deleteBothRecords: "Xóa cả 2 dòng",
     dataSource: 'Nơi lấy dữ liệu',
     fileErrorsDetected: "Phát hiện lỗi trong file CSV",
     fileErrorsDesc: "Hệ thống phát hiện lỗi định dạng hoặc dữ liệu trùng lặp ngay trong file vừa tải lên. Bạn có thể hủy tải lên để sửa file, hoặc tiếp tục bằng cách bỏ qua các dòng lỗi này.",
