@@ -188,6 +188,8 @@ export const vi: Record<string, string> = {
     errorEmailExists: 'Email này đã được đăng ký trên hệ thống.',
     errorOtpExpired: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.',
     errorOtpInvalid: 'Mã OTP không hợp lệ. Vui lòng thử lại.',
+    errorInactiveAdmin: 'Tài khoản Admin này đã bị khóa.',
+    errorAdminRateLimit: 'Vui lòng đợi 5 phút sau để thử lại.',
     createAccountSubtitle: 'Tham gia cùng chúng tôi để quản lý văn bằng an toàn.',
     confirmPassword: 'Mật khẩu xác thực',
     signUp: 'Đăng ký',

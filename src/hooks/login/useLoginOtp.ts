@@ -38,6 +38,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
             if (response.data.refresh_token) {
               localStorage.setItem('refresh_token', response.data.refresh_token);
             }
+            sessionStorage.removeItem('login_flow_state')
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
           } else {
@@ -57,6 +58,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
             if (response.data.refresh_token) {
               localStorage.setItem('refresh_token', response.data.refresh_token); // Đã thêm lưu refresh_token
             }
+            sessionStorage.removeItem('login_flow_state')
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
           } else {
@@ -85,7 +87,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           if (response.data.refresh_token) {
             localStorage.setItem('refresh_token', response.data.refresh_token);
           }
-          
+          sessionStorage.removeItem('login_flow_state')
           const safeRole = currentAcc?.type || 'owner';
           setRole(safeRole);
           navigate(`/${safeRole}`);

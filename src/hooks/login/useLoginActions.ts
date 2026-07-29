@@ -60,6 +60,8 @@ export function useLoginActions(state: LoginState, navigate?: any, setRole?: any
     const code = data?.error_code;
     if (status === 401 && code === 'INVALID_ADMIN_CREDENTIALS') setError('errorInvalidCredentials');
     else if (status === 422 && code === 'VALIDATION_ERROR') setError('errorInactiveAccount');
+    else if (status === 403 && code === 'INACTIVE_ADMIN_ACCOUNT') setError('errorInactiveAdmin');
+    else if (status === 429 && code === 'ADMIN_LOGIN_RATE_LIMITED') setError('errorAdminRateLimit');
     else if (status === 404) setError('errorAccountNotFound');
     else setError('errorServer');
   };
