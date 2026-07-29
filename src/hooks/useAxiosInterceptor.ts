@@ -1,145 +1,97 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { apiClient } from '../api/api';
-import { refreshTokenApi } from '../api/endpoints/authentication/refreshTokenApi';
+// interceptorSetup.ts — file riêng, import 1 lần duy nhất ở entry point (main.tsx / App.tsx, TRƯỚC khi render)
+import { apiClient } from '@/api/api';
+import { refreshTokenApi } from '@/api/endpoints/authentication/refreshTokenApi';
 import { getIsLoggedOutGlobally } from '@/app/authFlag';
 import axios from 'axios';
-// Biến cục bộ giữ hàng đợi (Queue) khi có nhiều API cùng lỗi 401 một lúc
+
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
-// const EXCLUDED_PATHS = ['/refresh', '/login'];
+let logoutHandler: (() => void) | null = null;
+let toastHandler: ((type: 'success' | 'error' | 'warning', msg: string) => void) | null = null;
 
-const subscribeTokenRefresh = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
-};
-
-const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
-};
-
-export function useAxiosInterceptor(
-  t: (key: string) => string,
-  showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
-  logout: () => void
+export function registerAuthHandlers(
+  logout: () => void,
+  showToast: (type: 'success' | 'error' | 'warning', msg: string) => void
 ) {
-  const navigate = useNavigate();
-  // Dùng ref để đảm bảo interceptor luôn lấy được hàm navigate mới nhất mà không bị re-render loop
-  const navigateRef = useRef(navigate);
-  
-  useEffect(() => {
-    navigateRef.current = navigate;
-  }, [navigate]);
-  useEffect(() => {
-    // 1. REQUEST INTERCEPTOR (Gắn token vào mọi API)
-    const reqInterceptor = apiClient.interceptors.request.use((config) => {
-      if (getIsLoggedOutGlobally()) {
-        return Promise.reject(new axios.Cancel('Logged out'));
-      }
-      const token = localStorage.getItem('access_token');
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-    // 2. RESPONSE INTERCEPTOR (Xử lý 401 & Refresh Token)
-    const resInterceptor = apiClient.interceptors.response.use(
-      
-      (response) => response,
-          async (error) => {
-            if (axios.isCancel(error)) {
-          return Promise.reject(error);
-        }
-        const originalRequest = error.config;
-        const status = error.response?.status;
-        const errorCode = error.response?.data?.error_code;
-        console.log(status, errorCode)
-
-  // if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
-  //   return Promise.reject(error);
-  // }
-
-  // Check này đặt TRƯỚC check _retry — vì lỗi này cần logout dù đã retry hay chưa
-  if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
-    showToast('error', 'errorAdminSession');
-    logout();
-    return Promise.reject(error);
-  }
-
-  if (status !== 401 || originalRequest._retry) {
-    return Promise.reject(error);
-  }
-
-  if (originalRequest.url?.includes('/auth/refresh')) {
-    return Promise.reject(error);
-  }
-
-  originalRequest._retry = true;
-        // Nếu đang có 1 luồng refresh khác chạy rồi -> bắt các request khác chờ
-        if (isRefreshing) {
-          return new Promise((resolve) => {
-            subscribeTokenRefresh((newToken: string) => {
-              originalRequest.headers.Authorization = `Bearer ${newToken}`;
-              resolve(apiClient(originalRequest)); // Retry request gốc
-            });
-          });
-        }
-
-        isRefreshing = true;
-
-        try {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (!refreshToken) throw new Error('No refresh token available');
-
-          // Gọi API lấy token mới
-          const response = await refreshTokenApi({ refresh_token: refreshToken });
-          const newAccessToken = response.data.access_token;
-
-          // Lưu token mới
-          localStorage.setItem('access_token', newAccessToken);
-          
-          isRefreshing = false;
-          onRefreshed(newAccessToken); // Giải phóng các request đang chờ
-
-          // Chạy lại request gốc vừa bị failed
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return apiClient(originalRequest);
-          
-        } catch (refreshError: any) {
-          // Kịch bản thất bại: Refresh Token hết hạn hoặc sai
-          isRefreshing = false;
-          refreshSubscribers = [];
-          
-          const hadSession = !!localStorage.getItem('refresh_token');
-          if(hadSession == false) {
-            logout()
-          } else if (hadSession) {
-            const status = refreshError.response?.status;
-            const errorCode = refreshError.response?.data?.error_code || refreshError.response?.data.error_code;
-            // Xử lý chung các case 401 (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN, hoặc 401 Undocumented)
-            if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN')) {
-              showToast('error', 'errorSessionExpired');
-              logout()
-            } else if (status === 401 && (errorCode === 'INVALID_ADMIN_ACCESS_TOKEN')) {
-              showToast('error', 'errorAdminSession');
-              logout()
-            } else if (status === 422) {
-              showToast('error', 'errorValidationRefreshToken');
-              logout()
-            } else {
-              // Fallback cho mọi trường hợp khác
-              showToast('error', 'errorSessionExpired');  
-            }
-          }
-          return Promise.reject(refreshError);
-        }
-      }
-    );
-
-    // CLEANUP: Gỡ bỏ interceptor khi component unmount
-    return () => {
-      apiClient.interceptors.request.eject(reqInterceptor);
-      apiClient.interceptors.response.eject(resInterceptor);
-    };
-  }, [t, showToast]); 
+  logoutHandler = logout;
+  toastHandler = showToast;
 }
+
+apiClient.interceptors.request.use((config) => {
+  if (getIsLoggedOutGlobally()) {
+    return Promise.reject(new axios.Cancel('Logged out'));
+  }
+  const token = localStorage.getItem('access_token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (axios.isCancel(error)) return Promise.reject(error);
+
+    const originalRequest = error.config;
+    const status = error.response?.status;
+    const errorCode = error.response?.data?.error_code;
+
+    if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
+      toastHandler?.('error', 'errorAdminSession');
+      logoutHandler?.();
+      return Promise.reject(error);
+    }
+
+    if (status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+    if (originalRequest.url?.includes('/auth/refresh')) {
+      return Promise.reject(error);
+    }
+    originalRequest._retry = true;
+
+    if (isRefreshing) {
+      return new Promise((resolve) => {
+        refreshSubscribers.push((newToken: string) => {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          resolve(apiClient(originalRequest));
+        });
+      });
+    }
+    isRefreshing = true;
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) throw new Error('No refresh token available');
+      const response = await refreshTokenApi({ refresh_token: refreshToken });
+      const newAccessToken = response.data.access_token;
+      localStorage.setItem('access_token', newAccessToken);
+      isRefreshing = false;
+      refreshSubscribers.forEach(cb => cb(newAccessToken));
+      refreshSubscribers = [];
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return apiClient(originalRequest);
+    } catch (refreshError: any) {
+      isRefreshing = false;
+      refreshSubscribers = [];
+      const hadSession = !!localStorage.getItem('refresh_token');
+      if (hadSession) {
+        const rStatus = refreshError.response?.status;
+        const rCode = refreshError.response?.data?.error_code;
+        if (rStatus === 401 && (rCode === 'INVALID_REFRESH_TOKEN' || rCode === 'EXPIRED_REFRESH_TOKEN')) {
+          toastHandler?.('error', 'errorSessionExpired');
+          logoutHandler?.();
+        } else if (rStatus === 401 && rCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
+          toastHandler?.('error', 'errorAdminSession');
+          logoutHandler?.();
+        } else if (rStatus === 422) {
+          toastHandler?.('error', 'errorValidationRefreshToken');
+          logoutHandler?.();
+        } else {
+          toastHandler?.('error', 'errorSessionExpired');
+        }
+      }
+      return Promise.reject(refreshError);
+    }
+  }
+);

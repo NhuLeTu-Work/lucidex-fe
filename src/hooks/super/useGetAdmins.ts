@@ -1,23 +1,17 @@
-import { useState, useCallback } from 'react';
-import { getAdminsApi } from '@/api/endpoints/super/getAdminsApi';
+import { useState, useCallback, useEffect } from 'react';
 import type { UIAdminAccount } from '../../types/superAdmin';
-import axios from 'axios';
+import { getAdminsApi } from '@/api/endpoints/super/getAdminsApi';
 
 export function useGetAdmins(
-  showToast: (
-  type: 'success' | 'error' | 'warning',
-  messageKey: string
-) => void
+  showToast: (type: 'success' | 'error' | 'warning', messageKey: string) => void
 ) {
   const [accounts, setAccounts] = useState<UIAdminAccount[]>([]);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
 
   const fetchAccounts = useCallback(async () => {
     setIsLoadingAccounts(true);
-
     try {
       const data = await getAdminsApi();
-
       const mappedAccounts: UIAdminAccount[] = data.map(acc => ({
         id: acc.id,
         username: acc.username,
@@ -25,25 +19,23 @@ export function useGetAdmins(
         locked: acc.status === 'locked' || acc.status === 'inactive',
         totpEnabled: acc.twofa_enabled,
       }));
-
       setAccounts(mappedAccounts);
-    } catch (error:any) {
-      if (axios.isCancel(error)) return;
-      if (error.response.code === 401) {
-      showToast('error', 'errorAdminSession');
-    } else if (error.response.code === 403) {
-      showToast('error', 'notEnoughPowerAdmin');
-    } else {
-      showToast('error', 'errorNetwork');
-    }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        showToast('error', 'errorAdminSession');
+      } else if (error.response?.status === 403) {
+        showToast('error', 'notEnoughPowerAdmin');
+      } else {
+        showToast('error', 'errorNetwork');
+      }
     } finally {
       setIsLoadingAccounts(false);
     }
   }, [showToast]);
 
-  return {
-    accounts,
-    isLoadingAccounts,
-    fetchAccounts,
-  };
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
+
+  return { accounts, isLoadingAccounts, fetchAccounts };
 }

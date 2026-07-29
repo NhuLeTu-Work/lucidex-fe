@@ -464,6 +464,7 @@ export const vi: Record<string, string> = {
     lockReasonLabel: 'Lý do khóa tài khoản *',
     lockReasonPlaceholder: 'Nhập lý do khóa (Bắt buộc)...',
     deleteAdminSuccess: 'Xóa tài khoản quản trị thành công.',
+    createAdminSuccess: 'Tạo tài khoản quản trị thành công.',
     errorCannotDeleteSuperAdmin: 'Không thể xóa tài khoản Super Admin hoặc tài khoản của chính bạn.',
     deleteAdminWarning: 'Cảnh báo: Hành động này sẽ xóa vĩnh viễn và không thể hoàn tác.',
 };

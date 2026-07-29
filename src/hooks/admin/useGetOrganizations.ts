@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getOrganizationsApi } from '@/api/endpoints/admin/getOrganizationsApi';
 import type { OrganizationRecord, OrgTypeFilter, OrgStatusFilter } from '@/api/types/admin.types';
-import axios from 'axios';
 
 export function useAdminOrganizations(
   showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
@@ -25,7 +24,6 @@ export function useAdminOrganizations(
         setOrganizations(response.data);
       }
     } catch (error: any) {
-      if (axios.isCancel(error)) return;
       const status = error.response?.status;
       const errorCode = error.response?.data?.error_code
       if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {

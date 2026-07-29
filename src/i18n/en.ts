@@ -464,6 +464,8 @@ export const en: Record<string, string> = {
     lockReasonLabel: 'Reason for locking *',
     lockReasonPlaceholder: 'Enter reason (Required)...',
     deleteAdminSuccess: 'Admin account deleted successfully.',
+    createAdminSuccess: 'Admin account created successfully',
     errorCannotDeleteSuperAdmin: 'You cannot delete a Super Admin account or your own account.',
     deleteAdminWarning: 'Warning: This action will permanently delete the account and cannot be undone.',
+
 };

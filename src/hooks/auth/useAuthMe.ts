@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { getAuthMeApi } from '@/api/endpoints/authentication/authMeApi';
 import type { UserProfile } from '@/api/types/auth.types';
-import axios from 'axios';
 export function useAuthMe(
   showToast: (type: 'success' | 'error' | 'warning', message: string) => void,
   logout: () => void,
@@ -20,7 +19,6 @@ export function useAuthMe(
         setUserProfile(response.data);
       }
     } catch (error: any) {
-      if (axios.isCancel(error)) return;
       const status = error.response?.status;
       if (status === 401 && (error.response?.data.error_code === 'INVALID_REFRESH_TOKEN' || error.response?.data.error_code === 'UNAUTHORIZED')) {
         showToast('error', 'errorSessionExpired');

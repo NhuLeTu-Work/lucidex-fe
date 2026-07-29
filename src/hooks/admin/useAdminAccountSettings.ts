@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { adminAccountApi } from '@/api/endpoints/admin/accountSettingsApi';
 import { getAdminRequestStatusApi } from '@/api/endpoints/admin/getResetRequestStatusApi';
-import axios from 'axios';
 export function useAdminAccountSettings(
   showToast: (type: 'success' | 'error' | 'warning', message: string) => void
 ) {
@@ -77,7 +76,6 @@ export function useAdminAccountSettings(
         await fetchStatus(); // Tải lại trạng thái mới nhất để đồng bộ Cooldown 24h
       }
     } catch (err: any) {
-      if (axios.isCancel(err)) return;
       if (err.response.status === 401) {
         showToast('error', 'errorAdminSession');
       } else {

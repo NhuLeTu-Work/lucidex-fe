@@ -1,34 +1,27 @@
-import { useState } from 'react';
+// useGetAdminResetRequest.ts
+import { useState, useEffect, useCallback } from 'react';
 import { getAdminResetRequests } from '@/api/endpoints/super/getAdminResetRequestApi';
-import axios from 'axios';
 export interface FlattenedRequest {
-  id: string;           // ID duy nhất cho UI render (ví dụ: adminId-password)
-  accountId: string;    // ID thực của admin
+  id: string;           
+  accountId: string;    
   username: string;
   type: 'password' | 'totp';
   timestamp: string;
 }
-
 export function useAdminResetRequests(
-  showToast: (
-  type: 'success' | 'error' | 'warning',
-  messageKey: string
-) => void
+  showToast: (type: 'success' | 'error' | 'warning', messageKey: string) => void
 ) {
   const [requests, setRequests] = useState<FlattenedRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setIsLoading(true);
     setErrorKey(null);
     try {
       const data = await getAdminResetRequests.getAdminRequests();
-      
-      // Xử lý dữ liệu: Tách các request ra thành từng dòng riêng biệt
       const flatRequests: FlattenedRequest[] = data.flatMap(acc => {
         const items: FlattenedRequest[] = [];
-        
         if (acc.password_reset_requested) {
           items.push({
             id: `${acc.id}-pwd`,
@@ -38,7 +31,6 @@ export function useAdminResetRequests(
             timestamp: acc.password_reset_requested_at || '',
           });
         }
-        
         if (acc.totp_reset_requested) {
           items.push({
             id: `${acc.id}-totp`,
@@ -48,7 +40,6 @@ export function useAdminResetRequests(
             timestamp: acc.totp_reset_requested_at || '',
           });
         }
-        
         return items;
       });
 
@@ -57,13 +48,11 @@ export function useAdminResetRequests(
         const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return timeB - timeA;
       });
-
       setRequests(flatRequests);
     } catch (err: any) {
-      if (axios.isCancel(err)) return;
-      if (err.response.status  === 401) {
+      if (err.response?.status === 401) {
         showToast('error', 'errorAdminSession');
-      } else if (err.response.status  === 403) {
+      } else if (err.response?.status === 403) {
         showToast('error', 'notEnoughPowerAdmin');
       } else {
         showToast('error', 'errorNetwork');
@@ -71,7 +60,11 @@ export function useAdminResetRequests(
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   return {
     requests,

@@ -1,14 +1,16 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from '../components/app/Header';
 import { useApp } from '../app/AppContext';
-import { useAxiosInterceptor } from '../hooks/useAxiosInterceptor';
+import { useEffect } from 'react';
+import { registerAuthHandlers } from '@/hooks/useAxiosInterceptor';
 import { Toast } from '@/components/ui/toast';
-
 
 export function AppLayout() {
   const { t, showToast, toastConfig, hideToast, logout } = useApp();
   
-  useAxiosInterceptor(t, showToast, logout);
+  useEffect(() => {
+    registerAuthHandlers(logout, showToast);
+  }, [logout, showToast]);
 
   return (
     <div className="min-h-screen transition-colors duration-300" style={{ background: 'var(--ct-bg)', color: 'var(--ct-text)' }}>
