@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAdminResetRequests } from '@/api/endpoints/super/getAdminResetRequestApi';
-import { isCancelledError } from '@/app/authFlag';
+import axios from 'axios';
 export interface FlattenedRequest {
   id: string;           // ID duy nhất cho UI render (ví dụ: adminId-password)
   accountId: string;    // ID thực của admin
@@ -60,7 +60,7 @@ export function useAdminResetRequests(
 
       setRequests(flatRequests);
     } catch (err: any) {
-      if (isCancelledError(err)) return;
+      if (axios.isCancel(err)) return;
       if (err.response.status  === 401) {
         showToast('error', 'errorAdminSession');
       } else if (err.response.status  === 403) {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAdminsApi } from '@/api/endpoints/super/getAdminsApi';
 import type { UIAdminAccount } from '../../types/superAdmin';
-import { isCancelledError } from '@/app/authFlag';
+import axios from 'axios';
 
 export function useGetAdmins(
   showToast: (
@@ -28,7 +28,7 @@ export function useGetAdmins(
 
       setAccounts(mappedAccounts);
     } catch (error:any) {
-      if (isCancelledError(error)) return;
+      if (axios.isCancel(error)) return;
       if (error.response.code === 401) {
       showToast('error', 'errorAdminSession');
     } else if (error.response.code === 403) {
