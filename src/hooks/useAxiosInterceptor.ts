@@ -39,31 +39,35 @@ export function useAxiosInterceptor(
       }
       return config;
     });
-
     // 2. RESPONSE INTERCEPTOR (Xử lý 401 & Refresh Token)
     const resInterceptor = apiClient.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+        const status = error.response?.status;
+        const errorCode = error.response?.data?.error_code;
+        console.log('interceptor caught', status, errorCode);
 
-        // Nếu không phải 401, hoặc request này đã được retry 1 lần rồi -> báo lỗi luôn
-        if (error.response?.status !== 401 || originalRequest._retry) {
-          return Promise.reject(error);
-        }
+  if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
+    return Promise.reject(error);
+  }
 
-        if (EXCLUDED_PATHS.some(path => originalRequest.url?.includes(path))) {
-          return Promise.reject(error);
-        }
+  // Check này đặt TRƯỚC check _retry — vì lỗi này cần logout dù đã retry hay chưa
+  if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
+    showToast('error', 'errorAdminSession');
+    logout();
+    return Promise.reject(error);
+  }
 
-        // originalRequest._retry = true;
+  if (status !== 401 || originalRequest._retry) {
+    return Promise.reject(error);
+  }
 
-        // Loại trừ vòng lặp vô hạn nếu chính API refresh cũng trả về 401
-        if (originalRequest.url?.includes('/auth/refresh')) {
-          return Promise.reject(error);
-        }
+  if (originalRequest.url?.includes('/auth/refresh')) {
+    return Promise.reject(error);
+  }
 
-        originalRequest._retry = true;
-
+  originalRequest._retry = true;
         // Nếu đang có 1 luồng refresh khác chạy rồi -> bắt các request khác chờ
         if (isRefreshing) {
           return new Promise((resolve) => {
@@ -109,8 +113,13 @@ export function useAxiosInterceptor(
             // Xử lý chung các case 401 (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN, hoặc 401 Undocumented)
             if (status === 401 && (errorCode === 'INVALID_REFRESH_TOKEN' || errorCode === 'EXPIRED_REFRESH_TOKEN')) {
               showToast('error', 'errorSessionExpired');
+              logout()
+            } else if (status === 401 && (errorCode === 'INVALID_ADMIN_ACCESS_TOKEN')) {
+              showToast('error', 'errorAdminSession');
+              logout()
             } else if (status === 422) {
               showToast('error', 'errorValidationRefreshToken');
+              logout()
             } else {
               // Fallback cho mọi trường hợp khác
               showToast('error', 'errorSessionExpired');  

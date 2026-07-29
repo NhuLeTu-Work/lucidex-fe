@@ -25,7 +25,8 @@ export function useAdminOrganizations(
       }
     } catch (error: any) {
       const status = error.response?.status;
-      if (status === 401) {
+      const errorCode = error.response?.data?.error_code
+      if (status === 401 && errorCode === 'INVALID_ADMIN_ACCESS_TOKEN') {
         showToast('error', 'errorAdminSession'); 
       } else if (status === 422) {
         showToast('error', 'errorInvalidRequestData'); 
