@@ -1,17 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut, LayoutDashboard } from 'lucide-react';
 import { useApp } from '../../app/AppContext';
 
 export function Header() {
-  const { role, t, lang, setLang, theme, toggleTheme, setRole} = useApp();
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user_role');
-    setRole('guest');
-    navigate('/'); 
-  };
+  const { role, t, lang, setLang, theme, toggleTheme, logout} = useApp();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b" style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}>
@@ -69,7 +61,7 @@ export function Header() {
                 </Link>
 
                 {/* NÚT ĐĂNG XUẤT */}
-                <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
+                <button onClick={logout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
                   <LogOut size={14} /> <span className="hidden sm:inline">{t('logout') || 'Đăng xuất'}</span>
                 </button>
               </>

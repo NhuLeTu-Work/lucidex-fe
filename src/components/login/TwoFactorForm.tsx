@@ -67,7 +67,7 @@ export function TwoFactorForm({ hookProps }: { hookProps: any }) {
       {showSuccessMsg && (
         <div className="p-3 rounded-xl border flex items-center gap-2 text-sm text-green-600 bg-green-500/10 border-green-500 dark:text-green-400 animate-in fade-in duration-300">
           <CheckCircle size={16} className="shrink-0" />
-          <span className="font-medium text-balance">{t(resendMessage) || resendMessage}</span>
+          <span className="font-medium text-balance">{t('resendMessage') || resendMessage}</span>
         </div>
       )}
 

@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useI18n } from '../hooks/useI18n';
 import { markLoggedOut } from './authFlag';
+import { useSessionTimer, clearSessionTimer } from '../hooks/useSessionTimer';
+
 export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin' | 'super';
 
 interface AppContextType {
@@ -39,16 +41,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 3. Hàm Đăng xuất: Xóa sạch token & role khỏi bộ nhớ trình duyệt
   const logout = useCallback(() => {
     markLoggedOut();
+    clearSessionTimer();
     setRoleState('guest');
     localStorage.removeItem('user_role');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    // window.dispatchEvent(new Event('app:logout'));
-    window.location.href = '/'; 
+    window.location.href = '/';
   }, []);
+
+  // Gắn timer chủ động ngay trong AppProvider
+  useSessionTimer(logout);
 
   const switchLang = useCallback(() => setLang(lang === 'vi' ? 'en' : 'vi'), [lang, setLang]);
   const [toastConfig, setToastConfig] = useState<{isOpen: boolean; type: 'success' | 'error' | 'warning'; message: string}>({
