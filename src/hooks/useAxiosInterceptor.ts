@@ -3,6 +3,7 @@ import { apiClient } from '@/api/api';
 import { refreshTokenApi } from '@/api/endpoints/authentication/refreshTokenApi';
 import { getIsLoggedOutGlobally } from '@/app/authFlag';
 import axios from 'axios';
+import { saveTokens } from '@/hooks/useSessionTimer';
 
 const EXCLUDED_PATHS = [
   '/auth/refresh',
@@ -77,7 +78,12 @@ apiClient.interceptors.response.use(
       if (!refreshToken) throw new Error('No refresh token available');
       const response = await refreshTokenApi({ refresh_token: refreshToken });
       const newAccessToken = response.data.access_token;
-      localStorage.setItem('access_token', newAccessToken);
+      saveTokens(
+        newAccessToken,
+        response.data.refresh_token,              // nếu BE có rotate refresh token, sẽ lưu bản mới; nếu không trả field này thì giữ nguyên token cũ
+        response.data.refresh_token_expires_at     // cập nhật lại hạn mới cho useSessionTimer
+      );
+      
       isRefreshing = false;
       refreshSubscribers.forEach(cb => cb(newAccessToken));
       refreshSubscribers = [];

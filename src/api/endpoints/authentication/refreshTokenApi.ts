@@ -7,6 +7,8 @@ export interface RefreshTokenResponse {
   data: {
     access_token: string;
     token_type: string;
+    refresh_token: string;
+    refresh_token_expires_at: string;
   };
   message: string;
   error_code?: string;
