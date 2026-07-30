@@ -61,6 +61,7 @@ export interface VerifyOwnerOtpResponse {
     status: string;
     access_token: string;
     refresh_token: string;
+    refresh_token_expires_at: string;
     token_type: string;
   };
   message: string;

@@ -1,4 +1,5 @@
 import { verifyOwnerOtpApi } from '@/api/endpoints/owner/verifyOwnerOtpApi';
+import { saveTokens } from '../useSessionTimer';
 
 export function useOwnerRegisterOtp(
   state: any, 
@@ -34,10 +35,7 @@ export function useOwnerRegisterOtp(
       const response = await verifyOwnerOtpApi(payload);
 
       if (response.success && response.data) {
-        const { access_token, refresh_token } = response.data;
-        if (access_token) localStorage.setItem('access_token', access_token);
-        if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
-
+        saveTokens(response.data.access_token, response.data.refresh_token, response.data.refresh_token_expires_at);
         setShowOtpModal(false);
         setRole('owner')
         navigate('/owner');

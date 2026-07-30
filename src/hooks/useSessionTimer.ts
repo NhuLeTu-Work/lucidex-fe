@@ -2,11 +2,10 @@
 import { useEffect } from 'react';
 
 const SESSION_EXPIRES_KEY = 'session_expires_at';
-const REFRESH_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h — khớp hạn refresh token
 
-/** Gọi ngay sau khi login thành công, cùng lúc lưu access_token/refresh_token */
-export function markSessionStart() {
-  localStorage.setItem(SESSION_EXPIRES_KEY, String(Date.now() + REFRESH_TOKEN_TTL_MS));
+export function markSessionStart(refreshTokenExpiresAt: string) {
+  const expiresAtMs = new Date(refreshTokenExpiresAt).getTime();
+  localStorage.setItem(SESSION_EXPIRES_KEY, String(expiresAtMs));
 }
 
 export function clearSessionTimer() {
@@ -50,4 +49,15 @@ export function useSessionTimer(logout: () => void) {
       window.removeEventListener('storage', onStorage);
     };
   }, [logout]);
+}
+
+// hooks/useSessionTimer.ts — thêm hàm này
+export function saveTokens(accessToken: string, refreshToken?: string, refreshTokenExpiresAt?: string) {
+  localStorage.setItem('access_token', accessToken);
+  if (refreshToken) {
+    localStorage.setItem('refresh_token', refreshToken);
+  }
+  if (refreshTokenExpiresAt) {
+    markSessionStart(refreshTokenExpiresAt);
+  }
 }

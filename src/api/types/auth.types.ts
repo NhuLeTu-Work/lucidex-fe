@@ -27,6 +27,7 @@ export interface VerifyAuthOtpResponse {
     access_token: string;
     token_type: string;
     refresh_token: string;
+    refresh_token_expires_at: string;
     owner_id?: string;
     email: string;
   };

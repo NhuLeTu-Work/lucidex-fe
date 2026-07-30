@@ -2,6 +2,7 @@ import { verifyTotpSetupApi } from '@/api/endpoints/admin/verifyTotpSetupApi';
 import { verifyAdminTotpLoginApi } from '@/api/endpoints/admin/verifyTotpLoginApi';
 import type { LoginState } from './types';
 import { verifyOtpLoginApi } from '@/api/endpoints/authentication/verifyOtpLoginApi';
+import { saveTokens } from '../useSessionTimer';
 export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
   const {
     currentAcc, otpValue, setOtpError,
@@ -83,10 +84,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
         });
 
         if (response.success && response.data.access_token) {
-          localStorage.setItem('access_token', response.data.access_token);
-          if (response.data.refresh_token) {
-            localStorage.setItem('refresh_token', response.data.refresh_token);
-          }
+          saveTokens(response.data.access_token, response.data.refresh_token, response.data.refresh_token_expires_at);
           sessionStorage.removeItem('login_flow_state')
           const safeRole = currentAcc?.type || 'owner';
           setRole(safeRole);

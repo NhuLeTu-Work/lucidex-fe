@@ -1,5 +1,5 @@
 import { googleAuthApi } from '@/api/endpoints/owner/googleAuthApi';
-
+import { saveTokens } from '../useSessionTimer';
 // Định nghĩa interface tối thiểu cần thiết — để dùng chung được cho cả Login lẫn Register state
 interface GoogleAuthDeps {
   setError: (error: string | null) => void;
@@ -21,11 +21,7 @@ export function useGoogleAuth(
       const response = await googleAuthApi(credential);
 
       if (response.success && response.data.access_token) {
-        localStorage.setItem('access_token', response.data.access_token);
-        if (response.data.refresh_token) {
-          localStorage.setItem('refresh_token', response.data.refresh_token);
-        }
-
+        saveTokens(response.data.access_token, response.data.refresh_token, response.data.refresh_token_expires_at);
         setRole('owner');
         navigate('/owner');
       }
