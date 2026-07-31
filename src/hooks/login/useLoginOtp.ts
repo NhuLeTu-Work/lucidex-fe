@@ -35,10 +35,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           });
 
           if (response.success && response.data.access_token) {
-            localStorage.setItem('access_token', response.data.access_token);
-            if (response.data.refresh_token) {
-              localStorage.setItem('refresh_token', response.data.refresh_token);
-            }
+            saveTokens(response.data.access_token, response.data.refresh_token, response.data.refresh_token_expires_at);
             sessionStorage.removeItem('login_flow_state')
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
@@ -55,10 +52,7 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
           });
 
           if (response.success && response.data.access_token) {
-            localStorage.setItem('access_token', response.data.access_token);
-            if (response.data.refresh_token) {
-              localStorage.setItem('refresh_token', response.data.refresh_token); // Đã thêm lưu refresh_token
-            }
+            saveTokens(response.data.access_token, response.data.refresh_token, response.data.refresh_token_expires_at);
             sessionStorage.removeItem('login_flow_state')
             setRole(currentAcc.type);
             navigate(currentAcc.type === 'super' ? '/super' : '/admin');
@@ -104,7 +98,13 @@ export function useLoginOtp( state: LoginState, setRole: any, navigate: any ) {
             setOtpError('errorOtpInvalidLength');
           } else if (status === 401 && errorCode === 'INVALID_AUTHENTICATION_CODE') {
             setOtpError('errorOtpInvalid');
-          }
+          } else if (errorCode === 'INACTIVE_ADMIN_ACCOUNT') {
+            setOtpError('errorInactiveAdmin');
+          } else if (errorCode === 'ADMIN_NOT_FOUND') {
+            setOtpError('errorAccountNotFound');
+          } else if (errorCode === 'PASSWORD_ALREADY_RESET') {
+            setOtpError('errorPassReset');
+          } 
         } else {
           if (status === 400 && errorCode === 'INVALID_OTP') {
             setOtpError('errorOtpInvalid');

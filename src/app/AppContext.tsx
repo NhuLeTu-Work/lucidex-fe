@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useI18n } from '../hooks/useI18n';
 import { markLoggedOut } from './authFlag';
 import { useSessionTimer, clearSessionTimer } from '../hooks/useSessionTimer';
+import { useAccessTokenTimer } from '@/hooks/useAccessTimer';
 
 export type UserRole = 'guest' | 'owner' | 'issuer' | 'verifier' | 'admin' | 'super';
 
@@ -53,6 +54,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Gắn timer chủ động ngay trong AppProvider
   useSessionTimer(logout);
+  useAccessTokenTimer(logout)
 
   const switchLang = useCallback(() => setLang(lang === 'vi' ? 'en' : 'vi'), [lang, setLang]);
   const [toastConfig, setToastConfig] = useState<{isOpen: boolean; type: 'success' | 'error' | 'warning'; message: string}>({

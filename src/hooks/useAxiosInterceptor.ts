@@ -2,8 +2,8 @@
 import { apiClient } from '@/api/api';
 import { refreshTokenApi } from '@/api/endpoints/authentication/refreshTokenApi';
 import { getIsLoggedOutGlobally } from '@/app/authFlag';
+import { saveTokens, markSessionStart, triggerReschedule, isSessionExpired } from './useSessionTimer';
 import axios from 'axios';
-import { saveTokens } from '@/hooks/useSessionTimer';
 
 const EXCLUDED_PATHS = [
   '/auth/refresh',
@@ -32,6 +32,14 @@ apiClient.interceptors.request.use((config) => {
   if (getIsLoggedOutGlobally()) {
     return Promise.reject(new axios.Cancel('Logged out'));
   }
+
+  // Kiềm tra xem refresh token / session đã hết hạn hay chưa
+  if (isSessionExpired()) {
+    toastHandler?.('error', 'errorSessionExpired');
+    logoutHandler?.();
+    return Promise.reject(new axios.Cancel('Session expired'));
+  }
+
   const token = localStorage.getItem('access_token');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -40,7 +48,28 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Tự động kiểm tra field refresh_token_expires_at ở bất kỳ API nào trả về
+    const resData = response?.data;
+    const expiresAtStr = resData?.data?.refresh_token_expires_at || resData?.refresh_token_expires_at;
+
+    if (expiresAtStr) {
+      const hasTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(expiresAtStr);
+      const normalized = hasTimezone ? expiresAtStr : expiresAtStr + 'Z';
+      const expiresAtMs = new Date(normalized).getTime();
+
+      if (!isNaN(expiresAtMs)) {
+        if (expiresAtMs <= Date.now()) {
+          toastHandler?.('error', 'errorSessionExpired');
+          logoutHandler?.();
+        } else {
+          markSessionStart(expiresAtStr);
+          triggerReschedule();
+        }
+      }
+    }
+    return response;
+  },
   async (error) => {
     if (axios.isCancel(error)) return Promise.reject(error);
 
@@ -78,12 +107,19 @@ apiClient.interceptors.response.use(
       if (!refreshToken) throw new Error('No refresh token available');
       const response = await refreshTokenApi({ refresh_token: refreshToken });
       const newAccessToken = response.data.access_token;
-      saveTokens(
-        newAccessToken,
-        response.data.refresh_token,              // nếu BE có rotate refresh token, sẽ lưu bản mới; nếu không trả field này thì giữ nguyên token cũ
-        response.data.refresh_token_expires_at     // cập nhật lại hạn mới cho useSessionTimer
-      );
       
+      const valid = saveTokens(
+        newAccessToken,
+        response.data.refresh_token,
+        response.data.refresh_token_expires_at
+      );
+
+      if (!valid) {
+        toastHandler?.('error', 'errorSessionExpired');
+        logoutHandler?.();
+        return Promise.reject(new axios.Cancel('Session expired'));
+      }
+
       isRefreshing = false;
       refreshSubscribers.forEach(cb => cb(newAccessToken));
       refreshSubscribers = [];
@@ -107,9 +143,10 @@ apiClient.interceptors.response.use(
           logoutHandler?.();
         } else {
           toastHandler?.('error', 'errorSessionExpired');
+          logoutHandler?.();
         }
       }
       return Promise.reject(refreshError);
     }
   }
-);
+);
