@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead,
 
 export interface DuplicateRecord {
   studentId: string;
+  classCode?: string;
+  rowNumber?: number;
   existing: any;
   incoming: any;
 }
@@ -42,7 +44,7 @@ export function IssuerDuplicateComparison({
         setCurrentIndex(0);
         setDeletedRecords([]); // Clear store sau khi hoàn tất
         onComplete();
-      }, 5000);
+      }, 1000);
     }
   };
 
@@ -52,15 +54,20 @@ export function IssuerDuplicateComparison({
 
   // Khai báo danh sách các trường cần kiểm tra
   const allFields = [
-    { key: 'fullName', label: t('fullName') },
-    { key: 'dob', label: t('dob') },
-    { key: 'major', label: t('major') },
-    { key: 'gradYear', label: t('gradYear') },
+    { key: 'fullName', altKey: 'full_name', label: t('fullName') || 'Họ và tên' },
+    { key: 'dob', altKey: 'dob', label: t('dob') || 'Ngày sinh' },
+    { key: 'major', altKey: 'major_vi', label: t('major') || 'Ngành học' },
+    { key: 'gradYear', altKey: 'graduation_year', label: t('gradYear') || 'Năm tốt nghiệp' },
   ];
+
+  const getFieldValue = (record: any, field: { key: string; altKey: string }) => {
+    if (!record) return '';
+    return record[field.key] ?? record[field.altKey] ?? '';
+  };
 
   // Lọc ra CHỈ NHỮNG TRƯỜNG CÓ DỮ LIỆU KHÁC NHAU
   const differingFields = allFields.filter(
-    (field) => currentRecord.existing?.[field.key] !== currentRecord.incoming?.[field.key]
+    (field) => getFieldValue(currentRecord.existing, field) !== getFieldValue(currentRecord.incoming, field)
   );
 
   // Fallback: Nếu dữ liệu giống nhau 100%, vẫn hiển thị toàn bộ để UI không bị trống
@@ -108,7 +115,7 @@ export function IssuerDuplicateComparison({
                       {t('existingRecord')}
                     </TableCell>
                     {displayFields.map((field) => (
-                      <TableCell key={field.key}>{currentRecord.existing?.[field.key]}</TableCell>
+                      <TableCell key={field.key}>{getFieldValue(currentRecord.existing, field)}</TableCell>
                     ))}
                   </TableRow>
 
@@ -117,7 +124,7 @@ export function IssuerDuplicateComparison({
                       {t('incomingRecord')}
                     </TableCell>
                     {displayFields.map((field) => (
-                      <TableCell key={field.key}>{currentRecord.incoming?.[field.key]}</TableCell>
+                      <TableCell key={field.key}>{getFieldValue(currentRecord.incoming, field)}</TableCell>
                     ))}
                   </TableRow>
                 </TableBody>
