@@ -14,11 +14,11 @@ function BuildingIcon({ size }: { size: number }) {
   return <BarChart3 size={size} />;
 }
 
-export function IssuerSidebarDesktop({ activeTab, setActiveTab, pendingCount, t, userProfile }: SidebarProps) {
+export function IssuerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }: SidebarProps) {
   const sidebarItems = [
     { id: 'dashboard' as IssuerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'upload' as IssuerTab, label: t('uploadCSV'), icon: <Upload size={18} /> },
-    { id: 'review' as IssuerTab, label: t('manualReview'), icon: <ClipboardCheck size={18} /> },
+    { id: 'credentials' as IssuerTab, label: t('credentialListTitle'), icon: <ClipboardCheck size={18} /> },
     { id: 'analytics' as IssuerTab, label: t('analytics'), icon: <BarChart3 size={18} /> },
   ];
 
@@ -44,9 +44,6 @@ export function IssuerSidebarDesktop({ activeTab, setActiveTab, pendingCount, t,
           <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === item.id ? 'text-white' : 'opacity-60 hover:opacity-100'}`} style={{ background: activeTab === item.id ? '#000' : 'transparent' }}>
             {item.icon}
             {item.label}
-            {item.id === 'review' && pendingCount > 0 && (
-              <span className="ml-auto text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">{pendingCount}</span>
-            )}
           </button>
         ))}
       </nav>
@@ -58,7 +55,7 @@ export function IssuerSidebarMobile({ activeTab, setActiveTab, t }: SidebarProps
   const sidebarItems = [
     { id: 'dashboard' as IssuerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'upload' as IssuerTab, label: t('uploadCSV'), icon: <Upload size={18} /> },
-    { id: 'review' as IssuerTab, label: t('manualReview'), icon: <ClipboardCheck size={18} /> },
+    { id: 'credentials' as IssuerTab, label: t('credentialListTitle'), icon: <ClipboardCheck size={18} /> },
     { id: 'analytics' as IssuerTab, label: t('analytics'), icon: <BarChart3 size={18} /> },
   ];
 

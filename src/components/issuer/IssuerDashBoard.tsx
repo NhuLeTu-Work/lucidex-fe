@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Clock, Upload, ChevronRight, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, Upload, AlertTriangle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { monthlyVerifications, mockOwners, mockReviewQueue } from '../../data/mockData';
 import { StatCard } from '../ui/statCard';
@@ -28,8 +28,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('verificationsThisMonth')} value="58" icon={<TrendingUp size={20} />} onClick={() => onTabChange('analytics')} />
-        <StatCard label={t('activeOwners')} value={activeOwners.toString()} icon={<Users size={20} />} onClick={() => {}} />
-        <StatCard label={t('pendingReviews')} value={pendingCount.toString()} icon={<Clock size={20} />} onClick={() => onTabChange('review')} />
+        <StatCard label={t('activeOwners')} value={activeOwners.toString()} icon={<Users size={20} />} onClick={() => { }} />
         <StatCard label={t('uploadCSV')} value="+" icon={<Upload size={20} />} onClick={() => onTabChange('upload')} />
       </div>
 
@@ -40,8 +39,8 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
           <AreaChart data={monthlyVerifications}>
             <defs>
               <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#000" stopOpacity={0.1}/>
-                <stop offset="95%" stopColor="#000" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#000" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="#000" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--ct-border)" />
@@ -55,12 +54,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
 
       {/* Recent Activity */}
       <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">{t('reviewQueue')}</h3>
-          <button onClick={() => onTabChange('review')} className="text-xs flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
-            {t('view')} <ChevronRight size={12} />
-          </button>
-        </div>
+
         {pendingCount === 0 ? (
           <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{t('noReviewItems')}</p>
         ) : (

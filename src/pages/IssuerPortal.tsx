@@ -1,4 +1,4 @@
-import { useApp} from '../app/AppContext';
+import { useApp } from '../app/AppContext';
 import { useIssuerPortal } from '../hooks/issuer/userIssuerRequests';
 import { useEffect } from 'react';
 import { useAuthMe } from '@/hooks/auth/useAuthMe';
@@ -6,16 +6,16 @@ import { useAuthMe } from '@/hooks/auth/useAuthMe';
 import { IssuerSidebarDesktop, IssuerSidebarMobile } from '../components/issuer/IssuerSideBar';
 import { IssuerDashboard } from '../components/issuer/IssuerDashBoard';
 import { IssuerUpload } from '../components/issuer/IssuerUpload';
-import { IssuerReview } from '../components/issuer/IssuerReview';
 import { IssuerAnalytics } from '../components/issuer/IssuerAnalytics';
+import { IssuerCredentialList } from '@/components/issuer/IssuerCredentialList';
 
 export function IssuerPortal() {
   const { t, showToast, logout } = useApp();
   const {
     activeTab, setActiveTab,
-    reviewItems,
+    // reviewItems,
     // uploadState, handleUpload,
-    handleApprove, handleReject, 
+    // handleApprove, handleReject, 
     pendingCount
   } = useIssuerPortal();
   const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
@@ -26,18 +26,18 @@ export function IssuerPortal() {
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
-      <IssuerSidebarDesktop 
-        activeTab={activeTab} setActiveTab={setActiveTab} 
-        pendingCount={pendingCount} t={t} 
+      <IssuerSidebarDesktop
+        activeTab={activeTab} setActiveTab={setActiveTab}
+        pendingCount={pendingCount} t={t}
         userProfile={userProfile}
       />
-      
+
       <main className="flex-1 p-6 lg:p-10 overflow-auto">
-        <IssuerSidebarMobile 
+        <IssuerSidebarMobile
           activeTab={activeTab}
-          setActiveTab={setActiveTab} 
+          setActiveTab={setActiveTab}
           pendingCount={pendingCount}
-          t={t} 
+          t={t}
           userProfile={userProfile}
         />
 
@@ -46,15 +46,15 @@ export function IssuerPortal() {
             userProfile={userProfile}
           />
         )}
-        
+
         {activeTab === 'upload' && (
           <IssuerUpload />
         )}
-        
-        {activeTab === 'review' && (
-          <IssuerReview t={t} items={reviewItems} onApprove={handleApprove} onReject={handleReject} />
+
+        {activeTab === 'credentials' && (
+          <IssuerCredentialList />
         )}
-        
+
         {activeTab === 'analytics' && (
           <IssuerAnalytics t={t} />
         )}
