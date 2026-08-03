@@ -531,4 +531,8 @@ export const en: Record<string, string> = {
     errMatchNotClaimable: "Credential is not claimable yet.",
     claimSuccess: "Credential claimed successfully!",
     noUnclaimedCredentials: "No unclaimed credentials available.",
+    claimCredentialsTitle: "Unclaimed Credentials List",
+    claimNow: "Claim this Credential",
+    claiming: "Claiming...",
+    claimed: "Claimed",
 };

@@ -7,7 +7,7 @@ import { mapOwnerCredentialToCertificateData } from '../certificates/ctuGraduati
 import { useOwnerEkycStatus } from '@/hooks/owner/useOwnerEkycStatus';
 import { useOwnerCredentials } from '@/hooks/owner/useOwnerCredentials';
 import { useOwnerCredentialDetail } from '@/hooks/owner/useOwnerCredentialDetail';
-import { useClaimCredential } from '@/hooks/owner/useClaimCredential';
+import { OwnerClaimModal } from './OwnerClaimModal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,9 +30,9 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
     refetch,
   } = useOwnerCredentials(isVerified);
 
-  const { claimCredentials, isClaiming } = useClaimCredential();
-
   const [openedCredId, setOpenedCredId] = useState<string | null>(null);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState<boolean>(false);
+
   const { data: detailData, isLoading: isDetailLoading } = useOwnerCredentialDetail(openedCredId);
 
   if (isStatusLoading) {
@@ -77,21 +77,9 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
   const unclaimedCount = credentialsData?.summary?.total_unclaimed ?? unclaimedItems.length;
   const totalClaimedCount = credentialsData?.summary?.total_claimed ?? claimedItems.length;
 
-  const handleClaimClick = async () => {
-    // Lọc các credential có thể claim (status = unclaimed & can_claim != false)
-    const claimableItems = unclaimedItems.filter((c) => c.can_claim !== false);
-    const claimableIds = claimableItems.map((c) => c.id);
-
-    if (claimableIds.length === 0) {
-      await refetch();
-      return;
-    }
-
-    // Gọi API POST /api/v1/owner/claim/credentials/{credential_id} cho các credential chưa claim
-    await claimCredentials(claimableIds, async () => {
-      // Sau khi claim thành công -> Toast thông báo + Refetch để cập nhật lại danh sách
-      await refetch();
-    });
+  const handleClaimClick = () => {
+    // Mở modal hiển thị danh sách các bằng chưa claim để user nhận từng bằng độc lập
+    setIsClaimModalOpen(true);
   };
 
   const certificateData = detailData ? mapOwnerCredentialToCertificateData(detailData) : null;
@@ -106,22 +94,18 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
           </Badge>
         </div>
 
-        {/* Nút "Claim Credentials" */}
+        {/* Nút "Claim Credentials" mở modal danh sách bằng chờ nhận */}
         <Button
           onClick={handleClaimClick}
           variant="default"
           className="flex items-center gap-2"
-          disabled={isCredsLoading || isClaiming}
+          disabled={isCredsLoading}
         >
-          {isClaiming ? (
-            <Loader2 className="animate-spin" size={18} />
-          ) : (
-            <Award size={18} />
-          )}
+          <Award size={18} />
           <span>{t('claimCredentialsBtn')}</span>
           {unclaimedCount > 0 ? (
             <Badge variant="secondary" className="ml-1 bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-              {unclaimedCount} {t('unclaimedBadge') || 'unclaimed'}
+              {unclaimedCount}
             </Badge>
           ) : (
             <Badge variant="secondary" className="ml-1 opacity-70">
@@ -153,6 +137,14 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
           ))}
         </div>
       )}
+
+      {/* Modal hiển thị danh sách các bằng chưa nhận để claim từng bằng */}
+      <OwnerClaimModal
+        open={isClaimModalOpen}
+        onClose={() => setIsClaimModalOpen(false)}
+        unclaimedItems={unclaimedItems}
+        onSuccessClaim={() => refetch()}
+      />
 
       {/* Render Viewer Orchestrator khi click vào snippet */}
       {openedCredId && (

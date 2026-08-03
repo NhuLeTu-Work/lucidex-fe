@@ -533,4 +533,8 @@ export const vi: Record<string, string> = {
     errMatchNotClaimable: "Văn bằng chưa đủ điều kiện để nhận.",
     claimSuccess: "Nhận văn bằng thành công!",
     noUnclaimedCredentials: "Không có văn bằng nào cần nhận.",
+    claimCredentialsTitle: "Danh sách Văn bằng Chờ Nhận",
+    claimNow: "Nhận bằng này",
+    claiming: "Đang nhận...",
+    claimed: "Đã Nhận",
 };
