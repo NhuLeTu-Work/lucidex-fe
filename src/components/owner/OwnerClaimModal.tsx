@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '@/app/AppContext';
 import { useClaimCredential } from '@/hooks/owner/useClaimCredential';
 import { useOwnerCredentialDetail } from '@/hooks/owner/useOwnerCredentialDetail';
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -90,32 +91,6 @@ export function OwnerClaimModal({
               {t('claimCredentialsTitle') || 'Danh sách Văn bằng Chờ Nhận'}
             </DialogTitle>
           </div>
-
-          {unclaimedItems.length > 1 && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safeIndex === 0}
-                onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                className="h-8 px-2"
-              >
-                <ChevronLeft size={16} />
-              </Button>
-              <span className="text-xs font-medium px-1" style={{ color: 'var(--ct-text-secondary)' }}>
-                {safeIndex + 1} / {unclaimedItems.length}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safeIndex === unclaimedItems.length - 1}
-                onClick={() => setCurrentIndex((prev) => Math.min(unclaimedItems.length - 1, prev + 1))}
-                className="h-8 px-2"
-              >
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          )}
         </DialogHeader>
 
         <div className="flex-1 max-h-[65vh] overflow-y-auto">
@@ -140,7 +115,7 @@ export function OwnerClaimModal({
                 <FieldItem label={t('fullName') || 'Họ và tên'} value={detailData?.full_name || currentItem.full_name} />
                 <FieldItem label={t('classId') || 'Lớp'} value={detailData?.class_id || currentItem.class_id} />
                 <FieldItem label={t('gradYear') || 'Năm tốt nghiệp'} value={detailData?.graduation_year || currentItem.graduation_year} />
-                <FieldItem label={t('dob') || 'Ngày sinh'} value={detailData?.dob} />
+                <FieldItem label={t('dob') || 'Ngày sinh'} value={formatDateDDMMYYYY(detailData?.dob)} />
                 <FieldItem label={t('major') || 'Chuyên ngành'} value={major} />
                 <FieldItem label={t('degreeType') || 'Loại văn bằng'} value={detailData?.degree_type || 'Bằng tốt nghiệp đại học'} />
                 <FieldItem label={t('classification') || 'Xếp loại'} value={classification} />
@@ -181,6 +156,11 @@ export function OwnerClaimModal({
                 <ChevronLeft size={16} />
                 <span>{t('prev') || 'Trước'}</span>
               </Button>
+
+              <span className="text-xs font-medium px-2" style={{ color: 'var(--ct-text-secondary)' }}>
+                {safeIndex + 1} / {unclaimedItems.length}
+              </span>
+
               <Button
                 variant="outline"
                 size="sm"

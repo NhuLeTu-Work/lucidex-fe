@@ -31,12 +31,12 @@ export interface ParseCsvResult {
 }
 
 // Regex validation rules
-const STUDENT_ID_REGEX = /^B\d{7}$/;
+const STUDENT_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
 const NO_NUMBERS_OR_SPECIAL_REGEX = /^[\p{L}\s]+$/u;
 const NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX = /^[\p{L}\s-]+$/u;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NATIONAL_ID_REGEX = /^\d{12}$/;
-const CLASS_ID_REGEX = /^[a-zA-Z0-9]{8}$/;
+const CLASS_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
 
 /**
  * Kiểm tra định dạng ngày dd/mm/yyyy hợp lệ

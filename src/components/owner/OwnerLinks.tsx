@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Link2, Trash2 } from 'lucide-react';
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 import type { VerifiedLink } from '../../types/owner';
 
 interface OwnerLinksProps {
@@ -39,7 +40,7 @@ export function OwnerLinks({ t, links, onRevoke, onCreate }: OwnerLinksProps) {
                   <p className="text-sm font-mono truncate">{link.url}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs opacity-60">
                     <span>{t('consentType')}: {link.consentType}</span>
-                    <span>{new Date(link.createdAt).toLocaleDateString()}</span>
+                    <span>{formatDateDDMMYYYY(link.createdAt)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4">

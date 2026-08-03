@@ -1,5 +1,6 @@
 import { useApp } from '../../app/AppContext';
 import { useCredentialDetail } from '@/hooks/issuer/useCredentialDetail';
+import { formatDateDDMMYYYY, timeUtil } from '@/utils/timeUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -54,7 +55,7 @@ export function IssuerCredentialDetailModal({ id, onClose }: CredentialDetailMod
               <FieldItem label={t('fullName')} value={data.full_name} />
               <FieldItem label={t('classId')} value={data.class_id} />
               <FieldItem label={t('gradYear')} value={data.graduation_year} />
-              <FieldItem label={t('dob')} value={data.dob} />
+              <FieldItem label={t('dob')} value={formatDateDDMMYYYY(data.dob)} />
               <FieldItem label={t('major')} value={major} />
               <FieldItem label={t('classification')} value={classification} />
               <FieldItem label={t('modeOfStudy')} value={modeOfStudy} />
@@ -71,7 +72,7 @@ export function IssuerCredentialDetailModal({ id, onClose }: CredentialDetailMod
                   )}
                 </div>
               </div>
-              <FieldItem label={t('claimedAt')} value={data.claimed_at ? new Date(data.claimed_at).toLocaleString() : '—'} />
+              <FieldItem label={t('claimedAt')} value={data.claimed_at ? timeUtil(data.claimed_at) : '—'} />
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../app/AppContext';
 import { useCredentialList } from '@/hooks/issuer/useCredentialList';
 import { IssuerCredentialDetailModal } from './IssuerCredentialDetailModal';
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -179,7 +180,7 @@ export function IssuerCredentialList() {
                       )}
                     </TableCell>
                     <TableCell className="px-4" style={{ color: 'var(--ct-text-secondary)' }}>
-                      {item.claimed_at ? new Date(item.claimed_at).toLocaleDateString() : '—'}
+                      {formatDateDDMMYYYY(item.claimed_at)}
                     </TableCell>
                     <TableCell className="text-right pl-4 pr-6">
                       <button

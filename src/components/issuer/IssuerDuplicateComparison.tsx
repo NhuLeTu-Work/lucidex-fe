@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle,
@@ -62,7 +63,11 @@ export function IssuerDuplicateComparison({
 
   const getFieldValue = (record: any, field: { key: string; altKey: string }) => {
     if (!record) return '';
-    return record[field.key] ?? record[field.altKey] ?? '';
+    const val = record[field.key] ?? record[field.altKey] ?? '';
+    if (field.key === 'dob') {
+      return formatDateDDMMYYYY(val);
+    }
+    return val;
   };
 
   // Lọc ra CHỈ NHỮNG TRƯỜNG CÓ DỮ LIỆU KHÁC NHAU

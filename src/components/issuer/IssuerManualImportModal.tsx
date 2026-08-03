@@ -40,6 +40,32 @@ const initialFormData: ImportManualCredentialPayload = {
   overwrite: false,
 };
 
+// Regex constants matching CSV validation standards
+const STUDENT_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
+const CLASS_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
+const NO_NUMBERS_OR_SPECIAL_REGEX = /^[\p{L}\s]+$/u;
+const NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX = /^[\p{L}\s-]+$/u;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NATIONAL_ID_REGEX = /^\d{12}$/;
+const PHONE_REGEX = /^[0-9+\s-]{8,15}$/;
+
+function isValidDateString(dateStr: string): boolean {
+  if (!dateStr.trim()) return false;
+  // Support YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
+    const [y, m, d] = dateStr.trim().split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+  }
+  // Support DD/MM/YYYY
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr.trim())) {
+    const [d, m, y] = dateStr.trim().split('/').map(Number);
+    const date = new Date(y, m - 1, d);
+    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+  }
+  return false;
+}
+
 export function IssuerManualImportModal({
   isOpen,
   onClose,
@@ -70,57 +96,132 @@ export function IssuerManualImportModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Client-side validation: All fields are required
-    if (!formData.student_id.trim()) {
-      showToast('error', t('errStudentIdRequired'));
-      return;
-    }
-    if (!formData.full_name.trim()) {
-      showToast('error', t('errFullNameRequired'));
-      return;
-    }
-    if (!formData.dob.trim()) {
-      showToast('error', t('errDobRequired'));
-      return;
-    }
-    if (!formData.graduation_year || formData.graduation_year < 1900) {
-      showToast('error', t('errGradYearRequired'));
-      return;
-    }
-    if (!formData.university_email.trim()) {
-      showToast('error', t('errUniversityEmailRequired'));
-      return;
-    }
-    if (!formData.major_vi?.trim() ||
-        !formData.major_en?.trim() ||
-        !formData.graduation_classification_vi?.trim() ||
-        !formData.graduation_classification_en?.trim() ||
-        !formData.mode_of_study_vi?.trim() ||
-        !formData.mode_of_study_en?.trim() ||
-        !formData.class_id?.trim() ||
-        !formData.national_id_hash?.trim() ||
-        !formData.phone?.trim()) {
+    // 1. Required check for all fields
+    const sId = formData.student_id.trim();
+    const fName = formData.full_name.trim();
+    const dobVal = formData.dob.trim();
+    const gYear = Number(formData.graduation_year);
+    const emailVal = formData.university_email.trim();
+    const mVi = formData.major_vi?.trim() || '';
+    const mEn = formData.major_en?.trim() || '';
+    const gcVi = formData.graduation_classification_vi?.trim() || '';
+    const gcEn = formData.graduation_classification_en?.trim() || '';
+    const msVi = formData.mode_of_study_vi?.trim() || '';
+    const msEn = formData.mode_of_study_en?.trim() || '';
+    const cId = formData.class_id?.trim() || '';
+    const nId = formData.national_id_hash?.trim() || '';
+    const phoneVal = formData.phone?.trim() || '';
+
+    if (!sId || !fName || !dobVal || !gYear || !emailVal ||
+        !mVi || !mEn || !gcVi || !gcEn || !msVi || !msEn ||
+        !cId || !nId || !phoneVal) {
       showToast('error', t('errFillAllFields'));
+      return;
+    }
+
+    // 2. Strict format validations matching CSV Upload standards
+
+    // Student ID: 2-15 letters + numbers
+    if (!STUDENT_ID_REGEX.test(sId)) {
+      showToast('error', t('errInvalidStudentId').replace('{val}', sId));
+      return;
+    }
+
+    // Full Name: 2-200 chars, no numbers or special chars
+    if (fName.length < 2 || fName.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(fName)) {
+      showToast('error', t('errInvalidFullname'));
+      return;
+    }
+
+    // DOB: valid YYYY-MM-DD or DD/MM/YYYY
+    if (!isValidDateString(dobVal)) {
+      showToast('error', t('errFormatDobDetail').replace('{val}', dobVal));
+      return;
+    }
+
+    // Graduation Year: >= 1970
+    if (isNaN(gYear) || gYear < 1970) {
+      showToast('error', t('errInvalidGradYear').replace('{val}', String(formData.graduation_year)));
+      return;
+    }
+
+    // Email
+    if (!EMAIL_REGEX.test(emailVal)) {
+      showToast('error', t('errInvalidEmail').replace('{val}', emailVal));
+      return;
+    }
+
+    // Major VI: 2-200 chars, no numbers/special
+    if (mVi.length < 2 || mVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(mVi)) {
+      showToast('error', t('errInvalidViMajor'));
+      return;
+    }
+
+    // Major EN: 2-200 chars, no numbers/special
+    if (mEn.length < 2 || mEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(mEn)) {
+      showToast('error', t('errInvalidEnMajor'));
+      return;
+    }
+
+    // Graduation Classification VI: 2-200 chars, no numbers/special
+    if (gcVi.length < 2 || gcVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(gcVi)) {
+      showToast('error', t('errInvalidViGradClass'));
+      return;
+    }
+
+    // Graduation Classification EN: 2-200 chars, no numbers/special
+    if (gcEn.length < 2 || gcEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(gcEn)) {
+      showToast('error', t('errInvalidEnGradClass'));
+      return;
+    }
+
+    // Mode of Study VI: 2-200 chars, allow hyphens
+    if (msVi.length < 2 || msVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX.test(msVi)) {
+      showToast('error', t('errInvalidViMode'));
+      return;
+    }
+
+    // Mode of Study EN: 2-200 chars, allow hyphens
+    if (msEn.length < 2 || msEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX.test(msEn)) {
+      showToast('error', t('errInvalidEnMode'));
+      return;
+    }
+
+    // Class ID: 2-15 letters + numbers
+    if (!CLASS_ID_REGEX.test(cId)) {
+      showToast('error', t('errInvalidClassId').replace('{val}', cId));
+      return;
+    }
+
+    // National ID: 12 digits
+    if (!NATIONAL_ID_REGEX.test(nId)) {
+      showToast('error', t('errInvalidNationalIdDetail').replace('{val}', nId));
+      return;
+    }
+
+    // Phone: valid phone digits
+    if (!PHONE_REGEX.test(phoneVal)) {
+      showToast('error', t('errInvalidPhone').replace('{val}', phoneVal));
       return;
     }
 
     setIsSubmitting(true);
     try {
       const payload: ImportManualCredentialPayload = {
-        student_id: formData.student_id.trim(),
-        full_name: formData.full_name.trim(),
-        dob: formData.dob.trim(),
-        graduation_year: Number(formData.graduation_year),
-        university_email: formData.university_email.trim(),
-        major_vi: formData.major_vi.trim(),
-        major_en: formData.major_en.trim(),
-        graduation_classification_vi: formData.graduation_classification_vi.trim(),
-        graduation_classification_en: formData.graduation_classification_en.trim(),
-        mode_of_study_vi: formData.mode_of_study_vi.trim(),
-        mode_of_study_en: formData.mode_of_study_en.trim(),
-        class_id: formData.class_id.trim(),
-        national_id_hash: formData.national_id_hash.trim(),
-        phone: formData.phone.trim(),
+        student_id: sId,
+        full_name: fName,
+        dob: dobVal,
+        graduation_year: gYear,
+        university_email: emailVal,
+        major_vi: mVi,
+        major_en: mEn,
+        graduation_classification_vi: gcVi,
+        graduation_classification_en: gcEn,
+        mode_of_study_vi: msVi,
+        mode_of_study_en: msEn,
+        class_id: cId,
+        national_id_hash: nId,
+        phone: phoneVal,
         overwrite: !!formData.overwrite,
       };
 

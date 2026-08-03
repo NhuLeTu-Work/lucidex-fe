@@ -1,6 +1,7 @@
 import { BarChart3, History, Search, ArrowRight, ChevronRight, CheckCircle } from 'lucide-react';
 import { mockVerifierVerifyHistory } from '../../data/mockData';
 import { StatCard } from '../ui/statCard';
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 import type { VerifierTab } from '../../types/verifier';
 import type { UserProfile } from '../../api/types/auth.types';
 
@@ -49,7 +50,7 @@ export function VerifierDashboard({ t, quotaUsed, onTabChange, userProfile }: Da
                 <CheckCircle size={14} className="text-green-600" />
                 <span className="text-sm">{h.ownerName}</span>
               </div>
-              <span className="text-xs font-mono opacity-50">{new Date(h.timestamp).toLocaleDateString()}</span>
+              <span className="text-xs font-mono opacity-50">{formatDateDDMMYYYY(h.timestamp)}</span>
             </div>
           ))}
         </div>

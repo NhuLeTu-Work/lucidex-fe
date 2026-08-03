@@ -1,6 +1,4 @@
-// certificateData.ts
-// Nơi khai báo kiểu dữ liệu + dữ liệu truyền vào GraduationCertificate.tsx
-// Thay đổi nội dung tại đây (hoặc fetch từ API/DB) — KHÔNG cần sửa file .tsx / .css
+import { formatDateDDMMYYYY } from '@/utils/timeUtils';
 
 export interface CertificateSideData {
   major: string;            // Ngành học
@@ -20,15 +18,18 @@ export interface CertificateSideData {
 export interface CertificateData {
   en: CertificateSideData;
   vi: CertificateSideData;
-  backgroundImage?: string; // Ảnh phôi nền (2 trang ghép), mặc định './template_cred.png'
-  logoUrl?: string;         // Logo trường (tuỳ chọn), có thể là base64 hoặc URL
+  backgroundImage?: string; // Ảnh phôi nền (2 trang ghép)
+  logoUrl?: string;         // Logo trường (tuỳ chọn)
   regNoLabelEn?: string;    // Nhãn tuỳ biến (mặc định "Reg. No:")
   serialNoLabelEn?: string; // (mặc định "Serial No:")
   regNoLabelVi?: string;    // (mặc định "Số vào sổ:")
   serialNoLabelVi?: string; // (mặc định "Số hiệu:")
 }
 
-// Dữ liệu mẫu — thay bằng dữ liệu thực tế / kết quả fetch API
+export interface CTUGraduationCertificateData extends CertificateSideData {}
+
+export interface CTUGraduationCertificatePackage extends CertificateData {}
+
 export const sampleCertificateData: CertificateData = {
   backgroundImage: "/ctuGraduation/ctuDiplomaBook.png",
   logoUrl: "/ctuGraduation/ctuLogo.png",
@@ -36,7 +37,7 @@ export const sampleCertificateData: CertificateData = {
   en: {
     major: "Information Systems",
     fullName: "Duong Huu Dan",
-    dob: "27 May 2004",
+    dob: "27/05/2004",
     graduationYear: "2026",
     classification: "Excellent",
     studyMode: "Full-time",
@@ -64,7 +65,7 @@ export const sampleCertificateData: CertificateData = {
   },
 };
 
-export function mapOwnerCredentialToCertificateData(detail: any): CertificateData {
+export const getCTUGraduationCertificateData = (detail: any): CertificateData => {
   if (!detail) return sampleCertificateData;
 
   const parseDate = (val: any): Date => {
@@ -86,15 +87,10 @@ export function mapOwnerCredentialToCertificateData(detail: any): CertificateDat
   };
 
   const createdDate = parseDate(detail.created_at);
-  const dobRaw = parseDobString(detail.dob);
+  const dobFormatted = formatDateDDMMYYYY(parseDobString(detail.dob));
 
   const formattedEnDate = `Can Tho, ${createdDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}`;
   const formattedViDate = `Cần Thơ, ngày ${createdDate.getDate()} tháng ${createdDate.getMonth() + 1} năm ${createdDate.getFullYear()}`;
-
-  let dobVi = dobRaw;
-  if (dobVi.includes('-')) {
-    dobVi = dobVi.split('-').reverse().join('/');
-  }
 
   const idStr = typeof detail.id === 'object' && detail.id?.$oid
     ? detail.id.$oid
@@ -107,7 +103,7 @@ export function mapOwnerCredentialToCertificateData(detail: any): CertificateDat
     en: {
       major: detail.major_en || detail.major || detail.major_vi || '',
       fullName: detail.full_name || '',
-      dob: dobRaw,
+      dob: dobFormatted,
       graduationYear: String(detail.graduation_year || ''),
       classification: detail.graduation_classification_en || detail.classification || detail.graduation_classification_vi || '',
       studyMode: detail.mode_of_study_en || detail.mode_of_study_vi || '',
@@ -122,7 +118,7 @@ export function mapOwnerCredentialToCertificateData(detail: any): CertificateDat
     vi: {
       major: detail.major_vi || detail.major || detail.major_en || '',
       fullName: detail.full_name || '',
-      dob: dobVi,
+      dob: dobFormatted,
       graduationYear: String(detail.graduation_year || ''),
       classification: detail.graduation_classification_vi || detail.classification || detail.graduation_classification_en || '',
       studyMode: detail.mode_of_study_vi || detail.mode_of_study_en || '',
@@ -134,4 +130,6 @@ export function mapOwnerCredentialToCertificateData(detail: any): CertificateDat
       signatureText: "Hải",
     },
   };
-}
+};
+
+export const mapOwnerCredentialToCertificateData = getCTUGraduationCertificateData;

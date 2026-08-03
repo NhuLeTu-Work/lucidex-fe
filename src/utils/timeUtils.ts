@@ -8,8 +8,6 @@
 export const timeUtil = (dateString: string): string => {
   if (!dateString) return '';
 
-  // 1. Chuẩn hóa: cắt bớt phần thập phân giây về tối đa 3 chữ số (ms),
-  // và thêm 'Z' nếu chưa có để báo cho JS đây là UTC, không phải giờ local
   let cleanDateString = dateString.trim();
   cleanDateString = cleanDateString.replace(/(\.\d{3})\d*$/, '$1'); // 273000 -> 273
   if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(cleanDateString)) {
@@ -43,4 +41,52 @@ export const timeUtil = (dateString: string): string => {
   const minute = extractPart('minute');
 
   return `${hour}:${minute} ${day}/${month}/${year}`;
+};
+
+/**
+ * Chuyển đổi bất kỳ giá trị ngày/chuỗi ngày nào (VD: "2004-05-27", ISO string, Date object)
+ * Về định dạng chuẩn "dd/mm/yyyy" đồng nhất ở tất cả ngôn ngữ.
+ *
+ * @param {any} val - Chuỗi ngày hoặc đối tượng Date.
+ * @returns {string} - Chuỗi định dạng dd/mm/yyyy, VD: "27/05/2004"
+ */
+export const formatDateDDMMYYYY = (val: any): string => {
+  if (!val) return '—';
+
+  let str = String(val).trim();
+  if (!str) return '—';
+
+  // Lấy phần ngày trước T nếu là chuỗi ISO
+  if (str.includes('T')) {
+    str = str.split('T')[0];
+  }
+
+  // Dạng DD/MM/YYYY hoặc D/M/YYYY
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+    const parts = str.split('/');
+    const d = parts[0].padStart(2, '0');
+    const m = parts[1].padStart(2, '0');
+    const y = parts[2];
+    return `${d}/${m}/${y}`;
+  }
+
+  // Dạng YYYY-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(str)) {
+    const parts = str.split('-');
+    const y = parts[0];
+    const m = parts[1].padStart(2, '0');
+    const d = parts[2].padStart(2, '0');
+    return `${d}/${m}/${y}`;
+  }
+
+  // Khởi tạo đối tượng Date làm phương án dự phòng
+  const dateObj = new Date(val);
+  if (!isNaN(dateObj.getTime())) {
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  return str;
 };
