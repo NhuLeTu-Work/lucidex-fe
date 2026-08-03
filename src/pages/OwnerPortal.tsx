@@ -40,11 +40,11 @@ export function OwnerPortal() {
         {activeTab === 'dashboard' && <OwnerDashboard t={t} links={links} onTabChange={setActiveTab}
           userProfile={userProfile}
         />}
-        {activeTab === 'credentials' && <OwnerCredentials t={t} />}
+        {activeTab === 'credentials' && <OwnerCredentials t={t} onTabChange={setActiveTab} />}
         {activeTab === 'links' && <OwnerLinks t={t} links={links} onRevoke={handleRevokeLink} onCreate={() => setShowCreateModal(true)} />}
         {activeTab === 'audit' && <OwnerAudit t={t} />}
         {activeTab === 'consent' && <OwnerConsent t={t} />}
-        {activeTab === 'ekyc' && <OwnerEkycSetup t={t}/>}
+        {activeTab === 'ekyc' && <OwnerEkycSetup t={t} onTabChange={setActiveTab} />}
       </main>
 
       {showCreateModal && (

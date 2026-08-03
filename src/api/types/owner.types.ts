@@ -1,71 +1,17 @@
-import type { MongoId } from "./common.types";
+export type EkycStatus = 'verified' | 'not_verified';
 
-export type OwnerStatus = "active" | "locked_migrated" | "soft_deleted";
-
-export type ConsentType = "one_time" | "per_request" | "org_level" | "time_bound";
-
-export interface ConsentSettings {
-  default_type: ConsentType;
-  default_org_id: MongoId | null;
-  default_duration: number | null;
+export interface OwnerEkycStatusData {
+  status: EkycStatus;
+  verification_id: string | null;
+  provider: string | null;
+  verified_at: string | null;
 }
 
-export interface Owner {
-  _id: MongoId;
-  email: string;
-  password_hash: string | null; // null nếu đăng ký qua OAuth — KHÔNG nên trả về FE, cần BE strip ở serializer
-  oauth_provider: string | null;
-  oauth_subject_id: string | null;
-  full_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  dob: string | null;
-  status: OwnerStatus;
-  consent_settings: ConsentSettings;
-  deleted_at: string | null; // soft-delete, purge sau 30 ngày
-  purge_after: string | null;
-  restored_at: string | null;
-}
-
-// src/api/types/owner.ts
-
-// Dữ liệu truyền vào (application/json)
-export interface RegisterOwnerPayload {
-  email: string;
-  password: string;
-  confirm_password: string;
-}
-
-// Dữ liệu trả về
-export interface RegisterOwnerResponse {
+export interface OwnerEkycStatusApiResponse {
   success: boolean;
-  data: {
-    id: string;
-    email: string;
-    status: string;
-  };
+  data: OwnerEkycStatusData;
   message: string;
-  error_code: string;
-}
-
-export interface VerifyOwnerOtpPayload {
-  email: string;
-  otp_code: string;
-}
-
-export interface VerifyOwnerOtpResponse {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-    status: string;
-    access_token: string;
-    refresh_token: string;
-    refresh_token_expires_at: string;
-    token_type: string;
-  };
-  message: string;
-  error_code: string;
+  error_code: string | null;
 }
 
 export interface RegisterOwnerPayload {
@@ -75,13 +21,144 @@ export interface RegisterOwnerPayload {
   confirm_password: string;
 }
 
+export interface RegisterOwnerResponseData {
+  email?: string;
+  status?: string;
+}
+
 export interface RegisterOwnerResponse {
   success: boolean;
-  data: {
-    id: string;
-    email: string;
-    status: string;
-  };
+  data?: RegisterOwnerResponseData;
   message: string;
-  error_code: string;
+  error_code?: string | null;
+}
+
+export interface VerifyOwnerOtpPayload {
+  email: string;
+  otp_code: string;
+}
+
+export interface VerifyOwnerOtpResponseData {
+  access_token: string;
+  refresh_token: string;
+  refresh_token_expires_at: string;
+  user?: any;
+}
+
+export interface VerifyOwnerOtpResponse {
+  success: boolean;
+  data?: VerifyOwnerOtpResponseData;
+  message: string;
+  error_code?: string | null;
+}
+
+export interface OwnerCredentialItem {
+  id: string;
+  student_id: string;
+  class_id?: string;
+  full_name: string;
+  graduation_year: number;
+  status: 'claimed' | 'unclaimed';
+  can_claim?: boolean;
+  claimed_at: string | null;
+  created_at?: string;
+}
+
+export interface OwnerCredentialSummary {
+  total_credentials: number;
+  total_claimed: number;
+  total_unclaimed: number;
+}
+
+export interface OwnerPaginationInfo {
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
+}
+
+export interface OwnerCredentialsResponseData {
+  summary: OwnerCredentialSummary;
+  items: OwnerCredentialItem[];
+  pagination: OwnerPaginationInfo;
+}
+
+export interface OwnerCredentialsQueryParams {
+  page?: number;
+  limit?: number;
+  student_id?: string;
+  class_id?: string;
+  graduation_year?: number;
+  status?: 'claimed' | 'unclaimed';
+  search?: string;
+  sort?: string;
+}
+
+export interface OwnerCredentialsApiResponse {
+  success: boolean;
+  data: OwnerCredentialsResponseData;
+  message: string;
+  error_code: string | null;
+}
+
+export interface OwnerCredentialIssuerInfo {
+  id: string;
+  name: string;
+  address: string;
+  contact_email: string;
+  contact_phone: string;
+}
+
+export interface OwnerCredentialDetailData {
+  id: string;
+  issuer_org_id: string;
+  issuer: OwnerCredentialIssuerInfo;
+  student_id: string;
+  class_id: string;
+  full_name: string;
+  dob: string;
+  major_vi: string;
+  major_en: string;
+  degree_type: string;
+  graduation_year: number;
+  graduation_classification_vi: string;
+  graduation_classification_en: string;
+  mode_of_study_vi: string;
+  mode_of_study_en: string;
+  university_email: string;
+  phone: string | null;
+  status: 'claimed' | 'unclaimed';
+  claim_method: string | null;
+  claimed_at: string | null;
+  unclaimed_at: string | null;
+  revoked_reason: string | null;
+  revoked_at: string | null;
+  created_at: string;
+  restored_at: string | null;
+}
+
+export interface OwnerCredentialDetailApiResponse {
+  success: boolean;
+  data: OwnerCredentialDetailData;
+  message: string;
+  error_code: string | null;
+}
+
+export interface ClaimedCredentialResult {
+  id: string;
+  status: 'claimed' | 'unclaimed';
+  claim_method: string;
+  claimed_at: string;
+}
+
+export interface ClaimCredentialData {
+  credential: ClaimedCredentialResult;
+  already_claimed?: boolean;
+}
+
+export interface ClaimCredentialApiResponse {
+  success: boolean;
+  data: ClaimCredentialData;
+  message: string;
+  error_code: string | null;
 }

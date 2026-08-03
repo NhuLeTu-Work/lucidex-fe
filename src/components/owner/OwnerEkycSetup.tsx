@@ -7,18 +7,51 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ScanFace, IdCard, QrCode, Smartphone, Monitor } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScanFace, IdCard, QrCode, Smartphone, Monitor, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useOwnerEkycStatus } from '@/hooks/owner/useOwnerEkycStatus';
+import type { OwnerTab } from '@/types/owner';
 
 interface OwnerEkycSetupProps {
   t: (k: string) => string;
-//   showToast: 
+  onTabChange?: (tab: OwnerTab) => void;
 }
 
-export function OwnerEkycSetup({ t  }: OwnerEkycSetupProps) {
-  const handleStartMobileEkyc = () => {
-    // Giả lập gọi API chuyển hướng sang hệ thống eKYC
-    // showToast('success', t('ekycMobileStarted'));
-  };
+export function OwnerEkycSetup({ t, onTabChange }: OwnerEkycSetupProps) {
+  const { isVerified, isLoading } = useOwnerEkycStatus();
+
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-8 max-w-4xl mx-auto space-y-4">
+        <Skeleton className="h-12 w-3/4 mx-auto" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (isVerified) {
+    return (
+      <div className="p-4 sm:p-8 max-w-2xl mx-auto text-center">
+        <Card className="shadow-sm border-border p-6 sm:p-10 space-y-6">
+          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mx-auto text-green-600 dark:text-green-400">
+            <CheckCircle2 size={36} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-display font-semibold">{t('ekycVerifiedAlready')}</h2>
+          </div>
+          {onTabChange && (
+            <Button
+              onClick={() => onTabChange('credentials')}
+              className="mt-4 inline-flex items-center gap-2"
+            >
+              {t('goToCredentialsBtn')}
+              <ArrowRight size={16} />
+            </Button>
+          )}
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl mx-auto">
@@ -56,7 +89,7 @@ export function OwnerEkycSetup({ t  }: OwnerEkycSetupProps) {
                 <p className="text-sm text-muted-foreground text-center mb-6">
                   {t('qrInstructionDesc')}
                 </p>
-                
+
                 {/* Mockup QR Code */}
                 <div className="p-4 bg-white rounded-2xl shadow-sm border border-border/50">
                   <div className="w-48 h-48 border-2 border-dashed border-muted-foreground/30 rounded-xl flex flex-col items-center justify-center bg-muted/10">
@@ -64,28 +97,6 @@ export function OwnerEkycSetup({ t  }: OwnerEkycSetupProps) {
                     <span className="text-xs text-muted-foreground font-medium">MOCKUP QR</span>
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-
-            {/* TAB MOBILE: Nút gọi API */}
-            <TabsContent value="mobile" className="animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex flex-col items-center justify-center p-8 border rounded-xl bg-muted/20 min-h-[300px]">
-                <div className="bg-background p-4 rounded-full shadow-sm mb-4">
-                  <Smartphone size={32} className="text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{t('mobileInstructionTitle')}</h3>
-                <p className="text-sm text-muted-foreground text-center mb-8">
-                  {t('mobileInstructionDesc')}
-                </p>
-                
-                <Button 
-                  onClick={handleStartMobileEkyc}
-                  style={{ backgroundColor: 'rgba(255,153,190,1)', color: '#000' }}
-                  className="w-full sm:w-auto font-semibold hover:opacity-80 transition-opacity shadow-sm"
-                  size="lg"
-                >
-                  {t('startEkycBtn')}
-                </Button>
               </div>
             </TabsContent>
           </Tabs>
