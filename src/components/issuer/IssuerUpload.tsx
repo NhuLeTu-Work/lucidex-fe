@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, Download } from 'lucide-react';
+import { Upload, Download, UserPlus } from 'lucide-react';
 import { useApp } from '../../app/AppContext';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -8,6 +8,7 @@ import type { DuplicateRecord } from './IssuerDuplicateComparison';
 import { IssuerScanModal } from './IssuerScanModal';
 import { IssuerFileErrorModal } from './IssuerFileErrorModal';
 import type { CsvErrorRecord } from './IssuerFileErrorModal';
+import { IssuerManualImportModal } from './IssuerManualImportModal';
 import { validateCsvContent, filterValidCsvFile } from '@/utils/csvValidator';
 import { checkDuplicatesApi } from '@/api/endpoints/issuer/checkDuplicatesApi';
 import { importCredentialsApi } from '@/api/endpoints/issuer/importCredentialsApi';
@@ -28,6 +29,7 @@ export function IssuerUpload() {
   const [isScanning, setIsScanning] = useState(false);
   const [showCsvErrorModal, setShowCsvErrorModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showManualModal, setShowManualModal] = useState(false);
 
   const handleFileSelect = (file: File) => {
     // 1. Kiểm tra định dạng & dung lượng file gốc
@@ -239,10 +241,17 @@ export function IssuerUpload() {
       <p className="text-sm mb-8 text-muted-foreground">{t('uploadCSVDesc')}</p>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 max-w-2xl gap-4">
-        <Button variant="outline" className="flex items-center gap-2" onClick={handleDownloadTemplate}>
-          <Download size={16} />
-          {t('downloadTemplate')}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="flex items-center gap-2" onClick={handleDownloadTemplate}>
+            <Download size={16} />
+            {t('downloadTemplate')}
+          </Button>
+
+          <Button className="flex items-center gap-2" onClick={() => setShowManualModal(true)}>
+            <UserPlus size={16} />
+            {t('addManualCredential')}
+          </Button>
+        </div>
 
         <div className="flex items-center space-x-2">
           <Checkbox
@@ -310,6 +319,11 @@ export function IssuerUpload() {
         t={t}
         duplicates={duplicateRecords}
         onComplete={handleComparisonComplete}
+      />
+
+      <IssuerManualImportModal
+        isOpen={showManualModal}
+        onClose={() => setShowManualModal(false)}
       />
     </div>
   );
