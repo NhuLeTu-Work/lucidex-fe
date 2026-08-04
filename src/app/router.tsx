@@ -10,8 +10,13 @@ import { IssuerPortal } from '../pages/IssuerPortal';
 import { VerifierPortal } from '../pages/VerifierPortal';
 import { AdminPortal } from '../pages/AdminPortal';
 import { SuperAdminPortal } from '@/pages/SuperAdminPortal';
+import { CredentialStandalonePage } from '@/pages/CredentialStandalonePage';
 
 export const router = createBrowserRouter([
+  {
+    path: '/view/credential/:id',
+    element: <CredentialStandalonePage />,
+  },
   {
     element: <AppLayout />, // header + <Outlet/>
     children: [
