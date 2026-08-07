@@ -57,6 +57,26 @@
   border-right: none;
 }
 
+/* Nhân đôi font-size và logo size khi hiển thị 1 trang trên mobile */
+.gc-book--mobile .gc-country-title { font-size: 3.2cqi; }
+.gc-book--mobile .gc-country-sub { font-size: 2.4cqi; }
+.gc-book--mobile .gc-univ-title { font-size: 3.2cqi; }
+.gc-book--mobile .gc-confer-text { font-size: 3.0cqi; }
+.gc-book--mobile .gc-degree-title { font-size: 3.6cqi; }
+.gc-book--mobile .gc-major-title { font-size: 3.0cqi; }
+.gc-book--mobile .gc-center-logo img { width: 16cqi; }
+
+.gc-book--mobile .gc-info-label { font-size: 2.6cqi; }
+.gc-book--mobile .gc-info-value { font-size: 2.6cqi; }
+.gc-book--mobile .gc-name-val { font-size: 3.4cqi; }
+
+.gc-book--mobile .gc-reg-box { font-size: 2.2cqi; }
+.gc-book--mobile .gc-signature-box .gc-date { font-size: 2.4cqi; }
+.gc-book--mobile .gc-signature-box .gc-title { font-size: 2.2cqi; }
+.gc-book--mobile .gc-mock-signature { font-size: 3.4cqi; }
+.gc-book--mobile .gc-signer-name { font-size: 2.2cqi; }
+.gc-book--mobile .gc-red-seal { font-size: 1.4cqi; }
+
 .gc-page {
   flex: 1;
   height: 100%;

@@ -115,33 +115,8 @@ export function CredentialStandalonePage() {
 
   return (
     <div className="fixed inset-0 w-screen h-screen bg-[#2A3439] text-white flex flex-col justify-between items-center overflow-hidden select-none p-3 sm:p-6">
-      {/* Top Bar: Nút Đóng & Bộ chuyển ngôn ngữ dạng Tab */}
-      <div className="w-full max-w-lg flex items-center justify-between z-50">
-        {!isLoading && data ? (
-          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-full border border-white/10 backdrop-blur-md">
-            <button
-              onClick={() => toggleLanguage('vi')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                activeLang === 'vi'
-                  ? 'bg-amber-500 text-black shadow-md'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              <span>Tiếng Việt</span>
-            </button>
-            <button
-              onClick={() => toggleLanguage('en')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                activeLang === 'en'
-                  ? 'bg-amber-500 text-black shadow-md'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              <span>English</span>
-            </button>
-          </div>
-        ) : <div />}
-
+      {/* Top Bar: Nút Đóng */}
+      <div className="w-full max-w-md flex items-center justify-end z-50">
         <button
           onClick={handleClose}
           className="p-2.5 bg-black/40 hover:bg-black/60 active:bg-black/80 rounded-full text-white/80 hover:text-white backdrop-blur-md transition-all border border-white/10"
@@ -207,31 +182,31 @@ export function CredentialStandalonePage() {
 
       {/* Bottom Pagination & Navigation Controls */}
       {!isLoading && data && (
-        <div className="w-full max-w-md flex items-center justify-between z-50 pt-2 pb-1 px-4">
+        <div className="w-full max-w-md flex items-center justify-between z-50 pt-2 pb-1 px-2">
           <button
-            onClick={() => toggleLanguage(activeLang === 'vi' ? 'en' : 'vi')}
+            onClick={() => toggleLanguage('en')}
             disabled={activeLang === 'en'}
-            className={`flex items-center gap-1 px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-medium transition-all ${
-              activeLang === 'en' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/60 active:scale-95'
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${
+              activeLang === 'en' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
             }`}
           >
-            <ChevronLeft size={16} />
-            <span>Trang tiếng Anh</span>
+            <ChevronLeft size={18} />
+            <span>Tiếng Anh</span>
           </button>
 
-          <span className="text-xs text-white/60 font-mono">
+          <span className="text-sm text-white/60 font-mono">
             {activeLang === 'en' ? '1 / 2' : '2 / 2'}
           </span>
 
           <button
-            onClick={() => toggleLanguage(activeLang === 'vi' ? 'en' : 'vi')}
+            onClick={() => toggleLanguage('vi')}
             disabled={activeLang === 'vi'}
-            className={`flex items-center gap-1 px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-medium transition-all ${
-              activeLang === 'vi' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/60 active:scale-95'
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${
+              activeLang === 'vi' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
             }`}
           >
-            <span>Trang tiếng Việt</span>
-            <ChevronRight size={16} />
+            <span>Tiếng Việt</span>
+            <ChevronRight size={18} />
           </button>
         </div>
       )}
