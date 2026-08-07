@@ -4,6 +4,8 @@ import type { CertificateData, CertificateSideData } from "./certificateData";
 
 interface GraduationCertificateProps {
   data: CertificateData;
+  activeLang?: "en" | "vi";
+  isMobileMode?: boolean;
 }
 
 interface CertificatePageProps {
@@ -144,30 +146,42 @@ export function CertificatePage({
 
 export function GraduationCertificate({
   data,
+  activeLang = "vi",
+  isMobileMode = false,
 }: GraduationCertificateProps) {
   const bg = data.backgroundImage ?? "./template_cred.png";
 
   return (
-    <div className="gc-wrap">
+    <div className={`gc-wrap ${isMobileMode ? "gc-wrap--mobile" : ""}`}>
       <div
-        className="gc-book"
+        className={`gc-book ${isMobileMode ? "gc-book--mobile" : ""}`}
         style={{
           backgroundImage: `url(${bg})`,
         }}
       >
-        <CertificatePage
-          lang="en"
-          d={data.en}
-          logoUrl={data.logoUrl}
-          side="left"
-        />
-
-        <CertificatePage
-          lang="vi"
-          d={data.vi}
-          logoUrl={data.logoUrl}
-          side="right"
-        />
+        {isMobileMode ? (
+          <CertificatePage
+            lang={activeLang}
+            d={activeLang === "en" ? data.en : data.vi}
+            logoUrl={data.logoUrl}
+            side={activeLang === "en" ? "left" : "right"}
+          />
+        ) : (
+          <>
+            <CertificatePage
+              lang="en"
+              d={data.en}
+              logoUrl={data.logoUrl}
+              side="left"
+            />
+            <CertificatePage
+              lang="vi"
+              d={data.vi}
+              logoUrl={data.logoUrl}
+              side="right"
+            />
+          </>
+        )}
       </div>
     </div>
   );

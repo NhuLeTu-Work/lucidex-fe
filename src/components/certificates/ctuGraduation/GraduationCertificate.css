@@ -41,6 +41,22 @@
   container-type: inline-size;
 }
 
+.gc-wrap--mobile {
+  padding: 10px;
+}
+
+.gc-book--mobile {
+  aspect-ratio: 820 / 1200;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.gc-book--mobile .gc-page {
+  border-left: none;
+  border-right: none;
+}
+
 .gc-page {
   flex: 1;
   height: 100%;

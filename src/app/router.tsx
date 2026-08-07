@@ -14,7 +14,7 @@ import { CredentialStandalonePage } from '@/pages/CredentialStandalonePage';
 
 export const router = createBrowserRouter([
   {
-    path: '/view/credential/:id',
+    path: '/owner/view/credential/:id',
     element: <CredentialStandalonePage />,
   },
   {
