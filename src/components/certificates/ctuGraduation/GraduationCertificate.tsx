@@ -149,7 +149,13 @@ export function GraduationCertificate({
   activeLang = "vi",
   isMobileMode = false,
 }: GraduationCertificateProps) {
-  const bg = data.backgroundImage ?? "./template_cred.png";
+  let bg = data.backgroundImage ?? "/ctuGraduation/ctuDiplomaBook-Web.png";
+
+  if (isMobileMode) {
+    bg = activeLang === "en"
+      ? "/ctuGraduation/ctuDiplomaBook-MobileEng.png"
+      : "/ctuGraduation/ctuDiplomaBook-MobileViet.png";
+  }
 
   return (
     <div className={`gc-wrap ${isMobileMode ? "gc-wrap--mobile" : ""}`}>

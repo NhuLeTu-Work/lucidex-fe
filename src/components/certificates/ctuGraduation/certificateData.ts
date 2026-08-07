@@ -31,7 +31,7 @@ export interface CTUGraduationCertificateData extends CertificateSideData {}
 export interface CTUGraduationCertificatePackage extends CertificateData {}
 
 export const sampleCertificateData: CertificateData = {
-  backgroundImage: "/ctuGraduation/ctuDiplomaBook.png",
+  backgroundImage: "/ctuGraduation/ctuDiplomaBook-Web.png",
   logoUrl: "/ctuGraduation/ctuLogo.png",
 
   en: {
@@ -97,7 +97,7 @@ export const getCTUGraduationCertificateData = (detail: any): CertificateData =>
     : String(detail.id || detail._id || '');
 
   return {
-    backgroundImage: "/ctuGraduation/ctuDiplomaBook.png",
+    backgroundImage: "/ctuGraduation/ctuDiplomaBook-Web.png",
     logoUrl: "/ctuGraduation/ctuLogo.png",
 
     en: {
