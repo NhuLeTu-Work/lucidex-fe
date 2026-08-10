@@ -39,7 +39,17 @@ export function OwnerLinks({ t, links, onRevoke, onCreate }: OwnerLinksProps) {
                   </div>
                   <p className="text-sm font-mono truncate">{link.url}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs opacity-60">
-                    <span>{t('consentType')}: {link.consentType}</span>
+                    <span>
+                      {t('consentType')}: {
+                        link.consentType === 'access_number' ? t('accessNumberConsent') :
+                        link.consentType === 'time_bound' ? t('timeBoundConsent') :
+                        link.consentType === 'customize' ? t('customizeConsent') :
+                        link.consentType === 'one_time' ? t('oneTimeConsent') :
+                        link.consentType === 'per_request' ? t('perRequestConsent') :
+                        link.consentType === 'org_level' ? t('orgLevelConsent') :
+                        link.consentType
+                      }
+                    </span>
                     <span>{formatDateDDMMYYYY(link.createdAt)}</span>
                   </div>
                 </div>

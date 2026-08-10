@@ -19,10 +19,9 @@ export function CreateLinkModal({ t, onClose, onCreate }: CreateLinkModalProps) 
   ];
 
   const consentOptions = [
-    { value: 'one_time', label: t('oneTimeConsent') },
-    { value: 'per_request', label: t('perRequestConsent') },
-    { value: 'org_level', label: t('orgLevelConsent') },
+    { value: 'access_number', label: t('accessNumberConsent') },
     { value: 'time_bound', label: t('timeBoundConsent') },
+    { value: 'customize', label: t('customizeConsent') },
   ];
 
   return (
