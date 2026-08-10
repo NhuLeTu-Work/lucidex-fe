@@ -4,17 +4,21 @@ export interface ImportManualCredentialPayload {
   student_id: string;
   full_name: string;
   dob: string;
-  graduation_year: number;
-  university_email: string;
-  major_vi?: string;
-  major_en?: string;
-  graduation_classification_vi?: string;
-  graduation_classification_en?: string;
-  mode_of_study_vi?: string;
-  mode_of_study_en?: string;
-  class_id?: string;
-  national_id_hash?: string;
-  phone?: string;
+  class_id: string;
+  graduation_year?: number;
+  university_email?: string;
+  major?: string;
+  classification?: string;
+  mode_of_study?: string;
+  national_id?: string;
+  place_of_birth?: string;
+  gender?: string | null;
+  faculty?: string;
+  specialization?: string;
+  cpa?: number | null;
+  degree_number?: string;
+  register_number?: string;
+  degree_type?: string;
   overwrite?: boolean;
 }
 

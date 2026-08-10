@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/dialog';
 import { importManualCredentialApi } from '@/api/endpoints/issuer/importManualCredentialApi';
 import type { ImportManualCredentialPayload } from '@/api/endpoints/issuer/importManualCredentialApi';
+import {
+  CODE_KEY_REGEX,
+  isValidGeneralText,
+  isValidDateDDMMYYYY,
+  isValidDecimalNumber,
+  sanitizeTextField,
+  extractGraduationYear,
+} from '@/utils/csvValidator';
 import { UserPlus, Loader2 } from 'lucide-react';
 
 interface IssuerManualImportModalProps {
@@ -22,49 +30,28 @@ interface IssuerManualImportModalProps {
   onSuccess?: () => void;
 }
 
-const initialFormData: ImportManualCredentialPayload = {
+const initialFormData = {
+  stt: '',
   student_id: '',
   full_name: '',
   dob: '',
-  graduation_year: new Date().getFullYear(),
-  university_email: '',
-  major_vi: '',
-  major_en: '',
-  graduation_classification_vi: '',
-  graduation_classification_en: '',
-  mode_of_study_vi: '',
-  mode_of_study_en: '',
+  place_of_birth: '',
+  gender: '',
   class_id: '',
-  national_id_hash: '',
-  phone: '',
+  faculty: '',
+  major: '',
+  specialization: '',
+  cpa: '',
+  classification: '',
+  degree_number: '',
+  register_number: '',
+  national_id: '',
+  degree_type: 'Bằng tốt nghiệp đại học',
+  graduation_year: '',
+  mode_of_study: '',
+  university_email: '',
   overwrite: false,
 };
-
-// Regex constants matching CSV validation standards
-const STUDENT_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
-const CLASS_ID_REGEX = /^[a-zA-Z0-9]{2,15}$/;
-const NO_NUMBERS_OR_SPECIAL_REGEX = /^[\p{L}\s]+$/u;
-const NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX = /^[\p{L}\s-]+$/u;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const NATIONAL_ID_REGEX = /^\d{12}$/;
-const PHONE_REGEX = /^[0-9+\s-]{8,15}$/;
-
-function isValidDateString(dateStr: string): boolean {
-  if (!dateStr.trim()) return false;
-  // Support YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
-    const [y, m, d] = dateStr.trim().split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
-  }
-  // Support DD/MM/YYYY
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr.trim())) {
-    const [d, m, y] = dateStr.trim().split('/').map(Number);
-    const date = new Date(y, m - 1, d);
-    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
-  }
-  return false;
-}
 
 export function IssuerManualImportModal({
   isOpen,
@@ -72,10 +59,10 @@ export function IssuerManualImportModal({
   onSuccess,
 }: IssuerManualImportModalProps) {
   const { t, showToast } = useApp();
-  const [formData, setFormData] = useState<ImportManualCredentialPayload>(initialFormData);
+  const [formData, setFormData] = useState(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: keyof ImportManualCredentialPayload, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -96,114 +83,82 @@ export function IssuerManualImportModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Required check for all fields
-    const sId = formData.student_id.trim();
-    const fName = formData.full_name.trim();
-    const dobVal = formData.dob.trim();
-    const gYear = Number(formData.graduation_year);
-    const emailVal = formData.university_email.trim();
-    const mVi = formData.major_vi?.trim() || '';
-    const mEn = formData.major_en?.trim() || '';
-    const gcVi = formData.graduation_classification_vi?.trim() || '';
-    const gcEn = formData.graduation_classification_en?.trim() || '';
-    const msVi = formData.mode_of_study_vi?.trim() || '';
-    const msEn = formData.mode_of_study_en?.trim() || '';
-    const cId = formData.class_id?.trim() || '';
-    const nId = formData.national_id_hash?.trim() || '';
-    const phoneVal = formData.phone?.trim() || '';
+    // Sanitize slash inputs '\' -> '/'
+    const sId = sanitizeTextField(formData.student_id);
+    const fName = sanitizeTextField(formData.full_name);
+    const dobVal = sanitizeTextField(formData.dob);
+    const cId = sanitizeTextField(formData.class_id);
+    const placeBirth = sanitizeTextField(formData.place_of_birth);
+    const genderVal = formData.gender === 'N' ? 'N' : null;
+    const fac = sanitizeTextField(formData.faculty);
+    const maj = sanitizeTextField(formData.major);
+    const spec = sanitizeTextField(formData.specialization);
+    const cpaVal = formData.cpa.trim();
+    const classif = sanitizeTextField(formData.classification);
+    const degNum = sanitizeTextField(formData.degree_number);
+    const regNum = sanitizeTextField(formData.register_number);
+    const natId = sanitizeTextField(formData.national_id);
+    const degType = sanitizeTextField(formData.degree_type) || 'Bằng tốt nghiệp đại học';
+    const emailVal = sanitizeTextField(formData.university_email);
+    const modeStudy = sanitizeTextField(formData.mode_of_study);
 
-    if (!sId || !fName || !dobVal || !gYear || !emailVal ||
-        !mVi || !mEn || !gcVi || !gcEn || !msVi || !msEn ||
-        !cId || !nId || !phoneVal) {
-      showToast('error', t('errFillAllFields'));
+    // 1. Check required mandatory fields
+    if (!sId || !fName || !dobVal || !cId) {
+      showToast('error', t('errFillAllFields') || 'Vui lòng điền đầy đủ các trường bắt buộc');
       return;
     }
 
-    // 2. Strict format validations matching CSV Upload standards
-
-    // Student ID: 2-15 letters + numbers
-    if (!STUDENT_ID_REGEX.test(sId)) {
-      showToast('error', t('errInvalidStudentId').replace('{val}', sId));
+    // 2. Strict format validations
+    // MSSV / Mã SV: 2 - 15 ký tự (Chữ, số, -, _)
+    if (!CODE_KEY_REGEX.test(sId)) {
+      showToast('error', t('errInvalidStudentId') ? t('errInvalidStudentId').replace('{val}', sId) : 'Mã SV không hợp lệ (2-15 ký tự chữ, số, -, _)');
       return;
     }
 
-    // Full Name: 2-200 chars, no numbers or special chars
-    if (fName.length < 2 || fName.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(fName)) {
-      showToast('error', t('errInvalidFullname'));
+    // Full Name: 2-200 chars, no special characters (@, #, $, %, etc.)
+    if (fName.length < 2 || fName.length > 200 || !isValidGeneralText(fName, 2, 200)) {
+      showToast('error', t('errInvalidFullname') || 'Họ và tên không hợp lệ (2-200 ký tự, không chứa ký tự đặc biệt)');
       return;
     }
 
-    // DOB: valid YYYY-MM-DD or DD/MM/YYYY
-    if (!isValidDateString(dobVal)) {
-      showToast('error', t('errFormatDobDetail').replace('{val}', dobVal));
+    // DOB: dd/mm/yyyy
+    if (!isValidDateDDMMYYYY(dobVal)) {
+      showToast('error', t('errFormatDobDetail') ? t('errFormatDobDetail').replace('{val}', dobVal) : 'Ngày sinh không hợp lệ (định dạng dd/mm/yyyy)');
       return;
     }
 
-    // Graduation Year: >= 1970
-    if (isNaN(gYear) || gYear < 1970) {
-      showToast('error', t('errInvalidGradYear').replace('{val}', String(formData.graduation_year)));
+    // Class ID / Lớp: 2-15 chars (Chữ, số, -, _)
+    if (!CODE_KEY_REGEX.test(cId)) {
+      showToast('error', t('errInvalidClassId') ? t('errInvalidClassId').replace('{val}', cId) : 'Mã lớp không hợp lệ (2-15 ký tự)');
       return;
     }
 
-    // Email
-    if (!EMAIL_REGEX.test(emailVal)) {
-      showToast('error', t('errInvalidEmail').replace('{val}', emailVal));
+    // CPA decimal check if provided
+    if (cpaVal && !isValidDecimalNumber(cpaVal)) {
+      showToast('error', t('errInvalidCpa') || 'Điểm CPA phải là số thập phân');
       return;
     }
 
-    // Major VI: 2-200 chars, no numbers/special
-    if (mVi.length < 2 || mVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(mVi)) {
-      showToast('error', t('errInvalidViMajor'));
-      return;
+    // Optional text fields format check
+    const textCheckList: [string, string][] = [
+      ['Nơi sinh', placeBirth],
+      ['Khoa / Viện', fac],
+      ['Ngành học', maj],
+      ['Chuyên ngành', spec],
+      ['Xếp loại', classif],
+      ['Số hiệu bằng', degNum],
+      ['Số vào sổ gốc', regNum],
+    ];
+
+    for (const [label, val] of textCheckList) {
+      if (val && !isValidGeneralText(val, 2, 300)) {
+        showToast('error', `${label} không hợp lệ (chỉ chấp nhận chữ, số, -, / và không chứa ký tự đặc biệt @, #, $,...)`);
+        return;
+      }
     }
 
-    // Major EN: 2-200 chars, no numbers/special
-    if (mEn.length < 2 || mEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(mEn)) {
-      showToast('error', t('errInvalidEnMajor'));
-      return;
-    }
-
-    // Graduation Classification VI: 2-200 chars, no numbers/special
-    if (gcVi.length < 2 || gcVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(gcVi)) {
-      showToast('error', t('errInvalidViGradClass'));
-      return;
-    }
-
-    // Graduation Classification EN: 2-200 chars, no numbers/special
-    if (gcEn.length < 2 || gcEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_REGEX.test(gcEn)) {
-      showToast('error', t('errInvalidEnGradClass'));
-      return;
-    }
-
-    // Mode of Study VI: 2-200 chars, allow hyphens
-    if (msVi.length < 2 || msVi.length > 200 || !NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX.test(msVi)) {
-      showToast('error', t('errInvalidViMode'));
-      return;
-    }
-
-    // Mode of Study EN: 2-200 chars, allow hyphens
-    if (msEn.length < 2 || msEn.length > 200 || !NO_NUMBERS_OR_SPECIAL_ALLOW_HYPHEN_REGEX.test(msEn)) {
-      showToast('error', t('errInvalidEnMode'));
-      return;
-    }
-
-    // Class ID: 2-15 letters + numbers
-    if (!CLASS_ID_REGEX.test(cId)) {
-      showToast('error', t('errInvalidClassId').replace('{val}', cId));
-      return;
-    }
-
-    // National ID: 12 digits
-    if (!NATIONAL_ID_REGEX.test(nId)) {
-      showToast('error', t('errInvalidNationalIdDetail').replace('{val}', nId));
-      return;
-    }
-
-    // Phone: valid phone digits
-    if (!PHONE_REGEX.test(phoneVal)) {
-      showToast('error', t('errInvalidPhone').replace('{val}', phoneVal));
-      return;
-    }
+    // Auto calculate graduation year from class code or input
+    const gradYearNum = extractGraduationYear(cId, formData.graduation_year);
 
     setIsSubmitting(true);
     try {
@@ -211,17 +166,21 @@ export function IssuerManualImportModal({
         student_id: sId,
         full_name: fName,
         dob: dobVal,
-        graduation_year: gYear,
-        university_email: emailVal,
-        major_vi: mVi,
-        major_en: mEn,
-        graduation_classification_vi: gcVi,
-        graduation_classification_en: gcEn,
-        mode_of_study_vi: msVi,
-        mode_of_study_en: msEn,
         class_id: cId,
-        national_id_hash: nId,
-        phone: phoneVal,
+        graduation_year: gradYearNum,
+        university_email: emailVal || undefined,
+        major: maj || undefined,
+        classification: classif || undefined,
+        mode_of_study: modeStudy || undefined,
+        national_id: natId || undefined,
+        place_of_birth: placeBirth || undefined,
+        gender: genderVal,
+        faculty: fac || undefined,
+        specialization: spec || undefined,
+        cpa: cpaVal ? Number(cpaVal) : null,
+        degree_number: degNum || undefined,
+        register_number: regNum || undefined,
+        degree_type: degType,
         overwrite: !!formData.overwrite,
       };
 
@@ -232,21 +191,21 @@ export function IssuerManualImportModal({
           'success',
           response.message ||
             (response.data?.action === 'updated'
-              ? t('manualUpdateSuccess')
-              : t('manualCreateSuccess'))
+              ? t('manualUpdateSuccess') || 'Cập nhật thành công'
+              : t('manualCreateSuccess') || 'Thêm thành công')
         );
         handleReset();
         onClose();
         if (onSuccess) onSuccess();
       } else {
-        showToast('error', response.message || t('manualAddFailed'));
+        showToast('error', response.message || t('manualAddFailed') || 'Thêm thất bại');
       }
     } catch (err: any) {
       const apiErrCode = err?.response?.data?.error_code;
       const apiErrMessage = err?.response?.data?.message || err?.message || t('manualAddFailed');
 
       if (apiErrCode === 'CREDENTIAL_ALREADY_EXISTS') {
-        showToast('error', t('credentialAlreadyExistsMsg'));
+        showToast('error', t('credentialAlreadyExistsMsg') || 'Dữ liệu đã tồn tại');
       } else {
         showToast('error', apiErrMessage);
       }
@@ -257,31 +216,44 @@ export function IssuerManualImportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-3xl w-[92vw] max-h-[90vh] flex flex-col p-6 gap-4 overflow-hidden">
+      <DialogContent className="sm:max-w-4xl w-[94vw] max-h-[90vh] flex flex-col p-6 gap-4 overflow-hidden">
         <DialogHeader className="shrink-0 border-b pb-3">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <UserPlus className="w-5 h-5 text-primary" />
-            {t('addManualCredentialTitle')}
+            {t('addManualCredentialTitle') || 'Nhập thủ công 1 bằng cấp'}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {t('addManualCredentialDesc')}
+            {t('addManualCredentialDesc') || 'Điền đầy đủ các thông tin chi tiết dưới đây.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form id="manual-import-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-5">
+        <form id="manual-import-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-6">
+          {/* Nhóm 1: Thông tin cá nhân */}
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">
-              {t('credentialInfo')}
+            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+              I. Nhóm Thông tin cá nhân
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* STT */}
+              <div className="space-y-1.5">
+                <Label htmlFor="stt" className="text-xs font-medium">1. Số thứ tự (STT)</Label>
+                <Input
+                  id="stt"
+                  placeholder="VD: 1, 2..."
+                  value={formData.stt}
+                  onChange={(e) => handleChange('stt', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
               {/* MSSV */}
               <div className="space-y-1.5">
                 <Label htmlFor="student_id" className="text-xs font-medium">
-                  {t('studentIdLabel')} <span className="text-destructive">*</span>
+                  2. Mã SV / MSSV <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="student_id"
-                  placeholder="VD: SV21110001"
+                  placeholder="VD: 20110345"
                   value={formData.student_id}
                   onChange={(e) => handleChange('student_id', e.target.value)}
                   disabled={isSubmitting}
@@ -289,10 +261,10 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Full Name */}
+              {/* Họ và Tên */}
               <div className="space-y-1.5">
                 <Label htmlFor="full_name" className="text-xs font-medium">
-                  {t('fullNameLabel')} <span className="text-destructive">*</span>
+                  3. Họ và Tên <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
@@ -304,15 +276,14 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* DOB */}
+              {/* Ngày sinh */}
               <div className="space-y-1.5">
                 <Label htmlFor="dob" className="text-xs font-medium">
-                  {t('dobLabel')} <span className="text-destructive">*</span>
+                  4. Ngày sinh (dd/mm/yyyy) <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="dob"
-                  type="date"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="VD: 15/08/2002"
                   value={formData.dob}
                   onChange={(e) => handleChange('dob', e.target.value)}
                   disabled={isSubmitting}
@@ -320,136 +291,71 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Graduation Year */}
+              {/* Nơi sinh */}
               <div className="space-y-1.5">
-                <Label htmlFor="graduation_year" className="text-xs font-medium">
-                  {t('graduationYearLabel')} <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="place_of_birth" className="text-xs font-medium">5. Nơi sinh</Label>
                 <Input
-                  id="graduation_year"
-                  type="number"
-                  placeholder="VD: 2025"
-                  value={formData.graduation_year}
-                  onChange={(e) => handleChange('graduation_year', e.target.value)}
+                  id="place_of_birth"
+                  placeholder="VD: Cần Thơ, Hà Nội"
+                  value={formData.place_of_birth}
+                  onChange={(e) => handleChange('place_of_birth', e.target.value)}
                   disabled={isSubmitting}
-                  required
                 />
               </div>
 
-              {/* Email */}
+              {/* Giới tính / Nữ */}
+              <div className="space-y-1.5">
+                <Label htmlFor="gender" className="text-xs font-medium">6. Nữ (N hoặc để trống)</Label>
+                <Input
+                  id="gender"
+                  placeholder="N hoặc để trống"
+                  value={formData.gender}
+                  onChange={(e) => handleChange('gender', e.target.value.toUpperCase())}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* CCCD */}
+              <div className="space-y-1.5">
+                <Label htmlFor="national_id" className="text-xs font-medium">15. Căn cước công dân</Label>
+                <Input
+                  id="national_id"
+                  placeholder="VD: 079202012345"
+                  value={formData.national_id}
+                  onChange={(e) => handleChange('national_id', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* University Email */}
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="university_email" className="text-xs font-medium">
-                  {t('universityEmailLabel')} <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="university_email" className="text-xs font-medium">Email trường</Label>
                 <Input
                   id="university_email"
                   type="email"
-                  placeholder="VD: an.nv21110001@student.edu.vn"
+                  placeholder="VD: an.nv20110345@student.ctu.edu.vn"
                   value={formData.university_email}
                   onChange={(e) => handleChange('university_email', e.target.value)}
                   disabled={isSubmitting}
-                  required
                 />
               </div>
+            </div>
+          </div>
 
-              {/* Major VI */}
-              <div className="space-y-1.5">
-                <Label htmlFor="major_vi" className="text-xs font-medium">
-                  {t('majorViLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="major_vi"
-                  placeholder="VD: Khoa học máy tính"
-                  value={formData.major_vi}
-                  onChange={(e) => handleChange('major_vi', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Major EN */}
-              <div className="space-y-1.5">
-                <Label htmlFor="major_en" className="text-xs font-medium">
-                  {t('majorEnLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="major_en"
-                  placeholder="VD: Computer Science"
-                  value={formData.major_en}
-                  onChange={(e) => handleChange('major_en', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Classification VI */}
-              <div className="space-y-1.5">
-                <Label htmlFor="graduation_classification_vi" className="text-xs font-medium">
-                  {t('gradClassViLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="graduation_classification_vi"
-                  placeholder="VD: Giỏi, Xuất sắc, Khá"
-                  value={formData.graduation_classification_vi}
-                  onChange={(e) => handleChange('graduation_classification_vi', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Classification EN */}
-              <div className="space-y-1.5">
-                <Label htmlFor="graduation_classification_en" className="text-xs font-medium">
-                  {t('gradClassEnLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="graduation_classification_en"
-                  placeholder="VD: Good, Excellent, Fair"
-                  value={formData.graduation_classification_en}
-                  onChange={(e) => handleChange('graduation_classification_en', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Mode of Study VI */}
-              <div className="space-y-1.5">
-                <Label htmlFor="mode_of_study_vi" className="text-xs font-medium">
-                  {t('modeStudyViLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="mode_of_study_vi"
-                  placeholder="VD: Chính quy, Vừa học vừa làm"
-                  value={formData.mode_of_study_vi}
-                  onChange={(e) => handleChange('mode_of_study_vi', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Mode of Study EN */}
-              <div className="space-y-1.5">
-                <Label htmlFor="mode_of_study_en" className="text-xs font-medium">
-                  {t('modeStudyEnLabel')} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="mode_of_study_en"
-                  placeholder="VD: Full-time, Part-time"
-                  value={formData.mode_of_study_en}
-                  onChange={(e) => handleChange('mode_of_study_en', e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              {/* Class ID */}
+          {/* Nhóm 2: Thông tin học vụ */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+              II. Nhóm Thông tin học vụ
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Lớp / Khóa */}
               <div className="space-y-1.5">
                 <Label htmlFor="class_id" className="text-xs font-medium">
-                  {t('classIdLabel')} <span className="text-destructive">*</span>
+                  7. Lớp / Khóa <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="class_id"
-                  placeholder="VD: 21KMT1"
+                  placeholder="VD: IT1-K62"
                   value={formData.class_id}
                   onChange={(e) => handleChange('class_id', e.target.value)}
                   disabled={isSubmitting}
@@ -457,33 +363,131 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* National ID */}
+              {/* Khoa / Viện */}
               <div className="space-y-1.5">
-                <Label htmlFor="national_id_hash" className="text-xs font-medium">
-                  {t('nationalIdLabel')} <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="faculty" className="text-xs font-medium">8. Khoa / Viện</Label>
                 <Input
-                  id="national_id_hash"
-                  placeholder="VD: 079203012345"
-                  value={formData.national_id_hash}
-                  onChange={(e) => handleChange('national_id_hash', e.target.value)}
+                  id="faculty"
+                  placeholder="VD: Công nghệ Thông tin"
+                  value={formData.faculty}
+                  onChange={(e) => handleChange('faculty', e.target.value)}
                   disabled={isSubmitting}
-                  required
                 />
               </div>
 
-              {/* Phone */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="phone" className="text-xs font-medium">
-                  {t('phoneLabel')} <span className="text-destructive">*</span>
-                </Label>
+              {/* Ngành học */}
+              <div className="space-y-1.5">
+                <Label htmlFor="major" className="text-xs font-medium">9. Ngành học</Label>
                 <Input
-                  id="phone"
-                  placeholder="VD: 0912345678"
-                  value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  id="major"
+                  placeholder="VD: Kỹ thuật Phần mềm"
+                  value={formData.major}
+                  onChange={(e) => handleChange('major', e.target.value)}
                   disabled={isSubmitting}
-                  required
+                />
+              </div>
+
+              {/* Chuyên ngành */}
+              <div className="space-y-1.5">
+                <Label htmlFor="specialization" className="text-xs font-medium">10. Chuyên ngành</Label>
+                <Input
+                  id="specialization"
+                  placeholder="VD: Trí tuệ Nhân tạo"
+                  value={formData.specialization}
+                  onChange={(e) => handleChange('specialization', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Hình thức đào tạo / Mode of study */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="mode_of_study" className="text-xs font-medium">Hình thức đào tạo</Label>
+                <Input
+                  id="mode_of_study"
+                  placeholder="VD: Chính quy"
+                  value={formData.mode_of_study}
+                  onChange={(e) => handleChange('mode_of_study', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Nhóm 3: Kết quả & Cấp bằng */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+              III. Nhóm Kết quả & Cấp bằng
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* CPA */}
+              <div className="space-y-1.5">
+                <Label htmlFor="cpa" className="text-xs font-medium">11. Điểm TBC (CPA)</Label>
+                <Input
+                  id="cpa"
+                  placeholder="VD: 3.45"
+                  value={formData.cpa}
+                  onChange={(e) => handleChange('cpa', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Xếp loại tốt nghiệp */}
+              <div className="space-y-1.5">
+                <Label htmlFor="classification" className="text-xs font-medium">12. Xếp loại tốt nghiệp</Label>
+                <Input
+                  id="classification"
+                  placeholder="VD: Giỏi, Khá..."
+                  value={formData.classification}
+                  onChange={(e) => handleChange('classification', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Số hiệu bằng */}
+              <div className="space-y-1.5">
+                <Label htmlFor="degree_number" className="text-xs font-medium">13. Số hiệu bằng</Label>
+                <Input
+                  id="degree_number"
+                  placeholder="VD: 012345"
+                  value={formData.degree_number}
+                  onChange={(e) => handleChange('degree_number', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Số vào sổ gốc */}
+              <div className="space-y-1.5">
+                <Label htmlFor="register_number" className="text-xs font-medium">14. Số vào sổ gốc</Label>
+                <Input
+                  id="register_number"
+                  placeholder="VD: 152/2026/QĐ-ĐHCT"
+                  value={formData.register_number}
+                  onChange={(e) => handleChange('register_number', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Loại bằng */}
+              <div className="space-y-1.5">
+                <Label htmlFor="degree_type" className="text-xs font-medium">16. Loại bằng</Label>
+                <Input
+                  id="degree_type"
+                  placeholder="Mặc định: Bằng tốt nghiệp đại học"
+                  value={formData.degree_type}
+                  onChange={(e) => handleChange('degree_type', e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Năm tốt nghiệp */}
+              <div className="space-y-1.5">
+                <Label htmlFor="graduation_year" className="text-xs font-medium">Năm tốt nghiệp</Label>
+                <Input
+                  id="graduation_year"
+                  placeholder="Tự trích xuất từ lớp hoặc nhập (VD: 2026)"
+                  value={formData.graduation_year}
+                  onChange={(e) => handleChange('graduation_year', e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -498,7 +502,7 @@ export function IssuerManualImportModal({
               disabled={isSubmitting}
             />
             <Label htmlFor="manual-overwrite" className="text-xs font-medium leading-none cursor-pointer">
-              {t('manualOverwriteDesc')}
+              {t('manualOverwriteDesc') || 'Cho phép ghi đè nếu dữ liệu đã tồn tại'}
             </Label>
           </div>
         </form>
@@ -514,7 +518,7 @@ export function IssuerManualImportModal({
                 {t('processing')}
               </>
             ) : (
-              t('submitManualCredential')
+              t('submitManualCredential') || 'Nhập bằng cấp'
             )}
           </Button>
         </DialogFooter>
