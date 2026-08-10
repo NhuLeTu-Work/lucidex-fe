@@ -8,7 +8,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ScanFace, IdCard, QrCode, Smartphone, Monitor, CheckCircle2, ArrowRight } from 'lucide-react';
+import { ScanFace, IdCard, Smartphone, Monitor, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useOwnerEkycStatus } from '@/hooks/owner/useOwnerEkycStatus';
 import type { OwnerTab } from '@/types/owner';
 
@@ -90,12 +90,13 @@ export function OwnerEkycSetup({ t, onTabChange }: OwnerEkycSetupProps) {
                   {t('qrInstructionDesc')}
                 </p>
 
-                {/* Mockup QR Code */}
+                {/* QR Code */}
                 <div className="p-4 bg-white rounded-2xl shadow-sm border border-border/50">
-                  <div className="w-48 h-48 border-2 border-dashed border-muted-foreground/30 rounded-xl flex flex-col items-center justify-center bg-muted/10">
-                    <QrCode size={64} className="text-muted-foreground opacity-40 mb-2" />
-                    <span className="text-xs text-muted-foreground font-medium">MOCKUP QR</span>
-                  </div>
+                  <img
+                    src="/qrcode.png"
+                    alt="eKYC QR Code"
+                    className="w-48 h-48 object-contain rounded-xl"
+                  />
                 </div>
               </div>
             </TabsContent>
