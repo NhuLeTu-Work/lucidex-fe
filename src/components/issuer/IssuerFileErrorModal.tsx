@@ -70,14 +70,22 @@ function autoSuggestFixedValue(err: CsvErrorRecord): string {
   const val = (err.oldValue || '').trim();
   if (!val) return '';
 
-  // 1. Auto fix ngày sinh: YYYY/MM/DD hoặc YYYY-MM-DD -> DD/MM/YYYY
+  // 1. Auto fix ngày sinh:
+  // VD: 10-08-2003 hay 10.08.2003 -> 10/08/2003
+  // VD: 2003-08-10 hay 2003/08/10 -> 10/08/2003
   if (err.targetField === 'dob') {
+    // TH1: DD-MM-YYYY hoặc DD.MM.YYYY -> DD/MM/YYYY
+    const matchDDMMYYYY = val.match(/^(\d{1,2})[\-\.](\d{1,2})[\-\.](\d{4})$/);
+    if (matchDDMMYYYY) {
+      const [, d, m, y] = matchDDMMYYYY;
+      return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+    }
+
+    // TH2: YYYY/MM/DD hoặc YYYY-MM-DD -> DD/MM/YYYY
     const matchYYYYMMDD = val.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
     if (matchYYYYMMDD) {
       const [, y, m, d] = matchYYYYMMDD;
-      const dayStr = d.padStart(2, '0');
-      const monthStr = m.padStart(2, '0');
-      return `${dayStr}/${monthStr}/${y}`;
+      return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
     }
   }
 

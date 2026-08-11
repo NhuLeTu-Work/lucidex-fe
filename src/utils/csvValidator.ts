@@ -641,8 +641,11 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
       errors.push({
         row: rowNumber,
         type: 'duplicate',
-        detailKey: 'errInternalDuplicate',
+        detailKey: 'errInternalDuplicateDetail',
         detailParams: { studentId, classId, prevRow },
+        fieldName: 'Mã SV / Lớp',
+        targetField: 'student_id',
+        oldValue: `${studentId} - ${classId}`,
       });
     } else {
       keyMap.set(uniqueKey, rowNumber);

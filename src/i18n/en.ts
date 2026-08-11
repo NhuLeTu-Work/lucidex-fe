@@ -525,7 +525,7 @@ export const en: Record<string, string> = {
     errInvalidNationalIdDetail: 'Invalid National ID ({val})',
     errInvalidPhone: 'Invalid Phone Number ({val})',
     errInternalDuplicate: 'Duplicate row with another entry inside the file',
-    errInternalDuplicateDetail: 'Duplicate key pair [Student ID: {studentId}, Class ID: {classId}] with row {prevRow}',
+    errInternalDuplicateDetail: 'This row duplicates key pair [Student ID: {studentId}, Class: {classId}] with row {prevRow}',
     credentialListTitle: "Credential Management",
     totalCredentials: "Total Credentials",
     totalClaimed: "Claimed",
