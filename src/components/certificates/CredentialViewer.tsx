@@ -5,9 +5,10 @@ interface CredentialViewerProps {
   cover: React.ReactNode;
   content: React.ReactNode;
   onClose: () => void;
+  actions?: React.ReactNode;
 }
 
-export function CredentialViewer({ cover, content, onClose }: CredentialViewerProps) {
+export function CredentialViewer({ cover, content, onClose, actions }: CredentialViewerProps) {
   // Khoá cuộn trang khi đang mở overlay
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -49,6 +50,8 @@ export function CredentialViewer({ cover, content, onClose }: CredentialViewerPr
         {/* Layer Cover (Nằm trên, có logic tự ẩn sau animation) */}
         {cover}
       </div>
+
+      {actions}
     </div>
   );
 }

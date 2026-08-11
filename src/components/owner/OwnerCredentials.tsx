@@ -8,6 +8,7 @@ import { useOwnerEkycStatus } from '@/hooks/owner/useOwnerEkycStatus';
 import { useOwnerCredentials } from '@/hooks/owner/useOwnerCredentials';
 import { useOwnerCredentialDetail } from '@/hooks/owner/useOwnerCredentialDetail';
 import { OwnerClaimModal } from './OwnerClaimModal';
+import { OwnerShareCodeWidget } from './OwnerShareCodeWidget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -169,6 +170,7 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
               )}
             </div>
           }
+          actions={<OwnerShareCodeWidget credentialId={openedCredId} />}
         />
       )}
     </div>

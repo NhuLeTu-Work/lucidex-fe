@@ -162,3 +162,31 @@ export interface ClaimCredentialApiResponse {
   message: string;
   error_code: string | null;
 }
+
+export interface CreateVerifiedLinkPayload {
+  credential_id: string;
+  expires_at?: string | null;
+  allowed_org_ids?: string[];
+  max_access_count?: number | null;
+}
+
+export interface VerifiedLinkData {
+  id: string;
+  code: string;
+  credential_id: string;
+  consent_mode: 'access_count' | 'time_bound' | 'trusted_orgs' | 'custom' | null;
+  expires_at: string | null;
+  allowed_org_ids: string[];
+  max_access_count: number | null;
+  remaining_access_count: number | null;
+  display_status: string;
+  created_at: string;
+  revoked_at: string | null;
+}
+
+export interface CreateVerifiedLinkResponse {
+  success: boolean;
+  data: VerifiedLinkData;
+  message: string;
+  error_code: string | null;
+}
