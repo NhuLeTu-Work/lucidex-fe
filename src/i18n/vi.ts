@@ -513,6 +513,7 @@ export const vi: Record<string, string> = {
     errFormatDobDetail: 'Ngày sinh ({val}) không hợp lệ (định dạng dd/mm/yyyy)',
     errInvalidClassId: 'Lớp / Khóa ({val}) không hợp lệ (từ 2-15 ký tự chữ, số, -, _)',
     errInvalidCpaDetail: 'Điểm TBC / CPA ({val}) không hợp lệ (bắt buộc phải là số thập phân)',
+    errInvalidGradYear: 'Năm tốt nghiệp ({val}) không hợp lệ (phải từ 1930 đến {max})',
     errInvalidGeneralText: 'Trường {field} ({val}) không hợp lệ (từ 2-300 ký tự, không chứa ký tự đặc biệt @, #, $,...)',
     errInvalidEmail: 'Email ({val}) không đúng định dạng email',
     errInvalidNationalIdDetail: 'CCCD ({val}) không hợp lệ',

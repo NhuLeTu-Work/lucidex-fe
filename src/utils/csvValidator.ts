@@ -461,6 +461,21 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
       });
     }
 
+    // 6. Năm tốt nghiệp (nếu có cột năm tốt nghiệp): từ 1930 đến (Năm hiện tại + 3)
+    const rawGradYear = (credRow.graduation_year || '').trim();
+    if (rawGradYear) {
+      const gYearNum = parseInt(rawGradYear, 10);
+      const maxAllowedYear = new Date().getFullYear() + 3;
+      if (isNaN(gYearNum) || gYearNum < 1930 || gYearNum > maxAllowedYear) {
+        errors.push({
+          row: rowNumber,
+          type: 'format',
+          detailKey: 'errInvalidGradYear',
+          detailParams: { val: rawGradYear, max: maxAllowedYear },
+        });
+      }
+    }
+
     // 6. General text rules for optional text fields
     const optionalTextFields: [string, string][] = [
       ['place_of_birth', placeOfBirth],

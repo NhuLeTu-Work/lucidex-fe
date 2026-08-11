@@ -4,6 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -17,11 +27,11 @@ import type { ImportManualCredentialPayload } from '@/api/endpoints/issuer/impor
 import {
   CODE_KEY_REGEX,
   isValidGeneralText,
-  isValidDateDDMMYYYY,
   isValidDecimalNumber,
   sanitizeTextField,
   extractGraduationYear,
 } from '@/utils/csvValidator';
+import { VIETNAM_PROVINCES, DEGREE_TYPES, MODE_OF_STUDY_OPTIONS } from '@/utils/credentialConstants';
 import { UserPlus, Loader2 } from 'lucide-react';
 
 interface IssuerManualImportModalProps {
@@ -31,7 +41,6 @@ interface IssuerManualImportModalProps {
 }
 
 const initialFormData = {
-  stt: '',
   student_id: '',
   full_name: '',
   dob: '',
@@ -46,12 +55,41 @@ const initialFormData = {
   degree_number: '',
   register_number: '',
   national_id: '',
-  degree_type: 'Bằng tốt nghiệp đại học',
+  degree_type: "Cử nhân (Bachelor's Degree)",
   graduation_year: '',
   mode_of_study: '',
   university_email: '',
   overwrite: false,
 };
+
+// Chuyển đổi giữa YYYY-MM-DD từ input date và DD/MM/YYYY cho backend/validation
+function convertDateToDDMMYYYY(dateStr: string): string {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+  }
+  return dateStr;
+}
+
+function isValidDateDDMMYYYY(dateStr: string): boolean {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return false;
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+
+  const dateObj = new Date(year, month - 1, day);
+  return (
+    dateObj.getFullYear() === year &&
+    dateObj.getMonth() === month - 1 &&
+    dateObj.getDate() === day
+  );
+}
 
 export function IssuerManualImportModal({
   isOpen,
@@ -86,7 +124,7 @@ export function IssuerManualImportModal({
     // Sanitize slash inputs '\' -> '/'
     const sId = sanitizeTextField(formData.student_id);
     const fName = sanitizeTextField(formData.full_name);
-    const dobVal = sanitizeTextField(formData.dob);
+    const dobVal = convertDateToDDMMYYYY(formData.dob);
     const cId = sanitizeTextField(formData.class_id);
     const placeBirth = sanitizeTextField(formData.place_of_birth);
     const genderVal = formData.gender === 'N' ? 'N' : null;
@@ -98,7 +136,7 @@ export function IssuerManualImportModal({
     const degNum = sanitizeTextField(formData.degree_number);
     const regNum = sanitizeTextField(formData.register_number);
     const natId = sanitizeTextField(formData.national_id);
-    const degType = sanitizeTextField(formData.degree_type) || 'Bằng tốt nghiệp đại học';
+    const degType = sanitizeTextField(formData.degree_type) || "Cử nhân (Bachelor's Degree)";
     const emailVal = sanitizeTextField(formData.university_email);
     const modeStudy = sanitizeTextField(formData.mode_of_study);
 
@@ -123,7 +161,7 @@ export function IssuerManualImportModal({
 
     // DOB: dd/mm/yyyy
     if (!isValidDateDDMMYYYY(dobVal)) {
-      showToast('error', t('errFormatDobDetail') ? t('errFormatDobDetail').replace('{val}', dobVal) : 'Ngày sinh không hợp lệ (định dạng dd/mm/yyyy)');
+      showToast('error', t('errFormatDobDetail') ? t('errFormatDobDetail').replace('{val}', dobVal) : 'Ngày sinh không hợp lệ');
       return;
     }
 
@@ -139,13 +177,22 @@ export function IssuerManualImportModal({
       return;
     }
 
+    // Graduation Year range check if entered
+    const maxYearAllowed = new Date().getFullYear() + 3;
+    if (formData.graduation_year.trim()) {
+      const gYr = parseInt(formData.graduation_year.trim(), 10);
+      if (isNaN(gYr) || gYr < 1930 || gYr > maxYearAllowed) {
+        showToast('error', `Năm tốt nghiệp không hợp lệ (phải từ 1930 đến ${maxYearAllowed})`);
+        return;
+      }
+    }
+
     // Optional text fields format check
     const textCheckList: [string, string][] = [
       ['Nơi sinh', placeBirth],
       ['Khoa / Viện', fac],
       ['Ngành học', maj],
       ['Chuyên ngành', spec],
-      ['Xếp loại', classif],
       ['Số hiệu bằng', degNum],
       ['Số vào sổ gốc', regNum],
     ];
@@ -214,6 +261,9 @@ export function IssuerManualImportModal({
     }
   };
 
+  const vanBangOptions = DEGREE_TYPES.filter((d) => d.category === 'Văn bằng');
+  const chungChiOptions = DEGREE_TYPES.filter((d) => d.category === 'Chứng chỉ');
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl w-[94vw] max-h-[90vh] flex flex-col p-6 gap-4 overflow-hidden">
@@ -234,22 +284,10 @@ export function IssuerManualImportModal({
               I. Nhóm Thông tin cá nhân
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* STT */}
-              <div className="space-y-1.5">
-                <Label htmlFor="stt" className="text-xs font-medium">1. Số thứ tự (STT)</Label>
-                <Input
-                  id="stt"
-                  placeholder="VD: 1, 2..."
-                  value={formData.stt}
-                  onChange={(e) => handleChange('stt', e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
-
               {/* MSSV */}
               <div className="space-y-1.5">
                 <Label htmlFor="student_id" className="text-xs font-medium">
-                  2. Mã SV / MSSV <span className="text-destructive">*</span>
+                  Mã SV / MSSV <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="student_id"
@@ -264,7 +302,7 @@ export function IssuerManualImportModal({
               {/* Họ và Tên */}
               <div className="space-y-1.5">
                 <Label htmlFor="full_name" className="text-xs font-medium">
-                  3. Họ và Tên <span className="text-destructive">*</span>
+                  Họ và Tên <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
@@ -276,14 +314,14 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Ngày sinh */}
+              {/* Ngày sinh với Date Picker */}
               <div className="space-y-1.5">
                 <Label htmlFor="dob" className="text-xs font-medium">
-                  4. Ngày sinh (dd/mm/yyyy) <span className="text-destructive">*</span>
+                  Ngày sinh <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="dob"
-                  placeholder="VD: 15/08/2002"
+                  type="date"
                   value={formData.dob}
                   onChange={(e) => handleChange('dob', e.target.value)}
                   disabled={isSubmitting}
@@ -291,33 +329,50 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Nơi sinh */}
+              {/* Nơi sinh chọn từ danh sách 63 Tỉnh/Thành */}
               <div className="space-y-1.5">
-                <Label htmlFor="place_of_birth" className="text-xs font-medium">5. Nơi sinh</Label>
-                <Input
-                  id="place_of_birth"
-                  placeholder="VD: Cần Thơ, Hà Nội"
+                <Label htmlFor="place_of_birth" className="text-xs font-medium">Nơi sinh</Label>
+                <Select
                   value={formData.place_of_birth}
-                  onChange={(e) => handleChange('place_of_birth', e.target.value)}
+                  onValueChange={(val) => handleChange('place_of_birth', val)}
                   disabled={isSubmitting}
-                />
+                >
+                  <SelectTrigger id="place_of_birth" className="w-full">
+                    <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {VIETNAM_PROVINCES.map((province) => (
+                      <SelectItem key={province} value={province}>
+                        {province}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Giới tính / Nữ */}
+              {/* Giới tính */}
               <div className="space-y-1.5">
-                <Label htmlFor="gender" className="text-xs font-medium">6. Nữ (N hoặc để trống)</Label>
-                <Input
-                  id="gender"
-                  placeholder="N hoặc để trống"
-                  value={formData.gender}
-                  onChange={(e) => handleChange('gender', e.target.value.toUpperCase())}
+                <Label className="text-xs font-medium">Giới tính</Label>
+                <RadioGroup
+                  value={formData.gender || 'NAM'}
+                  onValueChange={(val) => handleChange('gender', val === 'N' ? 'N' : '')}
                   disabled={isSubmitting}
-                />
+                  className="flex items-center space-x-4 pt-1"
+                >
+                  <div className="flex items-center space-x-2 cursor-pointer">
+                    <RadioGroupItem value="NAM" id="gender-nam" />
+                    <Label htmlFor="gender-nam" className="text-xs cursor-pointer">Nam</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 cursor-pointer">
+                    <RadioGroupItem value="N" id="gender-nu" />
+                    <Label htmlFor="gender-nu" className="text-xs cursor-pointer">Nữ</Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               {/* CCCD */}
               <div className="space-y-1.5">
-                <Label htmlFor="national_id" className="text-xs font-medium">15. Căn cước công dân</Label>
+                <Label htmlFor="national_id" className="text-xs font-medium">Căn cước công dân</Label>
                 <Input
                   id="national_id"
                   placeholder="VD: 079202012345"
@@ -328,7 +383,7 @@ export function IssuerManualImportModal({
               </div>
 
               {/* University Email */}
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className="space-y-1.5 sm:col-span-3">
                 <Label htmlFor="university_email" className="text-xs font-medium">Email trường</Label>
                 <Input
                   id="university_email"
@@ -351,7 +406,7 @@ export function IssuerManualImportModal({
               {/* Lớp / Khóa */}
               <div className="space-y-1.5">
                 <Label htmlFor="class_id" className="text-xs font-medium">
-                  7. Lớp / Khóa <span className="text-destructive">*</span>
+                  Lớp / Khóa <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="class_id"
@@ -365,7 +420,7 @@ export function IssuerManualImportModal({
 
               {/* Khoa / Viện */}
               <div className="space-y-1.5">
-                <Label htmlFor="faculty" className="text-xs font-medium">8. Khoa / Viện</Label>
+                <Label htmlFor="faculty" className="text-xs font-medium">Khoa / Viện</Label>
                 <Input
                   id="faculty"
                   placeholder="VD: Công nghệ Thông tin"
@@ -377,7 +432,7 @@ export function IssuerManualImportModal({
 
               {/* Ngành học */}
               <div className="space-y-1.5">
-                <Label htmlFor="major" className="text-xs font-medium">9. Ngành học</Label>
+                <Label htmlFor="major" className="text-xs font-medium">Ngành học</Label>
                 <Input
                   id="major"
                   placeholder="VD: Kỹ thuật Phần mềm"
@@ -389,7 +444,7 @@ export function IssuerManualImportModal({
 
               {/* Chuyên ngành */}
               <div className="space-y-1.5">
-                <Label htmlFor="specialization" className="text-xs font-medium">10. Chuyên ngành</Label>
+                <Label htmlFor="specialization" className="text-xs font-medium">Chuyên ngành</Label>
                 <Input
                   id="specialization"
                   placeholder="VD: Trí tuệ Nhân tạo"
@@ -402,13 +457,22 @@ export function IssuerManualImportModal({
               {/* Hình thức đào tạo / Mode of study */}
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="mode_of_study" className="text-xs font-medium">Hình thức đào tạo</Label>
-                <Input
-                  id="mode_of_study"
-                  placeholder="VD: Chính quy"
+                <Select
                   value={formData.mode_of_study}
-                  onChange={(e) => handleChange('mode_of_study', e.target.value)}
+                  onValueChange={(val) => handleChange('mode_of_study', val)}
                   disabled={isSubmitting}
-                />
+                >
+                  <SelectTrigger id="mode_of_study" className="w-full">
+                    <SelectValue placeholder="Chọn Hình thức đào tạo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MODE_OF_STUDY_OPTIONS.map((mode) => (
+                      <SelectItem key={mode} value={mode}>
+                        {mode}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -421,7 +485,7 @@ export function IssuerManualImportModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* CPA */}
               <div className="space-y-1.5">
-                <Label htmlFor="cpa" className="text-xs font-medium">11. Điểm TBC (CPA)</Label>
+                <Label htmlFor="cpa" className="text-xs font-medium">Điểm TBC (CPA)</Label>
                 <Input
                   id="cpa"
                   placeholder="VD: 3.45"
@@ -431,21 +495,29 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Xếp loại tốt nghiệp */}
+              {/* Xếp loại tốt nghiệp với Select dropdown */}
               <div className="space-y-1.5">
-                <Label htmlFor="classification" className="text-xs font-medium">12. Xếp loại tốt nghiệp</Label>
-                <Input
-                  id="classification"
-                  placeholder="VD: Giỏi, Khá..."
+                <Label htmlFor="classification" className="text-xs font-medium">Xếp loại tốt nghiệp</Label>
+                <Select
                   value={formData.classification}
-                  onChange={(e) => handleChange('classification', e.target.value)}
+                  onValueChange={(val) => handleChange('classification', val)}
                   disabled={isSubmitting}
-                />
+                >
+                  <SelectTrigger id="classification" className="w-full">
+                    <SelectValue placeholder="Chọn xếp loại" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Xuất sắc">Xuất sắc</SelectItem>
+                    <SelectItem value="Giỏi">Giỏi</SelectItem>
+                    <SelectItem value="Khá">Khá</SelectItem>
+                    <SelectItem value="Trung bình">Trung bình</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Số hiệu bằng */}
               <div className="space-y-1.5">
-                <Label htmlFor="degree_number" className="text-xs font-medium">13. Số hiệu bằng</Label>
+                <Label htmlFor="degree_number" className="text-xs font-medium">Số hiệu bằng</Label>
                 <Input
                   id="degree_number"
                   placeholder="VD: 012345"
@@ -457,7 +529,7 @@ export function IssuerManualImportModal({
 
               {/* Số vào sổ gốc */}
               <div className="space-y-1.5">
-                <Label htmlFor="register_number" className="text-xs font-medium">14. Số vào sổ gốc</Label>
+                <Label htmlFor="register_number" className="text-xs font-medium">Số vào sổ gốc</Label>
                 <Input
                   id="register_number"
                   placeholder="VD: 152/2026/QĐ-ĐHCT"
@@ -467,16 +539,36 @@ export function IssuerManualImportModal({
                 />
               </div>
 
-              {/* Loại bằng */}
-              <div className="space-y-1.5">
-                <Label htmlFor="degree_type" className="text-xs font-medium">16. Loại bằng</Label>
-                <Input
-                  id="degree_type"
-                  placeholder="Mặc định: Bằng tốt nghiệp đại học"
+              {/* Loại bằng / Loại chứng chỉ từ list quy định */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="degree_type" className="text-xs font-medium">Loại bằng / Loại chứng chỉ</Label>
+                <Select
                   value={formData.degree_type}
-                  onChange={(e) => handleChange('degree_type', e.target.value)}
+                  onValueChange={(val) => handleChange('degree_type', val)}
                   disabled={isSubmitting}
-                />
+                >
+                  <SelectTrigger id="degree_type" className="w-full">
+                    <SelectValue placeholder="Chọn Loại bằng / Chứng chỉ" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-64">
+                    <SelectGroup>
+                      <SelectLabel className="font-semibold text-primary">Văn bằng</SelectLabel>
+                      {vanBangOptions.map((item) => (
+                        <SelectItem key={item.label} value={item.label}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectGroup className="mt-2">
+                      <SelectLabel className="font-semibold text-primary">Chứng chỉ</SelectLabel>
+                      {chungChiOptions.map((item) => (
+                        <SelectItem key={item.label} value={item.label}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Năm tốt nghiệp */}

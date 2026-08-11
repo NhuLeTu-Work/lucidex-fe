@@ -511,6 +511,7 @@ export const en: Record<string, string> = {
     errFormatDobDetail: 'Invalid Date of Birth ({val}) (must be dd/mm/yyyy format)',
     errInvalidClassId: 'Invalid Class ID ({val}) (must be 2-15 chars, alphanumeric, -, _)',
     errInvalidCpaDetail: 'Invalid CPA ({val}) (must be a decimal number)',
+    errInvalidGradYear: 'Invalid Graduation Year ({val}) (must be between 1930 and {max})',
     errInvalidGeneralText: 'Invalid field {field} ({val}) (length 2-300, no special characters like @, #, $,...)',
     errInvalidEmail: 'Invalid Email ({val})',
     errInvalidNationalIdDetail: 'Invalid National ID ({val})',
