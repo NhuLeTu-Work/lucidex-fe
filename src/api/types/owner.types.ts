@@ -190,3 +190,23 @@ export interface CreateVerifiedLinkResponse {
   message: string;
   error_code: string | null;
 }
+
+export interface GetVerifiedLinksQueryParams {
+  credential_id?: string;
+  page?: number;
+  page_size?: number;
+}
+
+export interface VerifiedLinksResponseData {
+  items: VerifiedLinkData[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface GetVerifiedLinksResponse {
+  success: boolean;
+  data: VerifiedLinksResponseData;
+  message: string | null;
+  error_code: string | null;
+}

@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Link2, ClipboardList, Settings, Award } from 'lucide-react';
+import { LayoutDashboard, FileText, QrCode, ClipboardList, Settings, Award } from 'lucide-react';
 import type { OwnerTab } from '../../types/owner';
 import type { UserProfile } from '@/api/types/auth.types'; // Đảm bảo import đúng đường dẫn type
 
@@ -13,7 +13,7 @@ export function OwnerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }:
   const sidebarItems = [
     { id: 'dashboard' as OwnerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'credentials' as OwnerTab, label: t('myCredentials'), icon: <FileText size={18} /> },
-    { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <Link2 size={18} /> },
+    { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <QrCode size={18} /> },
     { id: 'audit' as OwnerTab, label: t('auditLog'), icon: <ClipboardList size={18} /> },
     { id: 'consent' as OwnerTab, label: t('consentSettings'), icon: <Settings size={18} /> },
     { id: 'ekyc' as OwnerTab, label: t('ekycTitle'), icon: <Award size={18} /> }
@@ -53,7 +53,7 @@ export function OwnerSidebarMobile({ activeTab, setActiveTab, t }: SidebarProps)
   const sidebarItems = [
     { id: 'dashboard' as OwnerTab, label: t('dashboard'), icon: <LayoutDashboard size={18} /> },
     { id: 'credentials' as OwnerTab, label: t('myCredentials'), icon: <FileText size={18} /> },
-    { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <Link2 size={18} /> },
+    { id: 'links' as OwnerTab, label: t('verifiedLinks'), icon: <QrCode size={18} /> },
     { id: 'audit' as OwnerTab, label: t('auditLog'), icon: <ClipboardList size={18} /> },
     { id: 'consent' as OwnerTab, label: t('consentSettings'), icon: <Settings size={18} /> },
     { id: 'ekyc' as OwnerTab, label: t('ekycTitle'), icon: <Award size={18} /> }

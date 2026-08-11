@@ -1,83 +1,232 @@
-import { useState } from 'react';
-import { Plus, Link2, Trash2 } from 'lucide-react';
-import { formatDateDDMMYYYY } from '@/utils/timeUtils';
-import type { VerifiedLink } from '../../types/owner';
+import React, { useState, useMemo } from 'react';
+import { Copy, Check, Search } from 'lucide-react';
+import { useGetVerifiedLinks } from '@/hooks/owner/useGetVerifiedLinks';
+import { useApp } from '@/app/AppContext';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
 
 interface OwnerLinksProps {
   t: (k: string) => string;
-  links: VerifiedLink[];
-  onRevoke: (id: string) => void;
-  onCreate: () => void;
+  links?: any[];
+  onRevoke?: (id: string) => void;
+  onCreate?: () => void;
 }
 
-export function OwnerLinks({ t, links, onRevoke, onCreate }: OwnerLinksProps) {
+export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
+  const { showToast } = useApp();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
+  // Gọi API lấy danh sách mã chia sẻ
+  const { items: apiItems, isLoading } = useGetVerifiedLinks();
+
+  const handleCopyCode = (id: string, code: string) => {
+    navigator.clipboard?.writeText(code);
+    setCopiedId(id);
+    showToast('success', t('codeCopied') || 'Đã sao chép mã chia sẻ!');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  // Helper rút gọn hiển thị mã (ví dụ: LX5...N8Q nếu quá dài)
+  const formatShortCode = (code: string) => {
+    if (!code) return '';
+    if (code.length <= 10) return code;
+    return `${code.slice(0, 3)}...${code.slice(-3)}`;
+  };
+
+  // Lọc theo từ khóa tìm kiếm
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return apiItems;
+    const q = searchQuery.toLowerCase().trim();
+    return apiItems.filter(
+      (item) =>
+        item.code?.toLowerCase().includes(q) ||
+        (item as any).credential_name?.toLowerCase().includes(q) ||
+        item.id?.toLowerCase().includes(q)
+    );
+  }, [apiItems, searchQuery]);
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl">{t('verifiedLinks')}</h1>
-        <button onClick={onCreate} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80" style={{ background: '#000' }}>
-          <Plus size={16} />
-          {t('create')}
-        </button>
+    <div className="space-y-4">
+      {/* Title & Search Bar */}
+      <h1 className="font-display text-2xl">{t('verifiedLinks')}</h1>
+      
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={16}
+          />
+          <Input
+            type="text"
+            placeholder={t('searchCodePlaceholder') || 'Search verification code or credential...'}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
       </div>
 
-      {links.length === 0 ? (
-        <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{t('noLinks')}</p>
-      ) : (
-        <div className="space-y-3">
-          {links.map(link => (
-            <div key={link.id} className="p-5 rounded-xl border transition-all" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', opacity: link.status === 'revoked' ? 0.6 : 1 }}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${link.status === 'active' ? 'bg-green-100 text-green-700' : link.status === 'revoked' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
-                      {link.status === 'active' ? t('active') : link.status === 'revoked' ? t('revoked') : t('expired')}
-                    </span>
-                    <span className="text-xs opacity-50">{link.expiryLabel}</span>
-                  </div>
-                  <p className="text-sm font-mono truncate">{link.url}</p>
-                  <div className="flex items-center gap-4 mt-2 text-xs opacity-60">
-                    <span>
-                      {t('consentType')}: {
-                        link.consentType === 'access_number' ? t('accessNumberConsent') :
-                        link.consentType === 'time_bound' ? t('timeBoundConsent') :
-                        link.consentType === 'customize' ? t('customizeConsent') :
-                        link.consentType === 'one_time' ? t('oneTimeConsent') :
-                        link.consentType === 'per_request' ? t('perRequestConsent') :
-                        link.consentType === 'org_level' ? t('orgLevelConsent') :
-                        link.consentType
-                      }
-                    </span>
-                    <span>{formatDateDDMMYYYY(link.createdAt)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <button onClick={() => navigator.clipboard?.writeText(link.url)} className="p-2 rounded-lg border transition-opacity hover:opacity-70" style={{ borderColor: 'var(--ct-border)' }} title="Copy">
-                    <Link2 size={14} />
-                  </button>
-                  {link.status === 'active' && (
-                    <button onClick={() => setRevokingId(link.id)} className="p-2 rounded-lg border transition-opacity hover:opacity-70" style={{ borderColor: 'var(--ct-border)', color: '#ef4444' }} title={t('revokeLink')}>
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
+      {/* Table Container */}
+      <div className="border rounded-xl bg-card overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/40">
+            <TableRow>
+              <TableHead className="w-[240px] font-bold text-sm text-muted-foreground py-4 px-6">
+                {t('verificationCode') || 'Verification Code'}
+              </TableHead>
+              <TableHead className="font-bold text-sm text-muted-foreground py-4 px-6">
+                {t('credentialName') || 'Credential Name'}
+              </TableHead>
+              <TableHead className="w-[140px] font-bold text-sm text-muted-foreground py-4 px-6">
+                {t('status') || 'Status'}
+              </TableHead>
+              <TableHead className="w-[160px] text-right font-bold text-sm text-muted-foreground py-4 px-6">
+                {t('actions') || 'Actions'}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell className="py-5 px-6">
+                    <Skeleton className="h-6 w-28" />
+                  </TableCell>
+                  <TableCell className="py-5 px-6">
+                    <Skeleton className="h-6 w-48" />
+                  </TableCell>
+                  <TableCell className="py-5 px-6">
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-right py-5 px-6">
+                    <Skeleton className="h-9 w-20 ml-auto rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : filteredItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-40 text-center text-muted-foreground text-base px-6">
+                  {searchQuery
+                    ? t('noMatchingCodes') || 'No matching verification codes found.'
+                    : t('noLinks') || 'No verification codes created yet.'}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredItems.map((item) => {
+                const status = item.display_status || 'active';
+                const isRevoked = status === 'revoked';
+                const isExpired = status === 'expired';
+                const isCopied = copiedId === item.id;
+                const credentialName = (item as any).credential_name || '(blank)';
 
-              {revokingId === link.id && (
-                <div className="mt-3 p-3 rounded-lg border" style={{ borderColor: '#fecaca', background: 'var(--ct-accent-red)' }}>
-                  <p className="text-sm mb-2">{t('revokeConfirm')}</p>
-                  <div className="flex gap-2">
-                    <button onClick={() => { onRevoke(link.id); setRevokingId(null); }} className="px-3 py-1.5 text-xs font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors">{t('confirm')}</button>
-                    <button onClick={() => setRevokingId(null)} className="px-3 py-1.5 text-xs rounded-lg border transition-opacity hover:opacity-70" style={{ borderColor: 'var(--ct-border)' }}>{t('cancel')}</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+                return (
+                  <React.Fragment key={item.id}>
+                    <TableRow className={`hover:bg-muted/30 transition-colors ${isRevoked ? 'opacity-50 select-none' : ''}`}>
+                      {/* Column 1: Verification Code + Copy Button */}
+                      <TableCell className="py-5 px-6 font-mono font-bold text-base">
+                        <div className="flex items-center gap-2">
+                          <span title={item.code}>{formatShortCode(item.code)}</span>
+                          <button
+                            onClick={() => handleCopyCode(item.id, item.code)}
+                            className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                            title={t('copy') || 'Copy Code'}
+                          >
+                            {isCopied ? (
+                              <Check size={16} className="text-emerald-600" />
+                            ) : (
+                              <Copy size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      {/* Column 2: Credential Name */}
+                      <TableCell className="py-5 px-6 text-base font-medium">
+                        {credentialName}
+                      </TableCell>
+
+                      {/* Column 3: Status Badge */}
+                      <TableCell className="py-5 px-6">
+                        {status === 'active' ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                            {t('active') || 'Active'}
+                          </span>
+                        ) : isExpired ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                            {t('expired') || 'Expired'}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                            {t('revoked') || 'Revoked'}
+                          </span>
+                        )}
+                      </TableCell>
+
+                      {/* Column 4: Actions (Revoke Button - Red background, White text) */}
+                      <TableCell className="text-right py-5 px-6">
+                        {status === 'active' && (
+                          <button
+                            onClick={() => setRevokingId(revokingId === item.id ? null : item.id)}
+                            className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm"
+                            title={t('revokeLink') || 'Revoke'}
+                          >
+                            {t('revokeLink') || 'Revoke'}
+                          </button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Original Confirm Revoke Box Row */}
+                    {revokingId === item.id && (
+                      <TableRow className="bg-red-50/40 dark:bg-red-950/20 hover:bg-red-50/40">
+                        <TableCell colSpan={4} className="p-4">
+                          <div
+                            className="p-4 rounded-xl border text-left space-y-3"
+                            style={{ borderColor: '#fecaca', background: 'var(--ct-accent-red)' }}
+                          >
+                            <p className="text-sm text-foreground font-medium">
+                              {t('revokeConfirm') || 'Bạn chắc chắn muốn thu hồi mã chia sẻ này?'}
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  onRevoke?.(item.id);
+                                  showToast('success', t('codeRevokedMsg') || 'Mã đã được thu hồi');
+                                  setRevokingId(null);
+                                }}
+                                className="px-4 py-1.5 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+                              >
+                                {t('confirm') || 'Xác nhận'}
+                              </button>
+                              <button
+                                onClick={() => setRevokingId(null)}
+                                className="px-4 py-1.5 text-sm font-medium rounded-lg border bg-background transition-opacity hover:opacity-80"
+                                style={{ borderColor: 'var(--ct-border)' }}
+                              >
+                                {t('cancel') || 'Hủy'}
+                              </button>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

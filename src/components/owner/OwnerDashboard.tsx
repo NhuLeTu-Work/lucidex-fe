@@ -1,4 +1,4 @@
-import { FileText, Link2, ClipboardList, Plus, Settings, ChevronRight } from 'lucide-react';
+import { FileText, QrCode, ClipboardList, Plus, Settings, ChevronRight } from 'lucide-react';
 import { mockCredentials, mockAuditLog } from '../../data/mockData'; // Giữ lại mock cho phần credentials chưa có API
 import type { OwnerTab, VerifiedLink } from '../../types/owner';
 import type { UserProfile } from '../../api/types/auth.types';
@@ -27,7 +27,7 @@ export function OwnerDashboard({ t, links, onTabChange, userProfile }: OwnerDash
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('myCredentials')} value={credCount.toString()} icon={<FileText size={20} />} onClick={() => onTabChange('credentials')} />
-        <StatCard label={t('verifiedLinks')} value={activeLinks.toString()} icon={<Link2 size={20} />} onClick={() => onTabChange('links')} />
+        <StatCard label={t('verifiedLinks')} value={activeLinks.toString()} icon={<QrCode size={20} />} onClick={() => onTabChange('links')} />
         <StatCard label={t('auditLog')} value={mockAuditLog.length.toString()} icon={<ClipboardList size={20} />} onClick={() => onTabChange('audit')} />
         {/* <StatCard label={t('claimDegree')} value="+" icon={<Award size={20} />} onClick={() => onTabChange('claim')} /> */}
       </div>
