@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Copy, Check, Search } from 'lucide-react';
 import { useGetVerifiedLinks } from '@/hooks/owner/useGetVerifiedLinks';
+import { useRevokeVerifiedLink } from '@/hooks/owner/useRevokeVerifiedLink';
 import { useApp } from '@/app/AppContext';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,8 +27,9 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
-  // Gọi API lấy danh sách mã chia sẻ
-  const { items: apiItems, isLoading } = useGetVerifiedLinks();
+  // Gọi API lấy danh sách mã chia sẻ và thu hồi mã
+  const { items: apiItems, isLoading, refetch } = useGetVerifiedLinks();
+  const { revokeLink, isRevoking } = useRevokeVerifiedLink();
 
   const handleCopyCode = (id: string, code: string) => {
     navigator.clipboard?.writeText(code);
@@ -199,18 +201,25 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                             </p>
                             <div className="flex gap-2">
                               <button
-                                onClick={() => {
-                                  onRevoke?.(item.id);
-                                  showToast('success', t('codeRevokedMsg') || 'Mã đã được thu hồi');
-                                  setRevokingId(null);
+                                disabled={isRevoking}
+                                onClick={async () => {
+                                  const ok = await revokeLink(item.id, () => {
+                                    refetch();
+                                    setRevokingId(null);
+                                  });
+                                  if (!ok && onRevoke) {
+                                    onRevoke(item.id);
+                                    setRevokingId(null);
+                                  }
                                 }}
-                                className="px-4 py-1.5 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+                                className="px-4 py-1.5 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50"
                               >
-                                {t('confirm') || 'Xác nhận'}
+                                {isRevoking ? '...' : (t('confirm') || 'Xác nhận')}
                               </button>
                               <button
+                                disabled={isRevoking}
                                 onClick={() => setRevokingId(null)}
-                                className="px-4 py-1.5 text-sm font-medium rounded-lg border bg-background transition-opacity hover:opacity-80"
+                                className="px-4 py-1.5 text-sm font-medium rounded-lg border bg-background transition-opacity hover:opacity-80 disabled:opacity-50"
                                 style={{ borderColor: 'var(--ct-border)' }}
                               >
                                 {t('cancel') || 'Hủy'}
