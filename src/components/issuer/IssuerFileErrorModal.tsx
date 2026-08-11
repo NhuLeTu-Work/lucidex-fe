@@ -1,7 +1,95 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+
+interface SearchComboboxProps {
+  value: string;
+  onChange: (val: string) => void;
+  options: { label: string; value: string; group?: string }[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+}
+
+function SearchCombobox({
+  value,
+  onChange,
+  options,
+  placeholder = 'Chọn...',
+  searchPlaceholder = 'Tìm kiếm...',
+}: SearchComboboxProps) {
+  const [open, setOpen] = useState(false);
+
+  // Gom nhóm options nếu có group
+  const groupedOptions = useMemo(() => {
+    const hasGroup = options.some((o) => o.group);
+    if (!hasGroup) return { default: options };
+    const res: Record<string, typeof options> = {};
+    options.forEach((o) => {
+      const g = o.group || 'Khác';
+      if (!res[g]) res[g] = [];
+      res[g].push(o);
+    });
+    return res;
+  }, [options]);
+
+  const selectedLabel = options.find((o) => o.value.toLowerCase() === value.toLowerCase())?.label || value;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="h-8 text-xs w-full justify-between font-normal px-2 bg-background border-input"
+        >
+          <span className="truncate">{selectedLabel || placeholder}</span>
+          <ChevronsUpDownIcon className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 z-[100]"
+        align="start"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <Command className="max-h-[220px]">
+          <CommandInput placeholder={searchPlaceholder} className="h-8 text-xs" />
+          <CommandList
+            className="max-h-[175px] overflow-y-auto overscroll-contain"
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <CommandEmpty className="py-2 text-center text-xs text-muted-foreground">
+              Không tìm thấy kết quả
+            </CommandEmpty>
+            {Object.entries(groupedOptions).map(([groupName, groupItems]) => (
+              <CommandGroup key={groupName} heading={groupName !== 'default' ? groupName : undefined}>
+                {groupItems.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.label}
+                    onSelect={() => {
+                      onChange(item.value);
+                      setOpen(false);
+                    }}
+                    className="text-xs py-1.5 cursor-pointer flex items-center justify-between"
+                  >
+                    <span className="truncate">{item.label}</span>
+                    {value.toLowerCase() === item.value.toLowerCase() && (
+                      <CheckIcon className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 // import { Label } from '@/components/ui/label';
 import {
   Dialog,
@@ -11,16 +99,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import {
   Table,
   TableBody,
@@ -32,9 +110,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -231,12 +307,9 @@ export function IssuerFileErrorModal({
   onFixError,
   onProcessSelectedRows,
 }: IssuerFileErrorModalProps) {
-  // Quản lý giá trị sửa lỗi thủ công của từng trường trong từng dòng
-  // Key dạng `${rowNumber}_${targetField}`
+  // Quản lý giá trị sửa lỗi thủ công của từng trường trong từng dòng (Key: `${rowNumber}_${targetField}`)
   const [fixedValues, setFixedValues] = useState<Record<string, string>>({});
-  // State quản lý việc hiển thị modal xác nhận đóng
-  const [showConfirmClose, setShowConfirmClose] = useState(false);
-  // State quản lý các dòng được tick checkbox chọn xử lý (theo rowNumber)
+  // State quản lý các dòng được chọn gửi (Key: rowNumber)
   const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({});
 
   // Gom nhóm các lỗi theo số dòng (rowNumber)
@@ -259,7 +332,7 @@ export function IssuerFileErrorModal({
     return Array.from(map.values()).sort((a, b) => a.rowNumber - b.rowNumber);
   }, [errors]);
 
-  // Thẩm định 1 dòng: Tất cả các trường lỗi format của dòng đó phải đạt chuẩn format
+  // Kiểm tra xem 1 dòng có đạt chuẩn hợp lệ 100% hay không
   const isGroupValid = useCallback(
     (group: GroupedRowErrors, currentFixed: Record<string, string>) => {
       if (group.isDuplicate) return false;
@@ -272,6 +345,7 @@ export function IssuerFileErrorModal({
     []
   );
 
+  // Khởi tạo giá trị auto-fix & phân loại 3 nhóm mặc định khi mở Modal
   useEffect(() => {
     if (isOpen) {
       const initialFixed: Record<string, string> = {};
@@ -294,46 +368,60 @@ export function IssuerFileErrorModal({
           }
         });
 
+        // 1. Nhóm Hợp lệ (Không duplicate, đã auto-fix đạt chuẩn): Tự động tick chọn sẵn
+        // 2. Nhóm Duplicate hoặc Lỗi chưa sửa: Tự động bỏ tick
         if (!group.isDuplicate && groupValid) {
           initialSelected[group.rowNumber] = true;
+        } else {
+          initialSelected[group.rowNumber] = false;
         }
       });
 
       setFixedValues(initialFixed);
       setSelectedRows(initialSelected);
-      setShowConfirmClose(false);
     }
   }, [isOpen, errors, groupedRows]);
 
   if (!isOpen || errors.length === 0) return null;
 
-  // Danh sách các dòng lỗi hợp lệ (tất cả các trường format trong dòng đã được sửa đúng)
+  // Tính toán số lượng cho 3 nhóm
   const validGroupRows = groupedRows.filter((g) => isGroupValid(g, fixedValues));
-  const allFormatSelected =
-    validGroupRows.length > 0 && validGroupRows.every((g) => selectedRows[g.rowNumber]);
+  const validRowsCount = validGroupRows.length;
+  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
-  const toggleSelectAllFormat = () => {
-    setSelectedRows((prev) => {
-      const updated = { ...prev };
-      const nextState = !allFormatSelected;
-      validGroupRows.forEach((g) => {
-        updated[g.rowNumber] = nextState;
-      });
-      return updated;
-    });
+  // Nút hành động 1: "Chỉ gửi các dòng hợp lệ (X sinh viên)"
+  const handleSendValidOnly = () => {
+    const validRowIndexes = validGroupRows.map((g) => g.rowNumber);
+    if (onProcessSelectedRows) {
+      onProcessSelectedRows(validRowIndexes);
+    } else {
+      onContinue();
+    }
   };
 
-  const toggleSelectRow = (group: GroupedRowErrors) => {
+  // Nút hành động 2: "Gửi X dòng đã chọn"
+  const handleSendSelected = () => {
+    const selectedNums = Object.keys(selectedRows)
+      .map(Number)
+      .filter((r) => selectedRows[r]);
+    if (onProcessSelectedRows) {
+      onProcessSelectedRows(selectedNums);
+    } else {
+      onContinue();
+    }
+  };
+
+  // Click vào Badge trạng thái để chuyển đổi Sẽ gửi / Sẽ bỏ qua
+  const toggleRowBadgeStatus = (group: GroupedRowErrors) => {
     if (group.isDuplicate) return;
-    if (!isGroupValid(group, fixedValues)) return;
+    const isValid = isGroupValid(group, fixedValues);
+    if (!isValid) return; // Không cho phép chọn gửi khi thông tin vẫn còn lỗi
 
     setSelectedRows((prev) => ({
       ...prev,
       [group.rowNumber]: !prev[group.rowNumber],
     }));
   };
-
-  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
   const getErrorMessage = (error: CsvErrorRecord) => {
     let message = t(error.detailKey);
@@ -361,7 +449,7 @@ export function IssuerFileErrorModal({
       onFixError(err.row, err.targetField, val);
     }
 
-    // Tự động kiểm tra: Nếu toàn bộ các trường trong dòng đã chuẩn -> Auto tick chọn, nếu không -> Bỏ tick
+    // Tự động chuyển xanh và tick chọn dòng khi sửa đạt 100% chuẩn format
     const valid = isGroupValid(group, nextFixed);
     setSelectedRows((prev) => ({
       ...prev,
@@ -369,54 +457,82 @@ export function IssuerFileErrorModal({
     }));
   };
 
-  const handleConfirmClose = () => {
-    setShowConfirmClose(false);
-    onCancel();
-  };
-
   const renderFixedInputForErr = (
     group: GroupedRowErrors,
     err: CsvErrorRecord
   ) => {
+    // Nếu là trùng lặp trong file (duplicate): Hiển thị gợi ý chọn dòng giữ bằng Dropdown chọn nhanh
     if (err.type === 'duplicate') {
-      return <span className="text-muted-foreground italic text-xs">-</span>;
-    }
-
-    const valKey = `${group.rowNumber}_${err.targetField}`;
-    const currentVal = fixedValues[valKey] ?? autoSuggestFixedValue(err) ?? '';
-
-    // Render Dropdown nếu là Nơi sinh
-    if (err.targetField === 'place_of_birth') {
+      const prevRow = err.detailParams?.prevRow;
       return (
         <Select
-          value={currentVal}
-          onValueChange={(val) => handleFieldValueChange(group, err, val)}
+          defaultValue="keep_first"
+          onValueChange={(val) => {
+            if (val === 'keep_this') {
+              // Người dùng chọn giữ dòng này thay vì dòng trước
+              setSelectedRows((prev) => ({
+                ...prev,
+                [group.rowNumber]: true,
+                [Number(prevRow)]: false,
+              }));
+            } else {
+              setSelectedRows((prev) => ({
+                ...prev,
+                [group.rowNumber]: false,
+                [Number(prevRow)]: true,
+              }));
+            }
+          }}
         >
-          <SelectTrigger className="h-8 text-xs w-full">
-            <SelectValue placeholder="Chọn Tỉnh/Thành" />
+          <SelectTrigger className="h-8 text-xs w-full bg-amber-50 dark:bg-amber-950/40 border-amber-300">
+            <SelectValue placeholder="Chọn dòng giữ lại" />
           </SelectTrigger>
-          <SelectContent className="max-h-48">
-            {VIETNAM_PROVINCES.map((p) => (
-              <SelectItem key={p} value={p} className="text-xs">
-                {p}
-              </SelectItem>
-            ))}
+          <SelectContent>
+            <SelectItem value="keep_first" className="text-xs">
+              Giữ dòng {prevRow || 1} (Mặc định)
+            </SelectItem>
+            <SelectItem value="keep_this" className="text-xs">
+              Giữ dòng {group.rowNumber} này
+            </SelectItem>
           </SelectContent>
         </Select>
       );
     }
 
-    // Render Dropdown nếu là Xếp loại
+    const valKey = `${group.rowNumber}_${err.targetField}`;
+    const currentVal = fixedValues[valKey] ?? autoSuggestFixedValue(err) ?? '';
+    const isFieldValid = validateFixedValue(err, currentVal);
+
+    // Style viền đỏ trực tiếp (inline red border) giống Excel khi ô bị sai format
+    const inputStyleClass = isFieldValid
+      ? 'h-8 text-xs border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20 focus:ring-emerald-500'
+      : 'h-8 text-xs border-destructive bg-destructive/10 text-destructive focus:ring-destructive animate-pulse';
+
+    // Render SearchCombobox cho Nơi sinh
+    if (err.targetField === 'place_of_birth') {
+      const provinceOptions = VIETNAM_PROVINCES.map((p) => ({ label: p, value: p }));
+      return (
+        <SearchCombobox
+          value={currentVal}
+          onChange={(val) => handleFieldValueChange(group, err, val)}
+          options={provinceOptions}
+          placeholder="Chọn Tỉnh/Thành"
+          searchPlaceholder="Tìm Tỉnh/Thành..."
+        />
+      );
+    }
+
+    // Render Dropdown cho Xếp loại
     if (err.targetField === 'classification') {
       return (
         <Select
           value={currentVal}
           onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger className={`w-full ${inputStyleClass}`}>
             <SelectValue placeholder="Chọn Xếp loại" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-48">
             {CLASSIFICATION_OPTIONS.map((c) => (
               <SelectItem key={c} value={c} className="text-xs">
                 {c}
@@ -427,49 +543,33 @@ export function IssuerFileErrorModal({
       );
     }
 
-    // Render Dropdown nếu là Loại bằng
+    // Render SearchCombobox cho Loại bằng
     if (err.targetField === 'degree_type') {
-      const vanBangList = DEGREE_TYPES.filter((d) => d.category === 'Văn bằng');
-      const chungChiList = DEGREE_TYPES.filter((d) => d.category === 'Chứng chỉ');
+      const degreeOptions = DEGREE_TYPES.map((d) => ({
+        label: d.label,
+        value: d.label,
+        group: d.category,
+      }));
 
       return (
-        <Select
+        <SearchCombobox
           value={currentVal}
-          onValueChange={(val) => handleFieldValueChange(group, err, val)}
-        >
-          <SelectTrigger className="h-8 text-xs w-full">
-            <SelectValue placeholder="Chọn Loại bằng / Chứng chỉ" />
-          </SelectTrigger>
-          <SelectContent className="max-h-48">
-            <SelectGroup>
-              <SelectLabel className="text-xs font-bold text-primary">Văn bằng</SelectLabel>
-              {vanBangList.map((item) => (
-                <SelectItem key={item.label} value={item.label} className="text-xs">
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-            <SelectGroup>
-              <SelectLabel className="text-xs font-bold text-primary">Chứng chỉ</SelectLabel>
-              {chungChiList.map((item) => (
-                <SelectItem key={item.label} value={item.label} className="text-xs">
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          onChange={(val) => handleFieldValueChange(group, err, val)}
+          options={degreeOptions}
+          placeholder="Chọn Loại bằng / Chứng chỉ"
+          searchPlaceholder="Tìm loại bằng..."
+        />
       );
     }
 
-    // Render Dropdown nếu là Hình thức đào tạo
+    // Render Dropdown cho Hình thức đào tạo
     if (err.targetField === 'mode_of_study') {
       return (
         <Select
           value={currentVal}
           onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger className={`w-full ${inputStyleClass}`}>
             <SelectValue placeholder="Chọn Hình thức đào tạo" />
           </SelectTrigger>
           <SelectContent>
@@ -483,14 +583,14 @@ export function IssuerFileErrorModal({
       );
     }
 
-    // Render Dropdown nếu là Giới tính
+    // Render Dropdown cho Giới tính
     if (err.targetField === 'gender') {
       return (
         <Select
           value={currentVal || 'Nam'}
           onValueChange={(val) => handleFieldValueChange(group, err, val === 'N' ? 'N' : '')}
         >
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger className={`w-full ${inputStyleClass}`}>
             <SelectValue placeholder="Chọn Giới tính" />
           </SelectTrigger>
           <SelectContent>
@@ -524,7 +624,7 @@ export function IssuerFileErrorModal({
               handleFieldValueChange(group, err, raw);
             }
           }}
-          className="h-8 text-xs font-sans"
+          className={inputStyleClass}
         />
       );
     }
@@ -541,18 +641,18 @@ export function IssuerFileErrorModal({
             handleFieldValueChange(group, err, onlyDigits);
           }}
           placeholder="079203012345 (12 số)"
-          className="h-8 text-xs font-mono"
+          className={`${inputStyleClass} font-mono`}
         />
       );
     }
 
-    // Default: Input text cho phép user nhập chỉnh sửa
+    // Default: Input text với viền đỏ trực tiếp nếu sai format
     return (
       <Input
         value={currentVal}
         onChange={(e) => handleFieldValueChange(group, err, e.target.value)}
         placeholder="Nhập giá trị đúng..."
-        className="h-8 text-xs"
+        className={inputStyleClass}
       />
     );
   };
@@ -563,38 +663,37 @@ export function IssuerFileErrorModal({
         open={isOpen}
         onOpenChange={(open) => {
           if (!open) {
-            setShowConfirmClose(true);
+            onCancel();
           }
         }}
       >
-        <DialogContent className="sm:max-w-6xl w-[96vw] max-h-[85vh] flex flex-col sm:rounded-lg p-6 gap-4">
+        <DialogContent className="sm:max-w-6xl w-[96vw] max-h-[90vh] flex flex-col sm:rounded-lg p-6 gap-4">
           <DialogHeader className="shrink-0 border-b pb-3">
-            <DialogTitle className="flex items-center gap-2 text-destructive text-xl">
-              <AlertCircle className="w-5 h-5" />
-              {t('csvErrorsDetected')}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-sm">
-              {t('csvErrorsDesc')}
-            </DialogDescription>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <DialogTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
+                  <AlertCircle className="w-5 h-5 text-amber-500" />
+                  {t('fileErrorsDetected')}
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground text-sm mt-1">
+                  {t('fileErrorsDesc')}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto border rounded-md max-h-[420px]">
+          {/* Bảng hiển thị danh sách dòng lỗi */}
+          <div className="flex-1 overflow-y-auto border rounded-md max-h-[400px]">
             <Table className="w-full relative border-collapse">
               <TableHeader className="bg-muted sticky top-0 z-20 shadow-sm">
                 <TableRow>
-                  <TableHead className="w-[45px] text-center">
-                    <Checkbox
-                      checked={allFormatSelected}
-                      onCheckedChange={toggleSelectAllFormat}
-                      title={t('selectAllFormatErrors') || 'Chọn tất cả dòng lỗi định dạng'}
-                    />
-                  </TableHead>
                   <TableHead className="w-[50px] text-center">{t('rowNumber')}</TableHead>
-                  <TableHead className="w-[90px]">{t('issueType')}</TableHead>
-                  <TableHead className="w-[125px]">Trường dữ liệu</TableHead>
-                  <TableHead className="w-[125px]">Giá trị cũ (Gốc)</TableHead>
-                  <TableHead className="w-[170px]">Giá trị đã sửa</TableHead>
-                  <TableHead className="min-w-[280px]">{t('issueDetail')}</TableHead>
+                  <TableHead className="w-[120px]">{t('issueType')}</TableHead>
+                  <TableHead className="w-[140px]">Trường thông tin</TableHead>
+                  <TableHead className="w-[140px]">Dữ liệu gốc</TableHead>
+                  <TableHead className="w-[200px]">Sửa trực tiếp</TableHead>
+                  <TableHead className="min-w-[240px]">{t('issueDetail')}</TableHead>
+                  <TableHead className="w-[100px] text-center">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -603,67 +702,74 @@ export function IssuerFileErrorModal({
                   const isValid = isGroupValid(group, fixedValues);
                   const errorCount = group.errors.length;
 
+                  // Xác định phân loại 3 nhóm
+                  let categoryTag = { label: 'Lỗi thông tin', color: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300' };
+                  if (group.isDuplicate) {
+                    categoryTag = { label: 'Trùng trong file', color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
+                  } else if (isValid) {
+                    categoryTag = { label: 'Đã sửa hợp lệ', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' };
+                  }
+
                   return group.errors.map((err, errIdx) => (
                     <TableRow
                       key={`${group.rowNumber}_${errIdx}`}
-                      className={`${isSelected ? 'bg-primary/5' : ''} ${
-                        errIdx === errorCount - 1 ? 'border-b-2 border-border' : 'border-b-0'
-                      }`}
+                      className={`${isSelected ? 'bg-emerald-50/30 dark:bg-emerald-950/10' : ''} ${errIdx === errorCount - 1 ? 'border-b-2 border-border' : 'border-b-0'
+                        }`}
                     >
-                      {/* Cột Checkbox - chỉ render ở sub-row đầu tiên với rowSpan */}
+                      {/* Cột Số Dòng */}
                       {errIdx === 0 && (
-                        <TableCell rowSpan={errorCount} className="text-center align-top pt-3 border-r">
-                          {group.isDuplicate ? (
-                            <span className="text-muted-foreground italic text-xs select-none">-</span>
-                          ) : (
-                            <Checkbox
-                              checked={isSelected}
-                              disabled={!isValid}
-                              onCheckedChange={() => toggleSelectRow(group)}
-                            />
-                          )}
-                        </TableCell>
-                      )}
-
-                      {/* Cột Dòng - chỉ render ở sub-row đầu tiên */}
-                      {errIdx === 0 && (
-                        <TableCell rowSpan={errorCount} className="font-medium text-center align-top pt-3 border-r">
+                        <TableCell rowSpan={errorCount} className="font-bold text-center align-top pt-3 border-r">
                           {group.rowNumber}
                         </TableCell>
                       )}
 
-                      {/* Cột Loại lỗi - chỉ render ở sub-row đầu tiên */}
+                      {/* Cột Trạng thái phân loại */}
                       {errIdx === 0 && (
                         <TableCell rowSpan={errorCount} className="align-top pt-3 border-r">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
-                            group.isDuplicate
-                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                              : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
-                          }`}>
-                            {group.isDuplicate ? 'Trùng lặp' : 'Định dạng'}
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${categoryTag.color}`}>
+                            {categoryTag.label}
                           </span>
                         </TableCell>
                       )}
 
-                      {/* Cột Trường dữ liệu */}
-                      <TableCell className="w-[125px] font-medium text-xs py-2">
+                      {/* Cột Trường thông tin */}
+                      <TableCell className="w-[140px] font-medium text-xs py-2">
                         {err.fieldName || 'Dữ liệu'}
                       </TableCell>
 
-                      {/* Cột Giá trị cũ (Gốc) - thu gọn kích thước gọn gàng w-[125px] */}
-                      <TableCell className="w-[125px] text-xs text-muted-foreground bg-muted/30 font-mono py-2 truncate max-w-[125px]">
+                      {/* Cột Dữ liệu gốc */}
+                      <TableCell className="w-[140px] text-xs text-muted-foreground bg-muted/30 font-mono py-2 truncate max-w-[140px]">
                         {err.oldValue !== undefined && err.oldValue !== '' ? err.oldValue : '(Trống)'}
                       </TableCell>
 
-                      {/* Cột Giá trị đã sửa */}
-                      <TableCell className="w-[170px] py-2">
+                      {/* Cột Sửa trực tiếp (Inline editing) */}
+                      <TableCell className="w-[200px] py-2">
                         {renderFixedInputForErr(group, err)}
                       </TableCell>
 
-                      {/* Cột Chi tiết - hiển thị lý do/quy định format gọn gàng */}
+                      {/* Cột Chi tiết vấn đề */}
                       <TableCell className="text-muted-foreground text-xs py-2">
                         {getErrorMessage(err)}
                       </TableCell>
+
+                      {/* Cột Badge Trạng Thái Hành Động (Sẽ gửi / Sẽ bỏ qua) */}
+                      {errIdx === 0 && (
+                        <TableCell rowSpan={errorCount} className="text-center align-top pt-3 border-l">
+                          <Button
+                            type="button"
+                            variant={isSelected ? 'default' : 'outline'}
+                            size="sm"
+                            disabled={!isValid && !group.isDuplicate}
+                            onClick={() => toggleRowBadgeStatus(group)}
+                            className={`h-7 px-2.5 text-xs font-semibold transition-all ${isSelected
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                              : 'text-muted-foreground border-dashed hover:border-solid'
+                              }`}
+                          >
+                            {isSelected ? t('badgeWillSend') : t('badgeWillSkip')}
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ));
                 })}
@@ -672,56 +778,29 @@ export function IssuerFileErrorModal({
           </div>
 
           <DialogFooter className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t">
+            <Button variant="outline" onClick={onCancel}>
+              {t('cancelUpload')}
+            </Button>
+
             <div className="flex flex-wrap flex-row justify-end gap-3 w-full sm:w-auto">
-              <Button variant="outline" onClick={() => setShowConfirmClose(true)}>
-                {t('cancelUpload')}
-              </Button>
-              <Button variant="secondary" onClick={onContinue}>
-                {t('continueWithoutErrors')}
+              <Button
+                variant="secondary"
+                onClick={handleSendValidOnly}
+                className="font-medium text-xs"
+              >
+                {t('continueWithoutErrors')} ({validRowsCount})
               </Button>
               <Button
-                onClick={() => {
-                  const selectedNums = Object.keys(selectedRows)
-                    .map(Number)
-                    .filter((r) => selectedRows[r]);
-                  if (onProcessSelectedRows) {
-                    onProcessSelectedRows(selectedNums);
-                  } else {
-                    onContinue();
-                  }
-                }}
+                onClick={handleSendSelected}
                 disabled={selectedCount === 0}
-                className="bg-primary text-primary-foreground font-semibold"
+                className="bg-primary text-primary-foreground font-semibold text-xs"
               >
-                {t('processSelectedRows') || 'Xử lý các dòng đã chọn'} ({selectedCount})
+                {t('sendSelectedRowsBtn').replace('{X}', String(selectedCount))}
               </Button>
             </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Confirmation Modal khi click nút 'X' hoặc 'Hủy' */}
-      <AlertDialog open={showConfirmClose} onOpenChange={setShowConfirmClose}>
-        <AlertDialogContent className="sm:max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg font-bold flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              {t('confirmCancelUploadTitle') || 'Xác nhận hủy quá trình tải lên?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-muted-foreground pt-1">
-              {t('confirmCancelUploadDesc') || 'Mọi thay đổi đã chỉnh sửa trong danh sách lỗi sẽ không được lưu. Bạn có chắc chắn muốn thoát?'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex flex-row justify-end gap-3 pt-3">
-            <AlertDialogCancel onClick={() => setShowConfirmClose(false)}>
-              {t('continueEditingBtn') || 'Tiếp tục chỉnh sửa'}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {t('confirmCloseBtn') || 'Xác nhận đóng'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

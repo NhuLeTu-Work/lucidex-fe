@@ -53,35 +53,88 @@ export function IssuerDuplicateComparison({
 
   const currentRecord = duplicates[currentIndex];
 
-  // Khai báo danh sách các trường cần kiểm tra
+  // Khai báo danh sách các trường cần kiểm tra và hiển thị
+  // Hỗ trợ cả tên trường trong `existing`/`incoming` lẫn thuộc tính ở cấp root của currentRecord
   const allFields = [
-    { key: 'fullName', altKey: 'full_name', label: t('fullName') || 'Họ và tên' },
-    { key: 'dob', altKey: 'dob', label: t('dob') || 'Ngày sinh' },
-    { key: 'major', altKey: 'major_vi', label: t('major') || 'Ngành học' },
-    { key: 'gradYear', altKey: 'graduation_year', label: t('gradYear') || 'Năm tốt nghiệp' },
+    {
+      key: 'studentId',
+      altKeys: ['student_id', 'studentId'],
+      label: 'Mã SV / MSSV',
+      getValueFromRecord: () => currentRecord.studentId,
+    },
+    {
+      key: 'classCode',
+      altKeys: ['class_code', 'class_id', 'classCode'],
+      label: 'Lớp',
+      getValueFromRecord: () => currentRecord.classCode,
+    },
+    {
+      key: 'fullName',
+      altKeys: ['full_name', 'fullName'],
+      label: t('fullName') || 'Họ và tên',
+    },
+    {
+      key: 'dob',
+      altKeys: ['dob', 'date_of_birth'],
+      label: t('dob') || 'Ngày sinh',
+    },
+    {
+      key: 'modeStudy',
+      altKeys: ['mode_of_study_vi', 'mode_of_study', 'modeStudy'],
+      label: 'Hình thức đào tạo',
+    },
+    {
+      key: 'classification',
+      altKeys: ['graduation_classification_vi', 'classification', 'graduation_classification'],
+      label: t('classification') || 'Xếp loại tốt nghiệp',
+    },
+    {
+      key: 'major',
+      altKeys: ['major_vi', 'major', 'major_en'],
+      label: t('major') || 'Ngành học',
+    },
+    {
+      key: 'gradYear',
+      altKeys: ['graduation_year', 'gradYear'],
+      label: t('gradYear') || 'Năm tốt nghiệp',
+    },
   ];
 
-  const getFieldValue = (record: any, field: { key: string; altKey: string }) => {
-    if (!record) return '';
-    const val = record[field.key] ?? record[field.altKey] ?? '';
-    if (field.key === 'dob') {
+  const getFieldValue = (record: any, field: any) => {
+    let val = '';
+    if (record) {
+      for (const k of field.altKeys || []) {
+        if (record[k] !== undefined && record[k] !== null && record[k] !== '') {
+          val = record[k];
+          break;
+        }
+      }
+    }
+    // Nếu trong record không có (ví dụ backend trả student_id & class_code ở cấp item root)
+    if (!val && field.getValueFromRecord) {
+      val = field.getValueFromRecord() || '';
+    }
+    if (field.key === 'dob' && val) {
       return formatDateDDMMYYYY(val);
     }
-    return val;
+    return String(val);
   };
 
-  // Lọc ra CHỈ NHỮNG TRƯỜNG CÓ DỮ LIỆU KHÁC NHAU
+  // Lọc ra CÁC TRƯỜNG CÓ DỮ LIỆU KHÁC NHAU (nhưng luôn giữ lại Mã SV & Lớp để đối chiếu trực quan)
   const differingFields = allFields.filter(
-    (field) => getFieldValue(currentRecord.existing, field) !== getFieldValue(currentRecord.incoming, field)
+    (field) =>
+      field.key === 'studentId' ||
+      field.key === 'classCode' ||
+      getFieldValue(currentRecord.existing, field) !== getFieldValue(currentRecord.incoming, field)
   );
 
-  // Fallback: Nếu dữ liệu giống nhau 100%, vẫn hiển thị toàn bộ để UI không bị trống
-  const displayFields = differingFields.length > 0 ? differingFields : allFields;
+  // Fallback: Nếu không có điểm khác biệt nào ngoài mã SV & Lớp, hiển thị toàn bộ allFields
+  const displayFields = differingFields.length > 2 ? differingFields : allFields;
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      {/* Tăng width component: max-w-5xl thay vì 4xl */}
-      <DialogContent className="w-[95vw] max-w-3xl overflow-hidden sm:rounded-lg">
+      {/* Tăng width component lên sm:max-w-6xl w-[96vw] để xem hết các cột không bị scrollbar ngang */}
+      <DialogContent className="sm:max-w-6xl w-[96vw] max-h-[88vh] flex flex-col sm:rounded-lg p-6 overflow-hidden">
         {isCompleting ? (
           <div className="flex flex-col items-center justify-center py-12 space-y-4">
             <Loader2 className="w-12 h-12 text-primary animate-spin" />
@@ -90,55 +143,60 @@ export function IssuerDuplicateComparison({
           </div>
         ) : (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <AlertCircle className="text-amber-500" />
+            <DialogHeader className="shrink-0 border-b pb-3">
+              <DialogTitle className="flex items-center gap-2 text-amber-600 text-xl font-bold">
+                <AlertCircle className="w-5 h-5 text-amber-500" />
                 {t('duplicateDetected')}
               </DialogTitle>
-              <DialogDescription>
-                {t('duplicateDesc')} (ID:{' '}
-                <span className="font-bold text-foreground">{currentRecord.studentId}</span>)
+              <DialogDescription className="text-sm text-muted-foreground">
+                {t('duplicateDesc')} (Mã SV:{' '}
+                <span className="font-bold text-foreground">{currentRecord.studentId}</span>
+                {currentRecord.classCode ? `, Lớp: ${currentRecord.classCode}` : ''})
               </DialogDescription>
             </DialogHeader>
 
-            <div className="py-4 w-full max-w-full overflow-x-auto">
-              <Table className="border rounded-md">
-                <TableHeader className="bg-muted/50">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden border rounded-md my-3">
+              <Table className="w-full relative border-collapse">
+                <TableHeader className="bg-muted/90 sticky top-0 z-10 backdrop-blur-sm shadow-sm">
                   <TableRow>
-                    <TableHead className="w-[200px]">{t('dataSource')}</TableHead>
+                    <TableHead className="w-[140px] font-bold">{t('dataSource')}</TableHead>
                     {/* Render linh hoạt các cột khác nhau */}
                     {displayFields.map((field) => (
-                      <TableHead key={field.key} className="whitespace-nowrap">
+                      <TableHead key={field.key} className="font-bold">
                         {field.label}
                       </TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="bg-muted/10">
-                    <TableCell className="font-medium text-muted-foreground">
-                      {t('existingRecord')}
+                  <TableRow className="bg-muted/10 hover:bg-muted/20">
+                    <TableCell className="font-semibold text-amber-700 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-950/20">
+                      {t('existingRecord')} (Đã lưu)
                     </TableCell>
                     {displayFields.map((field) => (
-                      <TableCell key={field.key}>{getFieldValue(currentRecord.existing, field)}</TableCell>
+                      <TableCell key={field.key} className="text-xs font-mono">
+                        {getFieldValue(currentRecord.existing, field) || '(Trống)'}
+                      </TableCell>
                     ))}
                   </TableRow>
 
-                  <TableRow className="bg-primary/5">
-                    <TableCell className="font-medium text-primary">
-                      {t('incomingRecord')}
+                  <TableRow className="bg-primary/5 hover:bg-primary/10">
+                    <TableCell className="font-semibold text-primary bg-primary/10">
+                      {t('incomingRecord')} (File mới)
                     </TableCell>
                     {displayFields.map((field) => (
-                      <TableCell key={field.key}>{getFieldValue(currentRecord.incoming, field)}</TableCell>
+                      <TableCell key={field.key} className="text-xs font-mono font-medium">
+                        {getFieldValue(currentRecord.incoming, field) || '(Trống)'}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableBody>
               </Table>
             </div>
 
-            <DialogFooter className="flex flex-wrap justify-between items-center w-full gap-4 mt-2">
+            <DialogFooter className="shrink-0 flex flex-wrap justify-between items-center w-full gap-4 pt-2 border-t">
               <div className="flex items-center gap-6 w-full sm:w-auto overflow-hidden">
-                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                   {currentIndex + 1} / {duplicates.length} {t('duplicatesRemaining')}
                 </span>
               </div>

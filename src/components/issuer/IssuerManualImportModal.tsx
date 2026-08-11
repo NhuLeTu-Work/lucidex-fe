@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useApp } from '@/app/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -22,6 +20,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { CheckIcon, ChevronsUpDownIcon, UserPlus, Loader2 } from 'lucide-react';
 import { importManualCredentialApi } from '@/api/endpoints/issuer/importManualCredentialApi';
 import type { ImportManualCredentialPayload } from '@/api/endpoints/issuer/importManualCredentialApi';
 import {
@@ -32,7 +33,97 @@ import {
   extractGraduationYear,
 } from '@/utils/csvValidator';
 import { VIETNAM_PROVINCES, DEGREE_TYPES, MODE_OF_STUDY_OPTIONS } from '@/utils/credentialConstants';
-import { UserPlus, Loader2 } from 'lucide-react';
+
+interface SearchComboboxProps {
+  id?: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: { label: string; value: string; group?: string }[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+  disabled?: boolean;
+}
+
+function SearchCombobox({
+  id,
+  value,
+  onChange,
+  options,
+  placeholder = 'Chọn...',
+  searchPlaceholder = 'Tìm kiếm...',
+  disabled = false,
+}: SearchComboboxProps) {
+  const [open, setOpen] = useState(false);
+
+  const groupedOptions = useMemo(() => {
+    const hasGroup = options.some((o) => o.group);
+    if (!hasGroup) return { default: options };
+    const res: Record<string, typeof options> = {};
+    options.forEach((o) => {
+      const g = o.group || 'Khác';
+      if (!res[g]) res[g] = [];
+      res[g].push(o);
+    });
+    return res;
+  }, [options]);
+
+  const selectedLabel = options.find((o) => o.value.toLowerCase() === value.toLowerCase())?.label || value;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled}
+          className="h-10 text-sm w-full justify-between font-normal px-3 bg-background border-input"
+        >
+          <span className="truncate">{selectedLabel || placeholder}</span>
+          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] min-w-[260px] p-0 z-[100]"
+        align="start"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <Command className="max-h-[260px]">
+          <CommandInput placeholder={searchPlaceholder} className="h-9 text-sm" />
+          <CommandList
+            className="max-h-[200px] overflow-y-auto overscroll-contain"
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <CommandEmpty className="py-3 text-center text-sm text-muted-foreground">
+              Không tìm thấy kết quả
+            </CommandEmpty>
+            {Object.entries(groupedOptions).map(([groupName, groupItems]) => (
+              <CommandGroup key={groupName} heading={groupName !== 'default' ? groupName : undefined}>
+                {groupItems.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.label}
+                    onSelect={() => {
+                      onChange(item.value);
+                      setOpen(false);
+                    }}
+                    className="text-sm py-2 cursor-pointer flex items-center justify-between"
+                  >
+                    <span className="truncate">{item.label}</span>
+                    {value.toLowerCase() === item.value.toLowerCase() && (
+                      <CheckIcon className="h-4 w-4 shrink-0 text-primary" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 interface IssuerManualImportModalProps {
   isOpen: boolean;
@@ -280,9 +371,6 @@ export function IssuerManualImportModal({
     }
   };
 
-  const vanBangOptions = DEGREE_TYPES.filter((d) => d.category === 'Văn bằng');
-  const chungChiOptions = DEGREE_TYPES.filter((d) => d.category === 'Chứng chỉ');
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl w-[94vw] max-h-[92vh] flex flex-col p-6 sm:p-7 gap-5 overflow-hidden">
@@ -354,22 +442,15 @@ export function IssuerManualImportModal({
               {/* Nơi sinh chọn từ danh sách 63 Tỉnh/Thành */}
               <div className="space-y-2">
                 <Label htmlFor="place_of_birth" className="text-sm font-semibold">Nơi sinh</Label>
-                <Select
+                <SearchCombobox
+                  id="place_of_birth"
                   value={formData.place_of_birth}
-                  onValueChange={(val) => handleChange('place_of_birth', val)}
+                  onChange={(val) => handleChange('place_of_birth', val)}
+                  options={VIETNAM_PROVINCES.map((p) => ({ label: p, value: p }))}
+                  placeholder="Chọn Tỉnh / Thành phố"
+                  searchPlaceholder="Tìm Tỉnh / Thành phố..."
                   disabled={isSubmitting}
-                >
-                  <SelectTrigger id="place_of_birth" className="w-full h-10 text-sm">
-                    <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {VIETNAM_PROVINCES.map((province) => (
-                      <SelectItem key={province} value={province} className="text-sm">
-                        {province}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </div>
 
               {/* Giới tính */}
@@ -565,33 +646,19 @@ export function IssuerManualImportModal({
               {/* Loại bằng / Loại chứng chỉ từ list quy định */}
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="degree_type" className="text-sm font-semibold">Loại bằng / Loại chứng chỉ</Label>
-                <Select
+                <SearchCombobox
+                  id="degree_type"
                   value={formData.degree_type}
-                  onValueChange={(val) => handleChange('degree_type', val)}
+                  onChange={(val) => handleChange('degree_type', val)}
+                  options={DEGREE_TYPES.map((d) => ({
+                    label: d.label,
+                    value: d.label,
+                    group: d.category,
+                  }))}
+                  placeholder="Chọn Loại bằng / Chứng chỉ"
+                  searchPlaceholder="Tìm Loại bằng / Chứng chỉ..."
                   disabled={isSubmitting}
-                >
-                  <SelectTrigger id="degree_type" className="w-full h-10 text-sm">
-                    <SelectValue placeholder="Chọn Loại bằng / Chứng chỉ" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64">
-                    <SelectGroup>
-                      <SelectLabel className="font-bold text-primary text-sm">Văn bằng</SelectLabel>
-                      {vanBangOptions.map((item) => (
-                        <SelectItem key={item.label} value={item.label} className="text-sm">
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                    <SelectGroup className="mt-2">
-                      <SelectLabel className="font-bold text-primary text-sm">Chứng chỉ</SelectLabel>
-                      {chungChiOptions.map((item) => (
-                        <SelectItem key={item.label} value={item.label} className="text-sm">
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                />
               </div>
 
               {/* Năm tốt nghiệp mặc định năm hiện tại */}

@@ -1,6 +1,6 @@
 export const VIETNAM_PROVINCES = [
   'An Giang',
-  'Bà Rịa – Vũng Tàu',
+  'Bà Rịa Vũng Tàu',
   'Bắc Giang',
   'Bắc Kạn',
   'Bạc Liêu',
