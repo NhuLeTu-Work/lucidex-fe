@@ -1,3 +1,10 @@
+import {
+  VIETNAM_PROVINCES,
+  DEGREE_TYPES,
+  MODE_OF_STUDY_OPTIONS,
+  CLASSIFICATION_OPTIONS,
+} from '@/utils/credentialConstants';
+
 export interface CsvCredentialRow {
   stt?: string;
   student_id: string;
@@ -28,6 +35,9 @@ export interface CsvValidationError {
   detailKey: string;
   detailParams?: Record<string, string | number>;
   detailMessage?: string;
+  fieldName?: string;
+  targetField?: keyof CsvCredentialRow;
+  oldValue?: string;
 }
 
 export interface ParseCsvResult {
@@ -394,6 +404,7 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
     const registerNumber = sanitizeTextField(credRow.register_number || '');
     const nationalId = sanitizeTextField(credRow.national_id || '');
     const degreeType = sanitizeTextField(credRow.degree_type || '') || 'Bằng tốt nghiệp đại học';
+    const modeStudy = sanitizeTextField(credRow.mode_of_study || '');
     const cpa = (credRow.cpa || '').trim();
 
     // Updates back into credRow
@@ -410,6 +421,7 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
     credRow.degree_number = degreeNumber;
     credRow.register_number = registerNumber;
     credRow.national_id = nationalId;
+    credRow.mode_of_study = modeStudy;
 
     // Validation checks:
     // 1. Mã SV / MSSV: letters, numbers, -, _ (2-15 chars)
@@ -419,6 +431,9 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
         type: 'format',
         detailKey: 'errInvalidStudentId',
         detailParams: { val: studentId },
+        fieldName: 'Mã SV / MSSV',
+        targetField: 'student_id',
+        oldValue: studentId,
       });
     }
 
@@ -428,6 +443,9 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
         row: rowNumber,
         type: 'format',
         detailKey: 'errInvalidFullname',
+        fieldName: 'Họ và tên',
+        targetField: 'full_name',
+        oldValue: fullName,
       });
     }
 
@@ -438,6 +456,9 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
         type: 'format',
         detailKey: 'errFormatDobDetail',
         detailParams: { val: dob },
+        fieldName: 'Ngày sinh',
+        targetField: 'dob',
+        oldValue: dob,
       });
     }
 
@@ -448,6 +469,9 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
         type: 'format',
         detailKey: 'errInvalidClassId',
         detailParams: { val: classId },
+        fieldName: 'Lớp / Khóa',
+        targetField: 'class_id',
+        oldValue: classId,
       });
     }
 
@@ -458,10 +482,13 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
         type: 'format',
         detailKey: 'errInvalidCpaDetail',
         detailParams: { val: cpa },
+        fieldName: 'Điểm TBC (CPA)',
+        targetField: 'cpa',
+        oldValue: cpa,
       });
     }
 
-    // 6. Năm tốt nghiệp (nếu có cột năm tốt nghiệp): từ 1930 đến (Năm hiện tại + 3)
+    // 6. Năm tốt nghiệp (nếu có): từ 1930 đến (Năm hiện tại + 3)
     const rawGradYear = (credRow.graduation_year || '').trim();
     if (rawGradYear) {
       const gYearNum = parseInt(rawGradYear, 10);
@@ -472,28 +499,92 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
           type: 'format',
           detailKey: 'errInvalidGradYear',
           detailParams: { val: rawGradYear, max: maxAllowedYear },
+          fieldName: 'Năm tốt nghiệp',
+          targetField: 'graduation_year',
+          oldValue: rawGradYear,
         });
       }
     }
 
-    // 6. General text rules for optional text fields
-    const optionalTextFields: [string, string][] = [
-      ['place_of_birth', placeOfBirth],
-      ['faculty', faculty],
-      ['major', major],
-      ['specialization', specialization],
-      ['classification', classification],
-      ['degree_number', degreeNumber],
-      ['register_number', registerNumber],
+    // 7. Chuẩn hóa Giới tính: N/Nữ/Female -> 'N', còn lại -> '' (Nam/Male/null)
+    const genderRaw = (credRow.gender || '').trim().toUpperCase();
+    if (['N', 'NỮ', 'NU', 'FEMALE'].includes(genderRaw)) {
+      credRow.gender = 'N';
+    } else {
+      credRow.gender = '';
+    }
+
+    // 8. Kiểm tra Nơi sinh (phải thuộc danh sách 63 Tỉnh/Thành nếu nhập)
+    if (placeOfBirth && !VIETNAM_PROVINCES.some((p) => p.toLowerCase() === placeOfBirth.toLowerCase())) {
+      errors.push({
+        row: rowNumber,
+        type: 'format',
+        detailKey: 'errInvalidPlaceOfBirthList',
+        detailParams: { val: placeOfBirth },
+        fieldName: 'Nơi sinh',
+        targetField: 'place_of_birth',
+        oldValue: placeOfBirth,
+      });
+    }
+
+    // 9. Kiểm tra Xếp loại tốt nghiệp (phải thuộc danh sách Xuất sắc, Giỏi, Khá, Trung bình nếu nhập)
+    if (classification && !CLASSIFICATION_OPTIONS.some((c) => c.toLowerCase() === classification.toLowerCase())) {
+      errors.push({
+        row: rowNumber,
+        type: 'format',
+        detailKey: 'errInvalidClassificationList',
+        detailParams: { val: classification },
+        fieldName: 'Xếp loại tốt nghiệp',
+        targetField: 'classification',
+        oldValue: classification,
+      });
+    }
+
+    // 10. Kiểm tra Loại bằng / Loại chứng chỉ (phải thuộc danh sách nếu nhập)
+    if (degreeType && degreeType !== 'Bằng tốt nghiệp đại học' && !DEGREE_TYPES.some((d) => d.label.toLowerCase() === degreeType.toLowerCase())) {
+      errors.push({
+        row: rowNumber,
+        type: 'format',
+        detailKey: 'errInvalidDegreeTypeList',
+        detailParams: { val: degreeType },
+        fieldName: 'Loại bằng',
+        targetField: 'degree_type',
+        oldValue: degreeType,
+      });
+    }
+
+    // 11. Kiểm tra Hình thức đào tạo (phải thuộc danh sách Chính quy, Vừa học vừa làm, Đào tạo từ xa nếu nhập)
+    if (modeStudy && !MODE_OF_STUDY_OPTIONS.some((m) => m.toLowerCase() === modeStudy.toLowerCase())) {
+      errors.push({
+        row: rowNumber,
+        type: 'format',
+        detailKey: 'errInvalidModeOfStudyList',
+        detailParams: { val: modeStudy },
+        fieldName: 'Hình thức đào tạo',
+        targetField: 'mode_of_study',
+        oldValue: modeStudy,
+      });
+    }
+
+    // 12. General text rules for optional text fields
+    const optionalTextFields: [keyof CsvCredentialRow, string, string][] = [
+      ['faculty', 'Khoa / Viện', faculty],
+      ['major', 'Ngành học', major],
+      ['specialization', 'Chuyên ngành', specialization],
+      ['degree_number', 'Số hiệu bằng', degreeNumber],
+      ['register_number', 'Số vào sổ gốc', registerNumber],
     ];
 
-    for (const [fieldName, val] of optionalTextFields) {
+    for (const [fKey, fLabel, val] of optionalTextFields) {
       if (val && !isValidGeneralText(val, 2, 300)) {
         errors.push({
           row: rowNumber,
           type: 'format',
           detailKey: 'errInvalidGeneralText',
-          detailParams: { field: fieldName, val },
+          detailParams: { field: fLabel, val },
+          fieldName: fLabel,
+          targetField: fKey,
+          oldValue: val,
         });
       }
     }

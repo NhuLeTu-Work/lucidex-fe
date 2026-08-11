@@ -95,3 +95,11 @@ export const MODE_OF_STUDY_OPTIONS = [
   'Đào tạo từ xa',
 ] as const;
 
+export const CLASSIFICATION_OPTIONS = [
+  'Xuất sắc',
+  'Giỏi',
+  'Khá',
+  'Trung bình',
+] as const;
+
+

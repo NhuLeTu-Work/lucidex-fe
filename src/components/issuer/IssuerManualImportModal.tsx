@@ -40,7 +40,19 @@ interface IssuerManualImportModalProps {
   onSuccess?: () => void;
 }
 
-const initialFormData = {
+// Suy luận Xếp loại tốt nghiệp tự động từ điểm CPA
+function getAutoClassification(cpaStr: string): string {
+  if (!cpaStr.trim()) return '';
+  const num = Number(cpaStr.trim());
+  if (isNaN(num)) return '';
+  if (num >= 3.6) return 'Xuất sắc';
+  if (num >= 3.2) return 'Giỏi';
+  if (num >= 2.5) return 'Khá';
+  if (num >= 2.0) return 'Trung bình';
+  return 'Trung bình';
+}
+
+const getInitialFormData = () => ({
   student_id: '',
   full_name: '',
   dob: '',
@@ -56,11 +68,11 @@ const initialFormData = {
   register_number: '',
   national_id: '',
   degree_type: "Cử nhân (Bachelor's Degree)",
-  graduation_year: '',
-  mode_of_study: '',
+  graduation_year: String(new Date().getFullYear()),
+  mode_of_study: 'Chính quy',
   university_email: '',
   overwrite: false,
-};
+});
 
 // Chuyển đổi giữa YYYY-MM-DD từ input date và DD/MM/YYYY cho backend/validation
 function convertDateToDDMMYYYY(dateStr: string): string {
@@ -97,18 +109,22 @@ export function IssuerManualImportModal({
   onSuccess,
 }: IssuerManualImportModalProps) {
   const { t, showToast } = useApp();
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(getInitialFormData());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      // Nếu thay đổi điểm CPA -> tự động suy luận xếp loại
+      if (field === 'cpa') {
+        updated.classification = getAutoClassification(value);
+      }
+      return updated;
+    });
   };
 
   const handleReset = () => {
-    setFormData(initialFormData);
+    setFormData(getInitialFormData());
   };
 
   const handleClose = () => {
@@ -132,7 +148,10 @@ export function IssuerManualImportModal({
     const maj = sanitizeTextField(formData.major);
     const spec = sanitizeTextField(formData.specialization);
     const cpaVal = formData.cpa.trim();
-    const classif = sanitizeTextField(formData.classification);
+
+    // Tự động suy luận xếp loại nếu chưa có nhưng có CPA
+    const classif = formData.classification || getAutoClassification(cpaVal);
+
     const degNum = sanitizeTextField(formData.degree_number);
     const regNum = sanitizeTextField(formData.register_number);
     const natId = sanitizeTextField(formData.national_id);
@@ -237,9 +256,9 @@ export function IssuerManualImportModal({
         showToast(
           'success',
           response.message ||
-            (response.data?.action === 'updated'
-              ? t('manualUpdateSuccess') || 'Cập nhật thành công'
-              : t('manualCreateSuccess') || 'Thêm thành công')
+          (response.data?.action === 'updated'
+            ? t('manualUpdateSuccess') || 'Cập nhật thành công'
+            : t('manualCreateSuccess') || 'Thêm thành công')
         );
         handleReset();
         onClose();
@@ -266,27 +285,27 @@ export function IssuerManualImportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl w-[94vw] max-h-[90vh] flex flex-col p-6 gap-4 overflow-hidden">
-        <DialogHeader className="shrink-0 border-b pb-3">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <UserPlus className="w-5 h-5 text-primary" />
+      <DialogContent className="sm:max-w-4xl w-[94vw] max-h-[92vh] flex flex-col p-6 sm:p-7 gap-5 overflow-hidden">
+        <DialogHeader className="shrink-0 border-b pb-4">
+          <DialogTitle className="flex items-center gap-2.5 text-2xl font-bold">
+            <UserPlus className="w-6 h-6 text-primary" />
             {t('addManualCredentialTitle') || 'Nhập thủ công 1 bằng cấp'}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-base text-muted-foreground mt-1">
             {t('addManualCredentialDesc') || 'Điền đầy đủ các thông tin chi tiết dưới đây.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form id="manual-import-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-6">
+        <form id="manual-import-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-1 space-y-7">
           {/* Nhóm 1: Thông tin cá nhân */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
               I. Nhóm Thông tin cá nhân
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {/* MSSV */}
-              <div className="space-y-1.5">
-                <Label htmlFor="student_id" className="text-xs font-medium">
+              <div className="space-y-2">
+                <Label htmlFor="student_id" className="text-sm font-semibold">
                   Mã SV / MSSV <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -295,13 +314,14 @@ export function IssuerManualImportModal({
                   value={formData.student_id}
                   onChange={(e) => handleChange('student_id', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                   required
                 />
               </div>
 
               {/* Họ và Tên */}
-              <div className="space-y-1.5">
-                <Label htmlFor="full_name" className="text-xs font-medium">
+              <div className="space-y-2">
+                <Label htmlFor="full_name" className="text-sm font-semibold">
                   Họ và Tên <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -310,13 +330,14 @@ export function IssuerManualImportModal({
                   value={formData.full_name}
                   onChange={(e) => handleChange('full_name', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                   required
                 />
               </div>
 
               {/* Ngày sinh với Date Picker */}
-              <div className="space-y-1.5">
-                <Label htmlFor="dob" className="text-xs font-medium">
+              <div className="space-y-2">
+                <Label htmlFor="dob" className="text-sm font-semibold">
                   Ngày sinh <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -325,24 +346,25 @@ export function IssuerManualImportModal({
                   value={formData.dob}
                   onChange={(e) => handleChange('dob', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                   required
                 />
               </div>
 
               {/* Nơi sinh chọn từ danh sách 63 Tỉnh/Thành */}
-              <div className="space-y-1.5">
-                <Label htmlFor="place_of_birth" className="text-xs font-medium">Nơi sinh</Label>
+              <div className="space-y-2">
+                <Label htmlFor="place_of_birth" className="text-sm font-semibold">Nơi sinh</Label>
                 <Select
                   value={formData.place_of_birth}
                   onValueChange={(val) => handleChange('place_of_birth', val)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger id="place_of_birth" className="w-full">
+                  <SelectTrigger id="place_of_birth" className="w-full h-10 text-sm">
                     <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
                   </SelectTrigger>
                   <SelectContent className="max-h-60">
                     {VIETNAM_PROVINCES.map((province) => (
-                      <SelectItem key={province} value={province}>
+                      <SelectItem key={province} value={province} className="text-sm">
                         {province}
                       </SelectItem>
                     ))}
@@ -351,40 +373,41 @@ export function IssuerManualImportModal({
               </div>
 
               {/* Giới tính */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Giới tính</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Giới tính</Label>
                 <RadioGroup
                   value={formData.gender || 'NAM'}
                   onValueChange={(val) => handleChange('gender', val === 'N' ? 'N' : '')}
                   disabled={isSubmitting}
-                  className="flex items-center space-x-4 pt-1"
+                  className="flex items-center space-x-5 pt-1.5"
                 >
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem value="NAM" id="gender-nam" />
-                    <Label htmlFor="gender-nam" className="text-xs cursor-pointer">Nam</Label>
+                    <Label htmlFor="gender-nam" className="text-sm cursor-pointer font-medium">Nam</Label>
                   </div>
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem value="N" id="gender-nu" />
-                    <Label htmlFor="gender-nu" className="text-xs cursor-pointer">Nữ</Label>
+                    <Label htmlFor="gender-nu" className="text-sm cursor-pointer font-medium">Nữ</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               {/* CCCD */}
-              <div className="space-y-1.5">
-                <Label htmlFor="national_id" className="text-xs font-medium">Căn cước công dân</Label>
+              <div className="space-y-2">
+                <Label htmlFor="national_id" className="text-sm font-semibold">Căn cước công dân</Label>
                 <Input
                   id="national_id"
                   placeholder="VD: 079202012345"
                   value={formData.national_id}
                   onChange={(e) => handleChange('national_id', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* University Email */}
-              <div className="space-y-1.5 sm:col-span-3">
-                <Label htmlFor="university_email" className="text-xs font-medium">Email trường</Label>
+              <div className="space-y-2 sm:col-span-3">
+                <Label htmlFor="university_email" className="text-sm font-semibold">Email trường</Label>
                 <Input
                   id="university_email"
                   type="email"
@@ -392,82 +415,86 @@ export function IssuerManualImportModal({
                   value={formData.university_email}
                   onChange={(e) => handleChange('university_email', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Nhóm 2: Thông tin học vụ */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
               II. Nhóm Thông tin học vụ
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Lớp / Khóa */}
-              <div className="space-y-1.5">
-                <Label htmlFor="class_id" className="text-xs font-medium">
-                  Lớp / Khóa <span className="text-destructive">*</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="class_id" className="text-sm font-semibold">
+                  Lớp <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="class_id"
-                  placeholder="VD: IT1-K62"
+                  placeholder="VD: SP2201A1"
                   value={formData.class_id}
                   onChange={(e) => handleChange('class_id', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                   required
                 />
               </div>
 
               {/* Khoa / Viện */}
-              <div className="space-y-1.5">
-                <Label htmlFor="faculty" className="text-xs font-medium">Khoa / Viện</Label>
+              <div className="space-y-2">
+                <Label htmlFor="faculty" className="text-sm font-semibold">Khoa / Viện</Label>
                 <Input
                   id="faculty"
                   placeholder="VD: Công nghệ Thông tin"
                   value={formData.faculty}
                   onChange={(e) => handleChange('faculty', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* Ngành học */}
-              <div className="space-y-1.5">
-                <Label htmlFor="major" className="text-xs font-medium">Ngành học</Label>
+              <div className="space-y-2">
+                <Label htmlFor="major" className="text-sm font-semibold">Ngành học</Label>
                 <Input
                   id="major"
                   placeholder="VD: Kỹ thuật Phần mềm"
                   value={formData.major}
                   onChange={(e) => handleChange('major', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* Chuyên ngành */}
-              <div className="space-y-1.5">
-                <Label htmlFor="specialization" className="text-xs font-medium">Chuyên ngành</Label>
+              <div className="space-y-2">
+                <Label htmlFor="specialization" className="text-sm font-semibold">Chuyên ngành</Label>
                 <Input
                   id="specialization"
                   placeholder="VD: Trí tuệ Nhân tạo"
                   value={formData.specialization}
                   onChange={(e) => handleChange('specialization', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* Hình thức đào tạo / Mode of study */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="mode_of_study" className="text-xs font-medium">Hình thức đào tạo</Label>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="mode_of_study" className="text-sm font-semibold">Hình thức đào tạo</Label>
                 <Select
                   value={formData.mode_of_study}
                   onValueChange={(val) => handleChange('mode_of_study', val)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger id="mode_of_study" className="w-full">
+                  <SelectTrigger id="mode_of_study" className="w-full h-10 text-sm">
                     <SelectValue placeholder="Chọn Hình thức đào tạo" />
                   </SelectTrigger>
                   <SelectContent>
                     {MODE_OF_STUDY_OPTIONS.map((mode) => (
-                      <SelectItem key={mode} value={mode}>
+                      <SelectItem key={mode} value={mode} className="text-sm">
                         {mode}
                       </SelectItem>
                     ))}
@@ -478,91 +505,87 @@ export function IssuerManualImportModal({
           </div>
 
           {/* Nhóm 3: Kết quả & Cấp bằng */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-primary uppercase tracking-wider border-b pb-1">
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
               III. Nhóm Kết quả & Cấp bằng
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {/* CPA */}
-              <div className="space-y-1.5">
-                <Label htmlFor="cpa" className="text-xs font-medium">Điểm TBC (CPA)</Label>
+              <div className="space-y-2">
+                <Label htmlFor="cpa" className="text-sm font-semibold">Điểm TBC (CPA)</Label>
                 <Input
                   id="cpa"
                   placeholder="VD: 3.45"
                   value={formData.cpa}
                   onChange={(e) => handleChange('cpa', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
-              {/* Xếp loại tốt nghiệp với Select dropdown */}
-              <div className="space-y-1.5">
-                <Label htmlFor="classification" className="text-xs font-medium">Xếp loại tốt nghiệp</Label>
-                <Select
-                  value={formData.classification}
-                  onValueChange={(val) => handleChange('classification', val)}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger id="classification" className="w-full">
-                    <SelectValue placeholder="Chọn xếp loại" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Xuất sắc">Xuất sắc</SelectItem>
-                    <SelectItem value="Giỏi">Giỏi</SelectItem>
-                    <SelectItem value="Khá">Khá</SelectItem>
-                    <SelectItem value="Trung bình">Trung bình</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Xếp loại tốt nghiệp (tự động suy luận từ CPA & đọc chỉ) */}
+              <div className="space-y-2">
+                <Label htmlFor="classification" className="text-sm font-semibold">Xếp loại tốt nghiệp (Tự động)</Label>
+                <Input
+                  id="classification"
+                  value={formData.classification || (formData.cpa ? getAutoClassification(formData.cpa) : '')}
+                  readOnly
+                  disabled
+                  placeholder="Tự động từ CPA"
+                  className="h-10 text-sm bg-muted font-medium text-foreground cursor-not-allowed"
+                />
               </div>
 
               {/* Số hiệu bằng */}
-              <div className="space-y-1.5">
-                <Label htmlFor="degree_number" className="text-xs font-medium">Số hiệu bằng</Label>
+              <div className="space-y-2">
+                <Label htmlFor="degree_number" className="text-sm font-semibold">Số hiệu bằng</Label>
                 <Input
                   id="degree_number"
                   placeholder="VD: 012345"
                   value={formData.degree_number}
                   onChange={(e) => handleChange('degree_number', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* Số vào sổ gốc */}
-              <div className="space-y-1.5">
-                <Label htmlFor="register_number" className="text-xs font-medium">Số vào sổ gốc</Label>
+              <div className="space-y-2">
+                <Label htmlFor="register_number" className="text-sm font-semibold">Số vào sổ gốc</Label>
                 <Input
                   id="register_number"
                   placeholder="VD: 152/2026/QĐ-ĐHCT"
                   value={formData.register_number}
                   onChange={(e) => handleChange('register_number', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
 
               {/* Loại bằng / Loại chứng chỉ từ list quy định */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="degree_type" className="text-xs font-medium">Loại bằng / Loại chứng chỉ</Label>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="degree_type" className="text-sm font-semibold">Loại bằng / Loại chứng chỉ</Label>
                 <Select
                   value={formData.degree_type}
                   onValueChange={(val) => handleChange('degree_type', val)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger id="degree_type" className="w-full">
+                  <SelectTrigger id="degree_type" className="w-full h-10 text-sm">
                     <SelectValue placeholder="Chọn Loại bằng / Chứng chỉ" />
                   </SelectTrigger>
                   <SelectContent className="max-h-64">
                     <SelectGroup>
-                      <SelectLabel className="font-semibold text-primary">Văn bằng</SelectLabel>
+                      <SelectLabel className="font-bold text-primary text-sm">Văn bằng</SelectLabel>
                       {vanBangOptions.map((item) => (
-                        <SelectItem key={item.label} value={item.label}>
+                        <SelectItem key={item.label} value={item.label} className="text-sm">
                           {item.label}
                         </SelectItem>
                       ))}
                     </SelectGroup>
                     <SelectGroup className="mt-2">
-                      <SelectLabel className="font-semibold text-primary">Chứng chỉ</SelectLabel>
+                      <SelectLabel className="font-bold text-primary text-sm">Chứng chỉ</SelectLabel>
                       {chungChiOptions.map((item) => (
-                        <SelectItem key={item.label} value={item.label}>
+                        <SelectItem key={item.label} value={item.label} className="text-sm">
                           {item.label}
                         </SelectItem>
                       ))}
@@ -571,39 +594,40 @@ export function IssuerManualImportModal({
                 </Select>
               </div>
 
-              {/* Năm tốt nghiệp */}
-              <div className="space-y-1.5">
-                <Label htmlFor="graduation_year" className="text-xs font-medium">Năm tốt nghiệp</Label>
+              {/* Năm tốt nghiệp mặc định năm hiện tại */}
+              <div className="space-y-2">
+                <Label htmlFor="graduation_year" className="text-sm font-semibold">Năm tốt nghiệp</Label>
                 <Input
                   id="graduation_year"
-                  placeholder="Tự trích xuất từ lớp hoặc nhập (VD: 2026)"
+                  placeholder="VD: 2026"
                   value={formData.graduation_year}
                   onChange={(e) => handleChange('graduation_year', e.target.value)}
                   disabled={isSubmitting}
+                  className="h-10 text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Ghi đè tùy chọn */}
-          <div className="pt-2 border-t flex items-center space-x-2">
+          <div className="pt-3 border-t flex items-center space-x-2.5">
             <Checkbox
               id="manual-overwrite"
               checked={formData.overwrite}
               onCheckedChange={(checked) => handleChange('overwrite', checked as boolean)}
               disabled={isSubmitting}
             />
-            <Label htmlFor="manual-overwrite" className="text-xs font-medium leading-none cursor-pointer">
+            <Label htmlFor="manual-overwrite" className="text-sm font-medium leading-none cursor-pointer">
               {t('manualOverwriteDesc') || 'Cho phép ghi đè nếu dữ liệu đã tồn tại'}
             </Label>
           </div>
         </form>
 
-        <DialogFooter className="shrink-0 flex flex-row justify-end gap-3 pt-3 border-t">
-          <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
+        <DialogFooter className="shrink-0 flex flex-row justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting} className="h-10 text-sm">
             {t('cancel')}
           </Button>
-          <Button type="submit" form="manual-import-form" disabled={isSubmitting} className="min-w-[110px]">
+          <Button type="submit" form="manual-import-form" disabled={isSubmitting} className="min-w-[120px] h-10 text-sm font-semibold">
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
