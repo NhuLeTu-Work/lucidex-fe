@@ -9,7 +9,7 @@ export function AdminSidebarDesktop({ activeTab, setActiveTab, pendingCount, cur
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r hidden md:block border-[var(--ct-border)] bg-[var(--ct-surface)]">
+    <aside className="w-64 flex-shrink-0 border-r hidden md:flex md:flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto border-[var(--ct-border)] bg-[var(--ct-surface)]">
       <div className="p-6 border-b border-[var(--ct-border)]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-black">

@@ -15,7 +15,7 @@ export function SuperAdminSidebar({ activeTab, setActiveTab, t }: SuperAdminSide
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r hidden md:block" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+    <aside className="w-64 flex-shrink-0 border-r hidden md:flex md:flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-red-600">
