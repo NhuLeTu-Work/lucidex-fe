@@ -243,7 +243,7 @@ export function IssuerManualImportModal({
         gender: genderVal,
         faculty: fac || undefined,
         specialization: spec || undefined,
-        cpa: cpaVal ? Number(cpaVal) : null,
+        cpa: cpaVal || undefined,
         degree_number: degNum || undefined,
         register_number: regNum || undefined,
         degree_type: degType,

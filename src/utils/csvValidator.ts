@@ -60,6 +60,38 @@ export function sanitizeTextField(text: string): string {
 }
 
 /**
+ * Removes special characters and digits, preserving letters and spaces
+ */
+export function removeSpecialCharsAndDigits(text: string): string {
+  if (!text) return '';
+  return text.replace(/[^\p{L}\s]/gu, '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Capitalizes first letter of each word (Title Case) - e.g., 'cần thơ' -> 'Cần Thơ'
+ */
+export function capitalizeWords(text: string): string {
+  const cleaned = removeSpecialCharsAndDigits(text);
+  if (!cleaned) return '';
+  return cleaned
+    .toLowerCase()
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Capitalizes only the first letter of the whole string - e.g., 'chính quy' -> 'Chính quy'
+ */
+export function capitalizeFirstLetter(text: string): string {
+  const cleaned = removeSpecialCharsAndDigits(text);
+  if (!cleaned) return '';
+  const lower = cleaned.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+/**
  * Normalizes header string by trimming and removing extra spaces between words
  */
 export function normalizeHeaderString(h: string): string {
@@ -455,8 +487,28 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
       continue;
     }
 
-    // Validation checks:
-    // 1. Mã SV / MSSV: letters, numbers, -, _ (2-15 chars)
+    // 1. KIỂM TRA TRÙNG LẶP NỘI BỘ TRƯỚC: [student_id + class_id]
+    // Nếu bị trùng -> Chỉ báo lỗi trùng, không kiểm tra tiếp các lỗi format
+    const uniqueKey = `${studentId.toUpperCase()}_${classId.toUpperCase()}`;
+    if (keyMap.has(uniqueKey)) {
+      const prevRow = keyMap.get(uniqueKey)!;
+      errors.push({
+        row: rowNumber,
+        type: 'duplicate',
+        detailKey: 'errInternalDuplicateDetail',
+        detailParams: { studentId, classId, prevRow },
+        fieldName: 'Mã SV / Lớp',
+        targetField: 'student_id',
+        oldValue: `${studentId} - ${classId}`,
+      });
+      mappedData.push(credRow);
+      continue; // Bỏ qua không kiểm tra các lỗi format nếu dòng đã bị trùng
+    } else {
+      keyMap.set(uniqueKey, rowNumber);
+    }
+
+    // 2. KIỂM TRA ĐỊNH DẠNG (FORMAT) NẾU DÒNG KHÔNG BỊ TRÙNG:
+    // 2.1. Mã SV / MSSV: letters, numbers, -, _ (2-15 chars)
     if (!CODE_KEY_REGEX.test(studentId)) {
       errors.push({
         row: rowNumber,
@@ -632,23 +684,6 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
           oldValue: val,
         });
       }
-    }
-
-    // Internal duplicate check [student_id + class_id]
-    const uniqueKey = `${studentId.toUpperCase()}_${classId.toUpperCase()}`;
-    if (keyMap.has(uniqueKey)) {
-      const prevRow = keyMap.get(uniqueKey)!;
-      errors.push({
-        row: rowNumber,
-        type: 'duplicate',
-        detailKey: 'errInternalDuplicateDetail',
-        detailParams: { studentId, classId, prevRow },
-        fieldName: 'Mã SV / Lớp',
-        targetField: 'student_id',
-        oldValue: `${studentId} - ${classId}`,
-      });
-    } else {
-      keyMap.set(uniqueKey, rowNumber);
     }
 
     mappedData.push(credRow);

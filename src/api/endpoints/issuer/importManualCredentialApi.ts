@@ -15,7 +15,7 @@ export interface ImportManualCredentialPayload {
   gender?: string | null;
   faculty?: string;
   specialization?: string;
-  cpa?: number | null;
+  cpa?: string | null;
   degree_number?: string;
   register_number?: string;
   degree_type?: string;
