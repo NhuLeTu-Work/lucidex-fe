@@ -9,7 +9,8 @@ import { IssuerScanModal } from './IssuerScanModal';
 import { IssuerFileErrorModal } from './IssuerFileErrorModal';
 import type { CsvErrorRecord } from './IssuerFileErrorModal';
 import { IssuerManualImportModal } from './IssuerManualImportModal';
-import { parseExcelOrCsvFile, validateParsedRows, filterValidCsvFile } from '@/utils/csvValidator';
+import { parseExcelOrCsvFile, validateParsedRows, filterValidExcelOrCsvFile } from '@/utils/csvValidator';
+import type { CsvCredentialRow } from '@/utils/csvValidator';
 import { checkDuplicatesApi } from '@/api/endpoints/issuer/checkDuplicatesApi';
 import { importCredentialsApi } from '@/api/endpoints/issuer/importCredentialsApi';
 
@@ -31,7 +32,14 @@ export function IssuerUpload() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
 
+  const fixedValuesMap = useRef<Map<string, string>>(new Map());
+
+  const handleFixError = (rowIndex: number, targetField: keyof CsvCredentialRow, newValue: string) => {
+    fixedValuesMap.current.set(`${rowIndex}_${String(targetField)}`, newValue);
+  };
+
   const handleFileSelect = async (file: File) => {
+    fixedValuesMap.current.clear();
     const fname = file.name.toLowerCase();
     const isCsv = fname.endsWith('.csv') || file.type === 'text/csv';
     const isXlsx = fname.endsWith('.xlsx') || fname.endsWith('.xls') || file.type.includes('spreadsheet') || file.type.includes('excel');
@@ -112,11 +120,11 @@ export function IssuerUpload() {
 
       if (response.success) {
         const { created_count, total_received } = response.data;
-        const successMsg = t('successCreated')
-          ? t('successCreated')
+        const successMsg = t('importSuccess')
+          ? t('importSuccess')
               .replace('{X}', String(created_count))
               .replace('{Y}', String(total_received))
-          : response.message || `Import thành công`;
+          : response.message || 'Import successful';
 
         showToast('success', successMsg);
 
@@ -125,10 +133,10 @@ export function IssuerUpload() {
         setDuplicateRecords([]);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        showToast('error', response.message || 'Import thất bại');
+        showToast('error', response.message || t('importFailed'));
       }
     } catch (err: any) {
-      const apiErrMessage = err?.response?.data?.message || err?.message || 'Lỗi khi import credentials';
+      const apiErrMessage = err?.response?.data?.message || err?.message || t('errorImportCredentials');
       showToast('error', apiErrMessage);
     }
   };
@@ -186,26 +194,51 @@ export function IssuerUpload() {
 
   const handleContinueWithErrors = async () => {
     setShowCsvErrorModal(false);
-
     if (!selectedFile) return;
 
-    // Đọc và lọc bỏ các dòng lỗi trong file CSV hiện tại
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const csvText = e.target?.result as string;
-      if (!csvText) return;
+    // Lọc bỏ TẤT CẢ các dòng lỗi (bất kể định dạng hay trùng lặp)
+    const invalidRowNumbers = csvErrors.map((err) => err.row);
+    const cleanedFile = await filterValidExcelOrCsvFile(selectedFile, invalidRowNumbers);
 
-      const invalidRowNumbers = csvErrors.map((err) => err.row);
-      const cleanedFile = filterValidCsvFile(csvText, invalidRowNumbers, selectedFile.name);
+    setSelectedFile(cleanedFile);
+    setCsvErrors([]);
 
-      setSelectedFile(cleanedFile);
-      setCsvErrors([]);
+    // Gửi API check duplicates tiếp tục với file đã được lọc sạch
+    await sendCheckDuplicatesApi(cleanedFile);
+  };
 
-      // Tiếp tục gửi API check duplicates với file CSV đã lọc sạch dòng lỗi
-      await sendCheckDuplicatesApi(cleanedFile);
-    };
+  const handleProcessSelectedRows = async (selectedRowIndexes: number[]) => {
+    setShowCsvErrorModal(false);
+    if (!selectedFile) return;
 
-    reader.readAsText(selectedFile);
+    const selectedSet = new Set(selectedRowIndexes);
+    // Các dòng lỗi CẦN BỎ GIAO DIỆN (các dòng bị lỗi mà người dùng không tick chọn)
+    const unselectedErrorRows = csvErrors
+      .map((err) => err.row)
+      .filter((rowNum) => !selectedSet.has(rowNum));
+
+    // Thu thập các giá trị được auto-fix hoặc sửa thủ công cho các dòng được chọn
+    const updatedRowValues: Record<number, Record<string, string>> = {};
+    fixedValuesMap.current.forEach((val, key) => {
+      const [rStr, fKey] = key.split('_');
+      const rNum = parseInt(rStr, 10);
+      if (selectedSet.has(rNum)) {
+        if (!updatedRowValues[rNum]) updatedRowValues[rNum] = {};
+        updatedRowValues[rNum][fKey] = val;
+      }
+    });
+
+    const cleanedFile = await filterValidExcelOrCsvFile(
+      selectedFile,
+      unselectedErrorRows,
+      updatedRowValues
+    );
+
+    setSelectedFile(cleanedFile);
+    setCsvErrors([]);
+
+    // Tiếp tục luồng gửi API check duplicates với file mới đã sửa/lọc
+    await sendCheckDuplicatesApi(cleanedFile);
   };
 
   const handleCancelUpload = () => {
@@ -308,6 +341,8 @@ export function IssuerUpload() {
         errors={csvErrors}
         onContinue={handleContinueWithErrors}
         onCancel={handleCancelUpload}
+        onFixError={handleFixError}
+        onProcessSelectedRows={handleProcessSelectedRows}
       />
 
       <IssuerDuplicateComparison

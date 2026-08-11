@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -47,7 +47,78 @@ import {
 import {
   capitalizeWords,
   capitalizeFirstLetter,
+  isValidDateDDMMYYYY,
+  isValidDecimalNumber,
+  NATIONAL_ID_REGEX,
+  CODE_KEY_REGEX,
+  isValidGeneralText,
 } from '@/utils/csvValidator';
+
+/**
+ * Kiếm tra xem giá trị đã sửa của một trường có hợp lệ hoàn toàn với tiêu chí format của trường đó hay không
+ */
+function validateFixedValue(err: CsvErrorRecord, val: string): boolean {
+  if (err.type === 'duplicate') return false;
+  const trimmed = val.trim();
+  if (!trimmed) return false;
+
+  // 1. Ngày sinh: Bắt buộc định dạng dd/mm/yyyy chuẩn
+  if (err.targetField === 'dob') {
+    return isValidDateDDMMYYYY(trimmed);
+  }
+
+  // 2. Điểm CPA: Số thập phân
+  if (err.targetField === 'cpa') {
+    return isValidDecimalNumber(trimmed);
+  }
+
+  // 3. Nơi sinh: Phải thuộc 63 Tỉnh/Thành
+  if (err.targetField === 'place_of_birth') {
+    return VIETNAM_PROVINCES.some((p) => p.toLowerCase() === trimmed.toLowerCase());
+  }
+
+  // 4. Xếp loại tốt nghiệp: Phải thuộc danh sách quy định
+  if (err.targetField === 'classification') {
+    return CLASSIFICATION_OPTIONS.some((c) => c.toLowerCase() === trimmed.toLowerCase());
+  }
+
+  // 5. Loại bằng / chứng chỉ: Phải thuộc danh sách
+  if (err.targetField === 'degree_type') {
+    return (
+      trimmed === 'Bằng tốt nghiệp đại học' ||
+      DEGREE_TYPES.some((d) => d.label.toLowerCase() === trimmed.toLowerCase())
+    );
+  }
+
+  // 6. Hình thức đào tạo: Phải thuộc danh sách
+  if (err.targetField === 'mode_of_study') {
+    return MODE_OF_STUDY_OPTIONS.some((m) => m.toLowerCase() === trimmed.toLowerCase());
+  }
+
+  // 7. Số CCCD: 12 chữ số bắt đầu bằng 0
+  if (err.targetField === 'national_id') {
+    return NATIONAL_ID_REGEX.test(trimmed);
+  }
+
+  // 8. Mã SV / Lớp: CODE_KEY_REGEX (2-15 ký tự chữ, số, -, _)
+  if (err.targetField === 'student_id' || err.targetField === 'class_id') {
+    return CODE_KEY_REGEX.test(trimmed);
+  }
+
+  // 9. Năm tốt nghiệp: từ 1930 đến (Năm hiện tại + 3)
+  if (err.targetField === 'graduation_year') {
+    const yr = parseInt(trimmed, 10);
+    const maxYr = new Date().getFullYear() + 3;
+    return !isNaN(yr) && yr >= 1930 && yr <= maxYr;
+  }
+
+  // 10. Họ tên và các trường chữ khác: 2-300 ký tự, không ký tự đặc biệt
+  if (err.targetField === 'full_name') {
+    return trimmed.length >= 2 && trimmed.length <= 200 && isValidGeneralText(trimmed, 2, 200);
+  }
+
+  return isValidGeneralText(trimmed, 2, 300);
+}
 import type { CsvCredentialRow } from '@/utils/csvValidator';
 import { Input } from '../ui/input';
 export interface CsvErrorRecord {
@@ -145,6 +216,12 @@ function autoSuggestFixedValue(err: CsvErrorRecord): string {
   return val;
 }
 
+export interface GroupedRowErrors {
+  rowNumber: number;
+  isDuplicate: boolean;
+  errors: CsvErrorRecord[];
+}
+
 export function IssuerFileErrorModal({
   isOpen,
   t,
@@ -154,62 +231,105 @@ export function IssuerFileErrorModal({
   onFixError,
   onProcessSelectedRows,
 }: IssuerFileErrorModalProps) {
-  // Quản lý giá trị sửa lỗi thủ công của từng dòng
-  const [fixedValues, setFixedValues] = useState<Record<number, string>>({});
+  // Quản lý giá trị sửa lỗi thủ công của từng trường trong từng dòng
+  // Key dạng `${rowNumber}_${targetField}`
+  const [fixedValues, setFixedValues] = useState<Record<string, string>>({});
   // State quản lý việc hiển thị modal xác nhận đóng
   const [showConfirmClose, setShowConfirmClose] = useState(false);
-  // State quản lý các dòng được tick checkbox chọn xử lý (tự động tích chọn tất cả dòng lỗi format)
+  // State quản lý các dòng được tick checkbox chọn xử lý (theo rowNumber)
   const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({});
+
+  // Gom nhóm các lỗi theo số dòng (rowNumber)
+  const groupedRows: GroupedRowErrors[] = useMemo(() => {
+    const map = new Map<number, GroupedRowErrors>();
+    errors.forEach((err) => {
+      if (!map.has(err.row)) {
+        map.set(err.row, {
+          rowNumber: err.row,
+          isDuplicate: err.type === 'duplicate',
+          errors: [],
+        });
+      }
+      const group = map.get(err.row)!;
+      if (err.type === 'duplicate') {
+        group.isDuplicate = true;
+      }
+      group.errors.push(err);
+    });
+    return Array.from(map.values()).sort((a, b) => a.rowNumber - b.rowNumber);
+  }, [errors]);
+
+  // Thẩm định 1 dòng: Tất cả các trường lỗi format của dòng đó phải đạt chuẩn format
+  const isGroupValid = useCallback(
+    (group: GroupedRowErrors, currentFixed: Record<string, string>) => {
+      if (group.isDuplicate) return false;
+      return group.errors.every((err) => {
+        const valKey = `${group.rowNumber}_${err.targetField}`;
+        const val = currentFixed[valKey] ?? autoSuggestFixedValue(err);
+        return validateFixedValue(err, val);
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (isOpen) {
-      const initialFixed: Record<number, string> = {};
+      const initialFixed: Record<string, string> = {};
       const initialSelected: Record<number, boolean> = {};
 
-      errors.forEach((err, idx) => {
-        const suggested = autoSuggestFixedValue(err);
-        initialFixed[idx] = suggested;
-        // Báo về cho parent nếu gợi ý sửa khác giá trị cũ
-        if (suggested && suggested !== err.oldValue && onFixError && err.targetField) {
-          onFixError(err.row, err.targetField, suggested);
-        }
-        // Tự động tick checkbox chọn các dòng lỗi format
-        if (err.type === 'format') {
-          initialSelected[err.row] = true;
+      groupedRows.forEach((group) => {
+        let groupValid = !group.isDuplicate;
+
+        group.errors.forEach((err) => {
+          const suggested = autoSuggestFixedValue(err);
+          const valKey = `${group.rowNumber}_${err.targetField}`;
+          initialFixed[valKey] = suggested;
+
+          if (suggested && suggested !== err.oldValue && onFixError && err.targetField) {
+            onFixError(err.row, err.targetField, suggested);
+          }
+
+          if (err.type === 'format' && !validateFixedValue(err, suggested)) {
+            groupValid = false;
+          }
+        });
+
+        if (!group.isDuplicate && groupValid) {
+          initialSelected[group.rowNumber] = true;
         }
       });
+
       setFixedValues(initialFixed);
       setSelectedRows(initialSelected);
       setShowConfirmClose(false);
     }
-  }, [isOpen, errors]);
+  }, [isOpen, errors, groupedRows]);
 
   if (!isOpen || errors.length === 0) return null;
 
-  // Danh sách các dòng lỗi định dạng (format)
-  const formatErrorRows = errors.filter((e) => e.type === 'format');
+  // Danh sách các dòng lỗi hợp lệ (tất cả các trường format trong dòng đã được sửa đúng)
+  const validGroupRows = groupedRows.filter((g) => isGroupValid(g, fixedValues));
   const allFormatSelected =
-    formatErrorRows.length > 0 &&
-    formatErrorRows.every((e) => selectedRows[e.row]);
+    validGroupRows.length > 0 && validGroupRows.every((g) => selectedRows[g.rowNumber]);
 
   const toggleSelectAllFormat = () => {
     setSelectedRows((prev) => {
       const updated = { ...prev };
       const nextState = !allFormatSelected;
-      formatErrorRows.forEach((e) => {
-        updated[e.row] = nextState;
+      validGroupRows.forEach((g) => {
+        updated[g.rowNumber] = nextState;
       });
       return updated;
     });
   };
 
-  const toggleSelectRow = (rowNum: number) => {
-    const errObj = errors.find((e) => e.row === rowNum);
-    if (errObj && errObj.type === 'duplicate') return;
+  const toggleSelectRow = (group: GroupedRowErrors) => {
+    if (group.isDuplicate) return;
+    if (!isGroupValid(group, fixedValues)) return;
 
     setSelectedRows((prev) => ({
       ...prev,
-      [rowNum]: !prev[rowNum],
+      [group.rowNumber]: !prev[group.rowNumber],
     }));
   };
 
@@ -228,11 +348,25 @@ export function IssuerFileErrorModal({
     return message;
   };
 
-  const handleValueChange = (index: number, val: string, err: CsvErrorRecord) => {
-    setFixedValues((prev) => ({ ...prev, [index]: val }));
+  const handleFieldValueChange = (
+    group: GroupedRowErrors,
+    err: CsvErrorRecord,
+    val: string
+  ) => {
+    const valKey = `${group.rowNumber}_${err.targetField}`;
+    const nextFixed = { ...fixedValues, [valKey]: val };
+    setFixedValues(nextFixed);
+
     if (onFixError && err.targetField) {
       onFixError(err.row, err.targetField, val);
     }
+
+    // Tự động kiểm tra: Nếu toàn bộ các trường trong dòng đã chuẩn -> Auto tick chọn, nếu không -> Bỏ tick
+    const valid = isGroupValid(group, nextFixed);
+    setSelectedRows((prev) => ({
+      ...prev,
+      [group.rowNumber]: valid,
+    }));
   };
 
   const handleConfirmClose = () => {
@@ -240,20 +374,23 @@ export function IssuerFileErrorModal({
     onCancel();
   };
 
-  const renderFixedInput = (err: CsvErrorRecord, index: number) => {
-    // Nếu là dòng trùng lặp (duplicate) -> Không hiển thị ô sửa ở cột Giá trị đã sửa
+  const renderFixedInputForErr = (
+    group: GroupedRowErrors,
+    err: CsvErrorRecord
+  ) => {
     if (err.type === 'duplicate') {
       return <span className="text-muted-foreground italic text-xs">-</span>;
     }
 
-    const currentVal = fixedValues[index] ?? err.oldValue ?? '';
+    const valKey = `${group.rowNumber}_${err.targetField}`;
+    const currentVal = fixedValues[valKey] ?? autoSuggestFixedValue(err) ?? '';
 
     // Render Dropdown nếu là Nơi sinh
     if (err.targetField === 'place_of_birth') {
       return (
         <Select
           value={currentVal}
-          onValueChange={(val) => handleValueChange(index, val, err)}
+          onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue placeholder="Chọn Tỉnh/Thành" />
@@ -274,7 +411,7 @@ export function IssuerFileErrorModal({
       return (
         <Select
           value={currentVal}
-          onValueChange={(val) => handleValueChange(index, val, err)}
+          onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue placeholder="Chọn Xếp loại" />
@@ -298,7 +435,7 @@ export function IssuerFileErrorModal({
       return (
         <Select
           value={currentVal}
-          onValueChange={(val) => handleValueChange(index, val, err)}
+          onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue placeholder="Chọn Loại bằng / Chứng chỉ" />
@@ -330,7 +467,7 @@ export function IssuerFileErrorModal({
       return (
         <Select
           value={currentVal}
-          onValueChange={(val) => handleValueChange(index, val, err)}
+          onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue placeholder="Chọn Hình thức đào tạo" />
@@ -351,7 +488,7 @@ export function IssuerFileErrorModal({
       return (
         <Select
           value={currentVal || 'Nam'}
-          onValueChange={(val) => handleValueChange(index, val === 'N' ? 'N' : '', err)}
+          onValueChange={(val) => handleFieldValueChange(group, err, val === 'N' ? 'N' : '')}
         >
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue placeholder="Chọn Giới tính" />
@@ -366,7 +503,6 @@ export function IssuerFileErrorModal({
 
     // Render HTML Date Picker cho Ngày sinh
     if (err.targetField === 'dob') {
-      // Chuyển đổi DD/MM/YYYY hoặc các dạng khác sang YYYY-MM-DD để hiển thị datepicker
       let datePickerVal = '';
       if (/^\d{2}\/\d{2}\/\d{4}$/.test(currentVal)) {
         const [d, m, y] = currentVal.split('/');
@@ -380,12 +516,12 @@ export function IssuerFileErrorModal({
           type="date"
           value={datePickerVal}
           onChange={(e) => {
-            const raw = e.target.value; // YYYY-MM-DD
+            const raw = e.target.value;
             if (raw && /^\d{4}-\d{2}-\d{2}$/.test(raw)) {
               const [y, m, d] = raw.split('-');
-              handleValueChange(index, `${d}/${m}/${y}`, err);
+              handleFieldValueChange(group, err, `${d}/${m}/${y}`);
             } else {
-              handleValueChange(index, raw, err);
+              handleFieldValueChange(group, err, raw);
             }
           }}
           className="h-8 text-xs font-sans"
@@ -402,7 +538,7 @@ export function IssuerFileErrorModal({
           value={currentVal}
           onChange={(e) => {
             const onlyDigits = e.target.value.replace(/\D/g, '').slice(0, 12);
-            handleValueChange(index, onlyDigits, err);
+            handleFieldValueChange(group, err, onlyDigits);
           }}
           placeholder="079203012345 (12 số)"
           className="h-8 text-xs font-mono"
@@ -414,7 +550,7 @@ export function IssuerFileErrorModal({
     return (
       <Input
         value={currentVal}
-        onChange={(e) => handleValueChange(index, e.target.value, err)}
+        onChange={(e) => handleFieldValueChange(group, err, e.target.value)}
         placeholder="Nhập giá trị đúng..."
         className="h-8 text-xs"
       />
@@ -431,7 +567,7 @@ export function IssuerFileErrorModal({
           }
         }}
       >
-        <DialogContent className="sm:max-w-5xl w-[94vw] max-h-[85vh] flex flex-col sm:rounded-lg p-6 gap-4">
+        <DialogContent className="sm:max-w-6xl w-[96vw] max-h-[85vh] flex flex-col sm:rounded-lg p-6 gap-4">
           <DialogHeader className="shrink-0 border-b pb-3">
             <DialogTitle className="flex items-center gap-2 text-destructive text-xl">
               <AlertCircle className="w-5 h-5" />
@@ -442,9 +578,9 @@ export function IssuerFileErrorModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto overflow-x-auto border rounded-md max-h-[380px]">
-            <Table className="w-full relative">
-              <TableHeader className="bg-muted/90 sticky top-0 z-10 backdrop-blur-sm shadow-sm">
+          <div className="flex-1 overflow-y-auto border rounded-md max-h-[420px]">
+            <Table className="w-full relative border-collapse">
+              <TableHeader className="bg-muted sticky top-0 z-20 shadow-sm">
                 <TableRow>
                   <TableHead className="w-[45px] text-center">
                     <Checkbox
@@ -453,50 +589,83 @@ export function IssuerFileErrorModal({
                       title={t('selectAllFormatErrors') || 'Chọn tất cả dòng lỗi định dạng'}
                     />
                   </TableHead>
-                  <TableHead className="w-[60px] text-center">{t('rowNumber')}</TableHead>
-                  <TableHead className="w-[100px]">{t('issueType')}</TableHead>
-                  <TableHead className="w-[130px]">Trường dữ liệu</TableHead>
-                  <TableHead className="w-[180px]">Giá trị cũ (Gốc)</TableHead>
-                  <TableHead className="min-w-[200px]">Giá trị đã sửa</TableHead>
-                  <TableHead className="min-w-[220px]">{t('issueDetail')}</TableHead>
+                  <TableHead className="w-[50px] text-center">{t('rowNumber')}</TableHead>
+                  <TableHead className="w-[90px]">{t('issueType')}</TableHead>
+                  <TableHead className="w-[125px]">Trường dữ liệu</TableHead>
+                  <TableHead className="w-[125px]">Giá trị cũ (Gốc)</TableHead>
+                  <TableHead className="w-[170px]">Giá trị đã sửa</TableHead>
+                  <TableHead className="min-w-[280px]">{t('issueDetail')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {errors.map((error, index) => {
-                  const isSelected = !!selectedRows[error.row];
-                  return (
-                    <TableRow key={index} className={isSelected ? 'bg-primary/5' : undefined}>
-                      <TableCell className="text-center">
-                        {error.type === 'duplicate' ? (
-                          <span className="text-muted-foreground italic text-xs select-none">-</span>
-                        ) : (
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => toggleSelectRow(error.row)}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium text-center">{error.row}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${error.type === 'duplicate'
-                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                          : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                {groupedRows.map((group) => {
+                  const isSelected = !!selectedRows[group.rowNumber];
+                  const isValid = isGroupValid(group, fixedValues);
+                  const errorCount = group.errors.length;
+
+                  return group.errors.map((err, errIdx) => (
+                    <TableRow
+                      key={`${group.rowNumber}_${errIdx}`}
+                      className={`${isSelected ? 'bg-primary/5' : ''} ${
+                        errIdx === errorCount - 1 ? 'border-b-2 border-border' : 'border-b-0'
+                      }`}
+                    >
+                      {/* Cột Checkbox - chỉ render ở sub-row đầu tiên với rowSpan */}
+                      {errIdx === 0 && (
+                        <TableCell rowSpan={errorCount} className="text-center align-top pt-3 border-r">
+                          {group.isDuplicate ? (
+                            <span className="text-muted-foreground italic text-xs select-none">-</span>
+                          ) : (
+                            <Checkbox
+                              checked={isSelected}
+                              disabled={!isValid}
+                              onCheckedChange={() => toggleSelectRow(group)}
+                            />
+                          )}
+                        </TableCell>
+                      )}
+
+                      {/* Cột Dòng - chỉ render ở sub-row đầu tiên */}
+                      {errIdx === 0 && (
+                        <TableCell rowSpan={errorCount} className="font-medium text-center align-top pt-3 border-r">
+                          {group.rowNumber}
+                        </TableCell>
+                      )}
+
+                      {/* Cột Loại lỗi - chỉ render ở sub-row đầu tiên */}
+                      {errIdx === 0 && (
+                        <TableCell rowSpan={errorCount} className="align-top pt-3 border-r">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
+                            group.isDuplicate
+                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                              : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
                           }`}>
-                          {error.type === 'duplicate' ? 'Trùng lặp' : 'Định dạng'}
-                        </span>
+                            {group.isDuplicate ? 'Trùng lặp' : 'Định dạng'}
+                          </span>
+                        </TableCell>
+                      )}
+
+                      {/* Cột Trường dữ liệu */}
+                      <TableCell className="w-[125px] font-medium text-xs py-2">
+                        {err.fieldName || 'Dữ liệu'}
                       </TableCell>
-                      <TableCell className="text-xs font-medium">
-                        {error.fieldName || 'Dữ liệu'}
+
+                      {/* Cột Giá trị cũ (Gốc) - thu gọn kích thước gọn gàng w-[125px] */}
+                      <TableCell className="w-[125px] text-xs text-muted-foreground bg-muted/30 font-mono py-2 truncate max-w-[125px]">
+                        {err.oldValue !== undefined && err.oldValue !== '' ? err.oldValue : '(Trống)'}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground bg-muted/40 font-mono">
-                        {error.oldValue !== undefined && error.oldValue !== '' ? error.oldValue : '(Trống)'}
+
+                      {/* Cột Giá trị đã sửa */}
+                      <TableCell className="w-[170px] py-2">
+                        {renderFixedInputForErr(group, err)}
                       </TableCell>
-                      <TableCell>
-                        {renderFixedInput(error, index)}
+
+                      {/* Cột Chi tiết - hiển thị lý do/quy định format gọn gàng */}
+                      <TableCell className="text-muted-foreground text-xs py-2">
+                        {getErrorMessage(err)}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">{getErrorMessage(error)}</TableCell>
                     </TableRow>
-                  );
+                  ));
                 })}
               </TableBody>
             </Table>

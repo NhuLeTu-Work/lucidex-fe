@@ -344,6 +344,75 @@ export function filterValidCsvFile(csvText: string, invalidRowNumbers: number[],
 import * as XLSX from 'xlsx';
 
 /**
+ * Filter out invalid/unselected rows and recreate clean File (maintaining .xlsx or .csv format)
+ */
+export async function filterValidExcelOrCsvFile(
+  file: File,
+  invalidRowNumbers: number[],
+  updatedRowValues?: Record<number, Record<string, string>>
+): Promise<File> {
+  const invalidSet = new Set(invalidRowNumbers);
+  const parsed = await parseExcelOrCsvFile(file);
+  if (parsed.length === 0) return file;
+
+  // Lấy dòng header
+  const headers = parsed[0];
+
+  // Lọc chỉ giữ các dòng hợp lệ
+  const validRows = parsed.filter((_, idx) => {
+    if (idx === 0) return true; // Keep header
+    return !invalidSet.has(idx);
+  });
+
+  // Nếu có giá trị cập nhật/được sửa thủ công, ghi đè vào cell tương ứng
+  if (updatedRowValues) {
+    validRows.forEach((row, rowIdx) => {
+      if (rowIdx === 0) return;
+      // Lưu ý: rowIdx thực tế trong file gốc
+      const originalRowIndex = parsed.indexOf(row);
+      const updates = updatedRowValues[originalRowIndex];
+      if (updates) {
+        Object.entries(updates).forEach(([fieldKey, newVal]) => {
+          // Tìm index của column tương ứng trong header
+          const colIdx = headers.findIndex(
+            (h) => normalizeHeaderString(h) === normalizeHeaderString(fieldKey)
+          );
+          if (colIdx !== -1) {
+            row[colIdx] = newVal;
+          }
+        });
+      }
+    });
+  }
+
+  const fileNameLower = file.name.toLowerCase();
+  if (fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls')) {
+    const worksheet = XLSX.utils.aoa_to_sheet(validRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    return new File([excelBuffer], file.name, {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+  }
+
+  // Trường hợp file CSV
+  const csvLines = validRows.map((row) =>
+    row
+      .map((cell) => {
+        if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+          return `"${cell.replace(/"/g, '""')}"`;
+        }
+        return cell;
+      })
+      .join(',')
+  );
+
+  const cleanedCsvText = csvLines.join('\n');
+  return new File([cleanedCsvText], file.name, { type: 'text/csv' });
+}
+
+/**
  * Reads an uploaded CSV or XLSX file and parses it into 2D string matrix
  */
 export async function parseExcelOrCsvFile(file: File): Promise<string[][]> {
