@@ -9,7 +9,7 @@ import { IssuerScanModal } from './IssuerScanModal';
 import { IssuerFileErrorModal } from './IssuerFileErrorModal';
 import type { CsvErrorRecord } from './IssuerFileErrorModal';
 import { IssuerManualImportModal } from './IssuerManualImportModal';
-import { validateCsvContent, filterValidCsvFile } from '@/utils/csvValidator';
+import { parseExcelOrCsvFile, validateParsedRows, filterValidCsvFile } from '@/utils/csvValidator';
 import { checkDuplicatesApi } from '@/api/endpoints/issuer/checkDuplicatesApi';
 import { importCredentialsApi } from '@/api/endpoints/issuer/importCredentialsApi';
 
@@ -31,10 +31,14 @@ export function IssuerUpload() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = async (file: File) => {
+    const fname = file.name.toLowerCase();
+    const isCsv = fname.endsWith('.csv') || file.type === 'text/csv';
+    const isXlsx = fname.endsWith('.xlsx') || fname.endsWith('.xls') || file.type.includes('spreadsheet') || file.type.includes('excel');
+
     // 1. Kiểm tra định dạng & dung lượng file gốc
-    if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
-      showToast('error', t('errNotCsv') || 'Định dạng file không phải CSV');
+    if (!isCsv && !isXlsx) {
+      showToast('error', t('errNotCsv') || 'Định dạng file phải là .csv hoặc .xlsx');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -42,16 +46,9 @@ export function IssuerUpload() {
       return;
     }
 
-    // Đọc file để kiểm tra header trước
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const csvText = e.target?.result as string;
-      if (!csvText) {
-        showToast('error', t('errNoFileContent'));
-        return;
-      }
-
-      const validationResult = validateCsvContent(csvText);
+    try {
+      const parsedRows = await parseExcelOrCsvFile(file);
+      const validationResult = validateParsedRows(parsedRows);
 
       // Kiểm tra thiếu column
       if (!validationResult.headersValid) {
@@ -77,18 +74,17 @@ export function IssuerUpload() {
         detailKey: err.detailKey,
         detailParams: err.detailParams,
         detailMessage: err.detailMessage,
+        fieldName: err.fieldName,
+        targetField: err.targetField,
+        oldValue: err.oldValue,
       }));
       setCsvErrors(mappedErrors);
 
       // Nếu header hợp lệ -> Tiến hành bật IssuerScanModal để đọc & validate dữ liệu
       setIsScanning(true);
-    };
-
-    reader.onerror = () => {
-      showToast('error', t('errNoFileContent'));
-    };
-
-    reader.readAsText(file);
+    } catch (err: any) {
+      showToast('error', t('errNoFileContent') || 'Không thể đọc nội dung file');
+    }
   };
 
   const handleScanComplete = async () => {
@@ -228,8 +224,8 @@ export function IssuerUpload() {
 
   const handleDownloadTemplate = () => {
     const link = document.createElement('a');
-    link.href = '/templateFiles/ctu_student_data_file_template.csv';
-    link.download = 'ctu_student_data_file_template.csv';
+    link.href = '/templateFiles/ctu_student_data_file_template.xlsx';
+    link.download = 'ctu_student_data_file_template.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -284,7 +280,7 @@ export function IssuerUpload() {
             type="file"
             ref={fileInputRef}
             className="hidden"
-            accept=".csv"
+            accept=".csv,.xlsx,.xls"
             onChange={(e) => {
               if (e.target.files && e.target.files[0]) {
                 handleFileSelect(e.target.files[0]);

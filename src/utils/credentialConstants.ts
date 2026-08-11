@@ -71,15 +71,16 @@ export interface DegreeTypeOption {
 
 export const DEGREE_TYPES: DegreeTypeOption[] = [
   // Nhóm Văn bằng
-  { label: "Cử nhân (Bachelor's Degree)", category: 'Văn bằng' },
-  { label: "Kỹ sư (Engineer's Degree)", category: 'Văn bằng' },
-  { label: "Kiến trúc sư (Architect's Degree)", category: 'Văn bằng' },
-  { label: "Bác sĩ thú y (Doctor of Veterinary Medicine)", category: 'Văn bằng' },
-  { label: "Thạc sĩ (Master's Degree)", category: 'Văn bằng' },
-  { label: "Tiến sĩ (Doctorate/Ph.D)", category: 'Văn bằng' },
+  { label: "Cử nhân", category: 'Văn bằng' },
+  { label: "Kỹ sư", category: 'Văn bằng' },
+  { label: "Kiến trúc sư", category: 'Văn bằng' },
+  { label: "Bác sĩ thú y", category: 'Văn bằng' },
+  { label: "Thạc sĩ", category: 'Văn bằng' },
+  { label: "Tiến sĩ", category: 'Văn bằng' },
 
   // Nhóm Chứng chỉ
-  { label: 'Chứng chỉ Ứng dụng Công nghệ Thông tin (Cơ bản / Nâng cao)', category: 'Chứng chỉ' },
+  { label: 'Chứng chỉ Ứng dụng Công nghệ Thông tin (Cơ bản)', category: 'Chứng chỉ' },
+  { label: 'Chứng chỉ Ứng dụng Công nghệ Thông tin (Nâng cao)', category: 'Chứng chỉ' },
   { label: 'Chứng chỉ Năng lực Ngoại ngữ 6 bậc dùng cho Việt Nam (VSTEP)', category: 'Chứng chỉ' },
   { label: 'Chứng chỉ Tiếng Việt cho người nước ngoài', category: 'Chứng chỉ' },
   { label: 'Chứng chỉ Bồi dưỡng Nghiệp vụ Sư phạm', category: 'Chứng chỉ' },

@@ -119,6 +119,11 @@ export function isValidDecimalNumber(val: string): boolean {
 }
 
 /**
+ * National ID / CCCD Regex: Exactly 12 digits starting with '0' (e.g. 079203012345)
+ */
+export const NATIONAL_ID_REGEX = /^0\d{11}$/;
+
+/**
  * Header Mapping definition matching Vietnamese & English aliases in CSV template.
  * Flexible normalized headers (ignores multiple spaces, order & exact case).
  */
@@ -304,11 +309,31 @@ export function filterValidCsvFile(csvText: string, invalidRowNumbers: number[],
   return new File([cleanedCsvText], fileName, { type: 'text/csv' });
 }
 
+import * as XLSX from 'xlsx';
+
 /**
- * Core validation function for CSV content
+ * Reads an uploaded CSV or XLSX file and parses it into 2D string matrix
  */
-export function validateCsvContent(csvText: string): ParseCsvResult {
-  const parsed = parseCsvText(csvText);
+export async function parseExcelOrCsvFile(file: File): Promise<string[][]> {
+  const fileName = file.name.toLowerCase();
+
+  if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    const rows = XLSX.utils.sheet_to_json<string[]>(worksheet, { header: 1, raw: false, defval: '' });
+    return rows.map((row) => row.map((cell) => String(cell || '').trim()));
+  }
+
+  // File CSV
+  const csvText = await file.text();
+  return parseCsvText(csvText);
+}
+/**
+ * Core validation function for 2D string data parsed from CSV or XLSX
+ */
+export function validateParsedRows(parsed: string[][]): ParseCsvResult {
   if (parsed.length === 0) {
     return {
       headersValid: false,
@@ -422,6 +447,13 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
     credRow.register_number = registerNumber;
     credRow.national_id = nationalId;
     credRow.mode_of_study = modeStudy;
+
+    // Bỏ qua các dòng hoàn toàn trống hoặc không có dữ liệu Mã sinh viên / Họ tên
+    const hasAnyContent = Object.values(rowObj).some((v) => v && v.trim().length > 0);
+    const rawStudentId = (credRow.student_id || '').trim();
+    if (!hasAnyContent || !rawStudentId) {
+      continue;
+    }
 
     // Validation checks:
     // 1. Mã SV / MSSV: letters, numbers, -, _ (2-15 chars)
@@ -566,7 +598,20 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
       });
     }
 
-    // 12. General text rules for optional text fields
+    // 12. Kiểm tra Số CCCD / National ID (nếu có): Bắt buộc 12 chữ số và bắt đầu bằng số 0
+    if (nationalId && !NATIONAL_ID_REGEX.test(nationalId)) {
+      errors.push({
+        row: rowNumber,
+        type: 'format',
+        detailKey: 'errInvalidNationalIdDetail',
+        detailParams: { val: nationalId },
+        fieldName: 'Số CCCD',
+        targetField: 'national_id',
+        oldValue: nationalId,
+      });
+    }
+
+    // 13. General text rules for optional text fields
     const optionalTextFields: [keyof CsvCredentialRow, string, string][] = [
       ['faculty', 'Khoa / Viện', faculty],
       ['major', 'Ngành học', major],
@@ -614,4 +659,12 @@ export function validateCsvContent(csvText: string): ParseCsvResult {
     rows,
     mappedData,
   };
+}
+
+/**
+ * Backward-compatible helper for plain CSV text string
+ */
+export function validateCsvContent(csvText: string): ParseCsvResult {
+  const parsed = parseCsvText(csvText);
+  return validateParsedRows(parsed);
 }

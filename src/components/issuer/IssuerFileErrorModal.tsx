@@ -11,6 +11,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -55,6 +65,40 @@ interface IssuerFileErrorModalProps {
   onFixError?: (rowIndex: number, targetField: keyof CsvCredentialRow, newValue: string) => void;
 }
 
+// Tự động gợi ý/sửa giá trị đúng format ban đầu (nếu có thể auto-fix)
+function autoSuggestFixedValue(err: CsvErrorRecord): string {
+  const val = (err.oldValue || '').trim();
+  if (!val) return '';
+
+  // 1. Auto fix ngày sinh: YYYY/MM/DD hoặc YYYY-MM-DD -> DD/MM/YYYY
+  if (err.targetField === 'dob') {
+    const matchYYYYMMDD = val.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (matchYYYYMMDD) {
+      const [, y, m, d] = matchYYYYMMDD;
+      const dayStr = d.padStart(2, '0');
+      const monthStr = m.padStart(2, '0');
+      return `${dayStr}/${monthStr}/${y}`;
+    }
+  }
+
+  // 2. Auto fix điểm CPA: dấu phẩy "3,4" -> "3.4"
+  if (err.targetField === 'cpa') {
+    if (val.includes(',')) {
+      const replaced = val.replace(',', '.');
+      if (!isNaN(Number(replaced))) return replaced;
+    }
+  }
+
+  // 3. Auto fix Giới tính: N/Nữ/Female -> 'N', Nam/Male -> ''
+  if (err.targetField === 'gender') {
+    const upper = val.toUpperCase();
+    if (['N', 'NỮ', 'NU', 'FEMALE'].includes(upper)) return 'N';
+    if (['NAM', 'MALE'].includes(upper)) return 'Nam';
+  }
+
+  return val;
+}
+
 export function IssuerFileErrorModal({
   isOpen,
   t,
@@ -65,14 +109,22 @@ export function IssuerFileErrorModal({
 }: IssuerFileErrorModalProps) {
   // Quản lý giá trị sửa lỗi thủ công của từng dòng
   const [fixedValues, setFixedValues] = useState<Record<number, string>>({});
+  // State quản lý việc hiển thị modal xác nhận đóng
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       const initial: Record<number, string> = {};
       errors.forEach((err, idx) => {
-        initial[idx] = err.oldValue || '';
+        const suggested = autoSuggestFixedValue(err);
+        initial[idx] = suggested;
+        // Báo về cho parent nếu gợi ý sửa khác giá trị cũ
+        if (suggested && suggested !== err.oldValue && onFixError && err.targetField) {
+          onFixError(err.row, err.targetField, suggested);
+        }
       });
       setFixedValues(initial);
+      setShowConfirmClose(false);
     }
   }, [isOpen, errors]);
 
@@ -96,6 +148,11 @@ export function IssuerFileErrorModal({
     if (onFixError && err.targetField) {
       onFixError(err.row, err.targetField, val);
     }
+  };
+
+  const handleConfirmClose = () => {
+    setShowConfirmClose(false);
+    onCancel();
   };
 
   const renderFixedInput = (err: CsvErrorRecord, index: number) => {
@@ -229,68 +286,100 @@ export function IssuerFileErrorModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-5xl w-[94vw] max-h-[85vh] flex flex-col sm:rounded-lg p-6 gap-4">
-        <DialogHeader className="shrink-0 border-b pb-3">
-          <DialogTitle className="flex items-center gap-2 text-destructive text-xl">
-            <AlertCircle className="w-5 h-5" />
-            {t('csvErrorsDetected')}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground text-sm">
-            {t('csvErrorsDesc')}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowConfirmClose(true);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-5xl w-[94vw] max-h-[85vh] flex flex-col sm:rounded-lg p-6 gap-4">
+          <DialogHeader className="shrink-0 border-b pb-3">
+            <DialogTitle className="flex items-center gap-2 text-destructive text-xl">
+              <AlertCircle className="w-5 h-5" />
+              {t('csvErrorsDetected')}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground text-sm">
+              {t('csvErrorsDesc')}
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto overflow-x-auto border rounded-md max-h-[380px]">
-          <Table className="w-full relative">
-            <TableHeader className="bg-muted/90 sticky top-0 z-10 backdrop-blur-sm shadow-sm">
-              <TableRow>
-                <TableHead className="w-[60px] text-center">{t('rowNumber')}</TableHead>
-                <TableHead className="w-[100px]">{t('issueType')}</TableHead>
-                <TableHead className="w-[130px]">Trường dữ liệu</TableHead>
-                <TableHead className="w-[180px]">Giá trị cũ (Gốc)</TableHead>
-                <TableHead className="min-w-[200px]">Giá trị đã sửa (Có thể chỉnh)</TableHead>
-                <TableHead className="min-w-[220px]">{t('issueDetail')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {errors.map((error, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium text-center">{error.row}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
-                      error.type === 'duplicate'
-                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                        : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
-                    }`}>
-                      {error.type === 'duplicate' ? 'Trùng lặp' : 'Định dạng'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-xs font-medium">
-                    {error.fieldName || 'Dữ liệu'}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground bg-muted/40 font-mono">
-                    {error.oldValue !== undefined && error.oldValue !== '' ? error.oldValue : '(Trống)'}
-                  </TableCell>
-                  <TableCell>
-                    {renderFixedInput(error, index)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{getErrorMessage(error)}</TableCell>
+          <div className="flex-1 overflow-y-auto overflow-x-auto border rounded-md max-h-[380px]">
+            <Table className="w-full relative">
+              <TableHeader className="bg-muted/90 sticky top-0 z-10 backdrop-blur-sm shadow-sm">
+                <TableRow>
+                  <TableHead className="w-[60px] text-center">{t('rowNumber')}</TableHead>
+                  <TableHead className="w-[100px]">{t('issueType')}</TableHead>
+                  <TableHead className="w-[130px]">Trường dữ liệu</TableHead>
+                  <TableHead className="w-[180px]">Giá trị cũ (Gốc)</TableHead>
+                  <TableHead className="min-w-[200px]">Giá trị đã sửa</TableHead>
+                  <TableHead className="min-w-[220px]">{t('issueDetail')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {errors.map((error, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium text-center">{error.row}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
+                        error.type === 'duplicate'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                      }`}>
+                        {error.type === 'duplicate' ? 'Trùng lặp' : 'Định dạng'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs font-medium">
+                      {error.fieldName || 'Dữ liệu'}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground bg-muted/40 font-mono">
+                      {error.oldValue !== undefined && error.oldValue !== '' ? error.oldValue : '(Trống)'}
+                    </TableCell>
+                    <TableCell>
+                      {renderFixedInput(error, index)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{getErrorMessage(error)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-        <DialogFooter className="shrink-0 flex flex-row justify-end gap-3 pt-3 border-t">
-          <Button variant="outline" onClick={onCancel}>
-            {t('cancelUpload')}
-          </Button>
-          <Button onClick={onContinue}>
-            {t('continueWithoutErrors')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter className="shrink-0 flex flex-row justify-end gap-3 pt-3 border-t">
+            <Button variant="outline" onClick={() => setShowConfirmClose(true)}>
+              {t('cancelUpload')}
+            </Button>
+            <Button onClick={onContinue}>
+              {t('continueWithoutErrors')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Modal khi click nút 'X' hoặc 'Hủy' */}
+      <AlertDialog open={showConfirmClose} onOpenChange={setShowConfirmClose}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-bold flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-500" />
+              {t('confirmCancelUploadTitle') || 'Xác nhận hủy quá trình tải lên?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground pt-1">
+              {t('confirmCancelUploadDesc') || 'Mọi thay đổi đã chỉnh sửa trong danh sách lỗi sẽ không được lưu. Bạn có chắc chắn muốn thoát?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-row justify-end gap-3 pt-3">
+            <AlertDialogCancel onClick={() => setShowConfirmClose(false)}>
+              {t('continueEditingBtn') || 'Tiếp tục chỉnh sửa'}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t('confirmCloseBtn') || 'Xác nhận đóng'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
