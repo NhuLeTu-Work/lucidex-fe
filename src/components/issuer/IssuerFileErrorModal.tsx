@@ -128,6 +128,7 @@ import {
   NATIONAL_ID_REGEX,
   CODE_KEY_REGEX,
   isValidGeneralText,
+  isValidFullName,
 } from '@/utils/csvValidator';
 
 /**
@@ -188,9 +189,9 @@ function validateFixedValue(err: CsvErrorRecord, val: string): boolean {
     return !isNaN(yr) && yr >= 1930 && yr <= maxYr;
   }
 
-  // 10. Họ tên và các trường chữ khác: 2-300 ký tự, không ký tự đặc biệt
+  // 10. Họ tên: Chỉ cho phép chữ cái và khoảng trắng (không chứa số hoặc ký tự đặc biệt)
   if (err.targetField === 'full_name') {
-    return trimmed.length >= 2 && trimmed.length <= 200 && isValidGeneralText(trimmed, 2, 200);
+    return isValidFullName(trimmed, 2, 200);
   }
 
   return isValidGeneralText(trimmed, 2, 300);

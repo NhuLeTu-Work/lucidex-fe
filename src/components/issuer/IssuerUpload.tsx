@@ -108,21 +108,24 @@ export function IssuerUpload() {
     await sendCheckDuplicatesApi();
   };
 
-  const sendImportCredentialsApi = async (fileToUse?: File) => {
+  const sendImportCredentialsApi = async (fileToUse?: File, overwriteOverride?: boolean) => {
     const file = fileToUse || selectedFile;
     if (!file) return;
+
+    const isOverwrite = overwriteOverride !== undefined ? overwriteOverride : overwriteAll;
 
     try {
       const response = await importCredentialsApi({
         file,
-        overwrite_all: overwriteAll,
+        overwrite_all: isOverwrite,
       });
 
       if (response.success) {
-        const { created_count, total_received } = response.data;
+        const { created_count, updated_count, total_received } = response.data;
+        const totalSuccessful = (created_count || 0) + (updated_count || 0);
         const successMsg = t('importSuccess')
           ? t('importSuccess')
-              .replace('{X}', String(created_count))
+              .replace('{X}', String(totalSuccessful))
               .replace('{Y}', String(total_received))
           : response.message || 'Import successful';
 
@@ -250,9 +253,10 @@ export function IssuerUpload() {
     showToast('warning', t('uploadCancelled') || 'Đã hủy tải file');
   };
 
-  const handleComparisonComplete = async () => {
+  const handleComparisonComplete = async (action: 'overwrite' | 'skip') => {
     setShowDuplicateModal(false);
-    await sendImportCredentialsApi();
+    const shouldOverwrite = action === 'overwrite';
+    await sendImportCredentialsApi(undefined, shouldOverwrite);
   };
 
   const handleDownloadTemplate = () => {

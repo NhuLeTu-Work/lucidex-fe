@@ -21,7 +21,7 @@ interface IssuerDuplicateComparisonProps {
   isOpen: boolean;
   t: (k: string) => string;
   duplicates: DuplicateRecord[];
-  onComplete: () => void;
+  onComplete: (action: 'overwrite' | 'skip') => void;
 }
 
 export function IssuerDuplicateComparison({
@@ -35,7 +35,7 @@ export function IssuerDuplicateComparison({
   // Store request: Lưu trữ danh sách các Student ID cần xóa khỏi DB cũ
   const [_deletedRecords, setDeletedRecords] = useState<string[]>([]);
 
-  const handleResolve = (_action: 'overwrite' | 'skip') => {
+  const handleResolve = (action: 'overwrite' | 'skip') => {
     if (currentIndex < duplicates.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -44,7 +44,7 @@ export function IssuerDuplicateComparison({
         setIsCompleting(false);
         setCurrentIndex(0);
         setDeletedRecords([]); // Clear store sau khi hoàn tất
-        onComplete();
+        onComplete(action);
       }, 1000);
     }
   };
@@ -120,16 +120,8 @@ export function IssuerDuplicateComparison({
     return String(val);
   };
 
-  // Lọc ra CÁC TRƯỜNG CÓ DỮ LIỆU KHÁC NHAU (nhưng luôn giữ lại Mã SV & Lớp để đối chiếu trực quan)
-  const differingFields = allFields.filter(
-    (field) =>
-      field.key === 'studentId' ||
-      field.key === 'classCode' ||
-      getFieldValue(currentRecord.existing, field) !== getFieldValue(currentRecord.incoming, field)
-  );
-
-  // Fallback: Nếu không có điểm khác biệt nào ngoài mã SV & Lớp, hiển thị toàn bộ allFields
-  const displayFields = differingFields.length > 2 ? differingFields : allFields;
+  // Luôn hiển thị đầy đủ tất cả các trường thông tin để so sánh trực quan
+  const displayFields = allFields;
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>

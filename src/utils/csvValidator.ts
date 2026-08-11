@@ -104,11 +104,18 @@ export function normalizeHeaderString(h: string): string {
  * Length: 2 to 300 characters
  */
 export const SPECIAL_CHAR_FORBIDDEN_REGEX = /^[\p{L}\p{N}\s\/\-]+$/u;
+export const FULL_NAME_LETTERS_ONLY_REGEX = /^[\p{L}\s]+$/u;
 
 export function isValidGeneralText(val: string, minLen = 2, maxLen = 300): boolean {
   const sanitized = sanitizeTextField(val);
   if (sanitized.length < minLen || sanitized.length > maxLen) return false;
   return SPECIAL_CHAR_FORBIDDEN_REGEX.test(sanitized);
+}
+
+export function isValidFullName(val: string, minLen = 2, maxLen = 200): boolean {
+  const sanitized = sanitizeTextField(val);
+  if (sanitized.length < minLen || sanitized.length > maxLen) return false;
+  return FULL_NAME_LETTERS_ONLY_REGEX.test(sanitized);
 }
 
 /**
@@ -590,8 +597,8 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
       });
     }
 
-    // 2. Họ & tên: 2-200 chars, general text rules
-    if (fullName.length < 2 || fullName.length > 200 || !isValidGeneralText(fullName, 2, 200)) {
+    // 2. Họ & tên: 2-200 chars, chỉ cho phép chữ cái và khoảng trắng (không chứa số hoặc ký tự đặc biệt)
+    if (!isValidFullName(fullName, 2, 200)) {
       errors.push({
         row: rowNumber,
         type: 'format',
