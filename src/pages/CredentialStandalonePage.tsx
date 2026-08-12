@@ -6,6 +6,7 @@ import GraduationCertificate from '@/components/certificates/ctuGraduation/Gradu
 import { CredentialCoverReveal } from '@/components/certificates/CredentialCoverReveal';
 import { apiClient } from '@/api/api';
 import { Loader2, AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { OwnerShareCodeWidget } from '@/components/owner/OwnerShareCodeWidget';
 import type { CertificateData } from '@/components/certificates/ctuGraduation/certificateData';
 
 /**
@@ -164,6 +165,11 @@ export function CredentialStandalonePage() {
             />
           </div>
         </div>
+      )}
+
+      {/* Share verify code widget */}
+      {!isLoading && data && id && (
+        <OwnerShareCodeWidget credentialId={id} />
       )}
 
       {/* Bottom Pagination & Navigation Controls */}
