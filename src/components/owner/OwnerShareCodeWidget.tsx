@@ -7,14 +7,16 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/app/AppContext';
 import { useCreateVerifiedLink } from '@/hooks/owner/useCreateVerifiedLink';
+import { cn } from '@/lib/utils';
 
 interface OwnerShareCodeWidgetProps {
   credentialId: string;
+  className?: string;
 }
 
 type ConsentType = 'access_number' | 'time_bound' | 'custom';
 
-export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps) {
+export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCodeWidgetProps) {
   const { t, showToast } = useApp();
   const { generateLinkCode, isSubmitting, createdData } = useCreateVerifiedLink();
 
@@ -149,7 +151,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[70] flex flex-col items-end">
+    <div className={cn("fixed bottom-6 right-6 z-[70] flex flex-col items-end", className)}>
       {/* Dynamic Popover / Card Panel khi mở */}
       {isOpen && createdData && (
         <Card className="mb-3 w-72 sm:w-80 p-3 gap-2 shadow-2xl border-border bg-card text-card-foreground animate-in slide-in-from-bottom-4 fade-in duration-200 rounded-2xl">

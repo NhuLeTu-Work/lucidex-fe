@@ -169,7 +169,7 @@ export function CredentialStandalonePage() {
 
       {/* Share verify code widget */}
       {!isLoading && data && id && (
-        <OwnerShareCodeWidget credentialId={id} />
+        <OwnerShareCodeWidget credentialId={id} className="bottom-20 sm:bottom-24 z-[100]" />
       )}
 
       {/* Bottom Pagination & Navigation Controls */}
