@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
 
 interface CredentialViewerProps {
   cover: React.ReactNode;
@@ -26,13 +25,7 @@ export function CredentialViewer({ cover, content, onClose, actions }: Credentia
         title="Nhấn ra ngoài để đóng"
       />
       
-      {/* Nút đóng */}
-      <button 
-        onClick={onClose}
-        className="absolute top-6 right-6 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors z-[60]"
-      >
-        <X size={32} />
-      </button>
+
 
       {/* 
         Container quy định tỷ lệ và kích thước cho cả cover và content.

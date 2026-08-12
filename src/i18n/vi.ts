@@ -96,7 +96,6 @@ export const vi: Record<string, string> = {
     verificationId: 'Mã Xác minh',
     verifiedBy: 'Xác minh bởi',
     verifiedAt: 'Thời gian Xác minh',
-    consentSettingsDesc: 'Quản lý cách bằng cấp của bạn được truy cập bởi các tổ chức.',
     verificationCode: 'Mã xác thực',
     credentialName: 'Tên văn bằng',
     searchCodePlaceholder: 'Tìm kiếm mã chia sẻ hoặc tên văn bằng...',

@@ -15,7 +15,7 @@ interface OwnerShareCodeWidgetProps {
 type ConsentType = 'access_number' | 'time_bound' | 'custom';
 
 export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps) {
-  const { showToast } = useApp();
+  const { t, showToast } = useApp();
   const { generateLinkCode, isSubmitting, createdData } = useCreateVerifiedLink();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -124,7 +124,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
     if (!createdData?.code) return;
     navigator.clipboard.writeText(createdData.code);
     setIsCopied(true);
-    showToast('success', 'Đã sao chép mã chia sẻ vào bộ nhớ tạm!');
+    showToast('success', t('codeCopied') || 'Đã sao chép mã chia sẻ!');
     setTimeout(() => setIsCopied(false), 2000);
   };
 
@@ -144,7 +144,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
         maxAccessCount: consentType === 'time_bound' ? null : calculatedAccessCount,
         expireHours: consentType === 'access_number' ? null : expireHours,
       });
-      showToast('success', 'Đã cập nhật cấu hình mã chia sẻ!');
+      showToast('success', t('updateSuccess') || 'Đã cập nhật cấu hình mã chia sẻ!');
     }
   };
 
@@ -158,7 +158,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
               <div className="p-1 rounded-lg bg-primary/10 text-primary">
                 <ShieldCheck size={18} />
               </div>
-              <h4 className="font-bold text-base">Mã chia sẻ văn bằng</h4>
+              <h4 className="font-bold text-base">{t('shareCodeTitle')}</h4>
             </div>
             <Button
               variant="ghost"
@@ -183,12 +183,12 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
               {isCopied ? (
                 <>
                   <Check size={13} className="text-green-600" />
-                  <span>Đã chép</span>
+                  <span>{t('copied') || 'Đã chép'}</span>
                 </>
               ) : (
                 <>
                   <Copy size={13} />
-                  <span>Sao chép</span>
+                  <span>{t('copy') || 'Sao chép'}</span>
                 </>
               )}
             </Button>
@@ -197,7 +197,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
           {/* Consent Selection Section (3 loại consent) */}
           <div className="space-y-2 border-t pt-2 mt-2">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-bold">Cấu hình truy cập</Label>
+              <Label className="text-base font-bold">{t('accessConfig')}</Label>
               {createdData.consent_mode && (
                 <Badge variant="outline" className="text-xs uppercase font-mono px-1.5 py-0.5">
                   {createdData.consent_mode}
@@ -215,7 +215,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                Số lần
+                {t('accessNumber')}
               </button>
 
               <button
@@ -226,7 +226,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                Thời gian
+                {t('timeBound')}
               </button>
 
               <button
@@ -237,7 +237,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                Tùy chỉnh
+                {t('customize')}
               </button>
             </div>
 
@@ -246,7 +246,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
             {(consentType === 'access_number' || consentType === 'custom') && (
               <div className="flex items-center justify-between gap-2 text-sm pt-0.5">
                 <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                  Số lần truy cập tối đa:
+                  {t('maxAccessCountLabel')}
                 </Label>
                 <div className="flex items-center gap-1">
                   <Input
@@ -257,7 +257,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                     className="w-16 h-7 text-sm font-mono text-center px-1"
                     placeholder="5"
                   />
-                  <span className="text-sm text-muted-foreground font-medium">lần</span>
+                  <span className="text-sm text-muted-foreground font-medium">{t('timesUnit')}</span>
                 </div>
               </div>
             )}
@@ -266,7 +266,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
             {(consentType === 'time_bound' || consentType === 'custom') && (
               <div className="flex items-center justify-between gap-2 text-sm pt-0.5">
                 <Label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-                  Thời gian hiệu lực:
+                  {t('expireHoursLabel')}
                 </Label>
                 <div className="flex items-center gap-1">
                   <Input
@@ -277,7 +277,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                     className="w-16 h-7 text-sm font-mono text-center px-1"
                     placeholder="24"
                   />
-                  <span className="text-sm text-muted-foreground font-medium">giờ</span>
+                  <span className="text-sm text-muted-foreground font-medium">{t('hoursUnit')}</span>
                 </div>
               </div>
             )}
@@ -295,7 +295,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
                   ) : (
                     <Save size={14} />
                   )}
-                  <span>Lưu thay đổi</span>
+                  <span>{t('saveChanges')}</span>
                 </Button>
               </div>
             )}
@@ -314,7 +314,7 @@ export function OwnerShareCodeWidget({ credentialId }: OwnerShareCodeWidgetProps
         ) : (
           <Share2 size={18} />
         )}
-        <span>{isOpen ? 'Đóng mã chia sẻ' : 'Tạo mã chia sẻ'}</span>
+        <span>{isOpen ? t('closeShareCode') : t('createShareCode')}</span>
       </Button>
     </div>
   );

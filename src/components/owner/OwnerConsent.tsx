@@ -1,28 +1,39 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, X, Check, ChevronDown } from 'lucide-react';
-import { mockOrganizations } from '../../data/mockData';
-
-const ALL_ORGS = Array.from(
-  new Set([
-    'TMA Solutions',
-    'FPT Software',
-    'Viettel',
-    'VNPT',
-    'MGM Technology',
-    'KMS Technology',
-    ...mockOrganizations.map(o => o.name)
-  ])
-);
+import { Search, X, Check, ChevronDown, Loader2 } from 'lucide-react';
+import { useLinkSettings } from '@/hooks/owner/useLinkSettings';
+import { useVerifiersList } from '@/hooks/owner/useVerifiersList';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function OwnerConsent({ t }: { t: (k: string) => string }) {
-  const [defaultConsent, setDefaultConsent] = useState('access_number');
+  const { settings, isLoading, isSaving, updateSettings } = useLinkSettings();
+  const { verifiers, isLoading: isVerifiersLoading } = useVerifiersList();
+
+  const [defaultConsent, setDefaultConsent] = useState('');
   const [accessCount, setAccessCount] = useState<number>(5);
   const [timeLimitHours, setTimeLimitHours] = useState<number>(24);
 
-  const [selectedOrgs, setSelectedOrgs] = useState<string[]>(['TMA Solutions']);
+  const [selectedOrgIds, setSelectedOrgIds] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (settings) {
+      if (settings.default_consent_mode === 'access_count') setDefaultConsent('access_number');
+      else if (settings.default_consent_mode === 'time_bound') setDefaultConsent('time_bound');
+      else if (settings.default_consent_mode === 'custom') setDefaultConsent('customize');
+
+      if (settings.default_max_access_count !== null && settings.default_max_access_count !== undefined) {
+        setAccessCount(settings.default_max_access_count);
+      }
+      if (settings.default_expiry_hours !== null && settings.default_expiry_hours !== undefined) {
+        setTimeLimitHours(settings.default_expiry_hours);
+      }
+      if (settings.default_allowed_org_ids && settings.default_allowed_org_ids.length > 0) {
+        setSelectedOrgIds(settings.default_allowed_org_ids);
+      }
+    }
+  }, [settings]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -52,27 +63,81 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
     },
   ];
 
-  const filteredOrgs = ALL_ORGS.filter(org =>
-    org.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredVerifiers = verifiers.filter(v =>
+    v.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const toggleOrg = (org: string) => {
-    if (selectedOrgs.includes(org)) {
-      setSelectedOrgs(selectedOrgs.filter(o => o !== org));
+  const toggleOrg = (orgId: string) => {
+    if (selectedOrgIds.includes(orgId)) {
+      setSelectedOrgIds(selectedOrgIds.filter(id => id !== orgId));
     } else {
-      setSelectedOrgs([...selectedOrgs, org]);
+      setSelectedOrgIds([...selectedOrgIds, orgId]);
     }
+  };
+
+  const getVerifierName = (id: string) => {
+    const found = verifiers.find(v => v.id === id);
+    return found ? found.name : id;
+  };
+
+  const currentApiMode =
+    defaultConsent === 'access_number'
+      ? 'access_count'
+      : defaultConsent === 'time_bound'
+        ? 'time_bound'
+        : defaultConsent === 'customize'
+          ? 'custom'
+          : '';
+
+  const initialApiMode = settings?.default_consent_mode || '';
+  const initialMaxAccess = settings?.default_max_access_count ?? null;
+  const initialExpiryHours = settings?.default_expiry_hours ?? null;
+  const initialAllowedOrgs = settings?.default_allowed_org_ids || [];
+
+  const currentMaxAccess =
+    defaultConsent === 'access_number' || defaultConsent === 'customize' ? accessCount : null;
+  const currentExpiryHours =
+    defaultConsent === 'time_bound' || defaultConsent === 'customize' ? timeLimitHours : null;
+
+  const orgsChanged =
+    selectedOrgIds.length !== initialAllowedOrgs.length ||
+    selectedOrgIds.some(id => !initialAllowedOrgs.includes(id));
+
+  const hasChanged =
+    currentApiMode !== initialApiMode ||
+    currentMaxAccess !== initialMaxAccess ||
+    currentExpiryHours !== initialExpiryHours ||
+    orgsChanged;
+
+  const handleSave = () => {
+    const apiMode =
+      defaultConsent === 'access_number'
+        ? 'access_count'
+        : defaultConsent === 'time_bound'
+          ? 'time_bound'
+          : defaultConsent === 'customize'
+            ? 'custom'
+            : 'access_count';
+
+    updateSettings({
+      default_consent_mode: apiMode,
+      default_max_access_count: currentMaxAccess,
+      default_expiry_hours: currentExpiryHours,
+      default_allowed_org_ids: selectedOrgIds,
+    });
   };
 
   return (
     <div>
       <h1 className="font-display text-2xl mb-2">{t('consentSettings')}</h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>{t('consentSettingsDesc')}</p>
-
       <div className="max-w-xl space-y-6">
-        {/* Consent Type Selection */}
-        <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
-          <h3 className="font-semibold mb-4">{t('setDefaultConsent')}</h3>
+        {isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full rounded-lg" />
+            <Skeleton className="h-16 w-full rounded-lg" />
+            <Skeleton className="h-16 w-full rounded-lg" />
+          </div>
+        ) : (
           <div className="space-y-3">
             {consentOptions.map(opt => (
               <div
@@ -80,7 +145,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                 className={`rounded-lg border transition-all ${defaultConsent === opt.value ? 'border-black' : 'opacity-70'
                   }`}
                 style={{
-                  background: defaultConsent === opt.value ? 'var(--ct-bg)' : 'transparent',
+                  background: defaultConsent === opt.value ? 'var(--ct-surface)' : 'transparent',
                   borderColor: defaultConsent === opt.value ? 'var(--ct-text)' : 'var(--ct-border)',
                 }}
               >
@@ -107,7 +172,6 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                   </div>
                 </button>
 
-                {/* Inline customization options based on selection */}
                 {defaultConsent === opt.value && (
                   <div className="px-4 pb-4 pt-1 border-t mt-1 space-y-3" style={{ borderColor: 'var(--ct-border)' }}>
                     {(opt.value === 'access_number' || opt.value === 'customize') && (
@@ -156,18 +220,16 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
               </div>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Trusted Orgs Section (Dropdown with search & multiple choice) */}
         <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <h3 className="font-semibold mb-4">{t('autoApproveFor')}</h3>
 
-          {/* Independent List of Selected Orgs */}
-          {selectedOrgs.length > 0 && (
+          {selectedOrgIds.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {selectedOrgs.map(org => (
+              {selectedOrgIds.map(orgId => (
                 <span
-                  key={org}
+                  key={orgId}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
                   style={{
                     background: 'var(--ct-bg)',
@@ -175,10 +237,10 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                     color: 'var(--ct-text)',
                   }}
                 >
-                  {org}
+                  {getVerifierName(orgId)}
                   <button
                     type="button"
-                    onClick={() => toggleOrg(org)}
+                    onClick={() => toggleOrg(orgId)}
                     className="hover:opacity-75 focus:outline-none p-0.5 rounded-full"
                     title="Remove"
                   >
@@ -190,27 +252,25 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
           )}
 
           <div className="relative" ref={dropdownRef}>
-            {/* Dropdown Header / Trigger */}
             <div
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="min-h-[44px] px-3 py-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all hover:border-black"
               style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}
             >
               <span className="text-sm opacity-60" style={{ color: 'var(--ct-text)' }}>
-                Select trusted organizations...
+                {isVerifiersLoading ? 'Loading verifiers...' : 'Select trusted organizations...'}
               </span>
-              <div className="opacity-60">
+              <div className="opacity-60 flex items-center gap-2">
+                {isVerifiersLoading && <Loader2 size={16} className="animate-spin" />}
                 <ChevronDown size={18} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
             </div>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div
                 className="absolute z-20 top-full left-0 right-0 mt-2 rounded-xl border shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-1"
                 style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}
               >
-                {/* Search input */}
                 <div className="p-2.5 border-b flex items-center gap-2" style={{ borderColor: 'var(--ct-border)' }}>
                   <Search size={16} className="opacity-50" />
                   <input
@@ -229,26 +289,28 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                   )}
                 </div>
 
-                {/* Options List */}
                 <div className="max-h-56 overflow-y-auto p-1.5 space-y-1">
-                  {filteredOrgs.length === 0 ? (
+                  {isVerifiersLoading ? (
+                    <div className="p-4 text-center text-xs opacity-50 flex items-center justify-center gap-2">
+                      <Loader2 size={14} className="animate-spin" /> Loading verifiers list...
+                    </div>
+                  ) : filteredVerifiers.length === 0 ? (
                     <div className="p-3 text-xs text-center opacity-50">No organizations found</div>
                   ) : (
-                    filteredOrgs.map(org => {
-                      const isSelected = selectedOrgs.includes(org);
+                    filteredVerifiers.map(v => {
+                      const isSelected = selectedOrgIds.includes(v.id);
                       return (
                         <button
-                          key={org}
+                          key={v.id}
                           type="button"
-                          onClick={() => toggleOrg(org)}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-colors ${
-                            isSelected ? 'font-medium' : 'opacity-80'
-                          }`}
+                          onClick={() => toggleOrg(v.id)}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-colors ${isSelected ? 'font-medium' : 'opacity-80'
+                            }`}
                           style={{
                             background: isSelected ? 'var(--ct-bg)' : 'transparent',
                           }}
                         >
-                          <span style={{ color: 'var(--ct-text)' }}>{org}</span>
+                          <span style={{ color: 'var(--ct-text)' }}>{v.name}</span>
                           {isSelected && <Check size={16} className="text-green-600" />}
                         </button>
                       );
@@ -260,13 +322,18 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="px-6 py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80"
-          style={{ background: '#000' }}
-        >
-          {t('save')}
-        </button>
+        {/* Only render Save button if there are changes */}
+        {hasChanged && (
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-6 py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
+            style={{ background: '#000' }}
+          >
+            {isSaving ? '...' : t('save')}
+          </button>
+        )}
       </div>
     </div>
   );

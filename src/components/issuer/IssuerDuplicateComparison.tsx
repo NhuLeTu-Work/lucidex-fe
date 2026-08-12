@@ -59,13 +59,13 @@ export function IssuerDuplicateComparison({
     {
       key: 'studentId',
       altKeys: ['student_id', 'studentId'],
-      label: 'Mã SV / MSSV',
+      label: t('studentIdLabel') || 'Mã SV / MSSV',
       getValueFromRecord: () => currentRecord.studentId,
     },
     {
       key: 'classCode',
       altKeys: ['class_code', 'class_id', 'classCode'],
-      label: 'Lớp',
+      label: t('classId') || 'Lớp',
       getValueFromRecord: () => currentRecord.classCode,
     },
     {
@@ -81,7 +81,7 @@ export function IssuerDuplicateComparison({
     {
       key: 'modeStudy',
       altKeys: ['mode_of_study_vi', 'mode_of_study', 'modeStudy'],
-      label: 'Hình thức đào tạo',
+      label: t('modeOfStudy') || 'Hình thức đào tạo',
     },
     {
       key: 'classification',
@@ -141,9 +141,9 @@ export function IssuerDuplicateComparison({
                 {t('duplicateDetected')}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                {t('duplicateDesc')} (Mã SV:{' '}
+                {t('duplicateDesc')} ({t('studentId') || 'Mã SV'}:{' '}
                 <span className="font-bold text-foreground">{currentRecord.studentId}</span>
-                {currentRecord.classCode ? `, Lớp: ${currentRecord.classCode}` : ''})
+                {currentRecord.classCode ? `, ${t('classId') || 'Lớp'}: ${currentRecord.classCode}` : ''})
               </DialogDescription>
             </DialogHeader>
 
@@ -163,18 +163,18 @@ export function IssuerDuplicateComparison({
                 <TableBody>
                   <TableRow className="bg-muted/10 hover:bg-muted/20">
                     <TableCell className="font-semibold text-amber-700 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-950/20">
-                      {t('existingRecord')} (Đã lưu)
+                      {t('existingRecord')}
                     </TableCell>
                     {displayFields.map((field) => (
                       <TableCell key={field.key} className="text-xs font-mono">
-                        {getFieldValue(currentRecord.existing, field) || '(Trống)'}
+                        {getFieldValue(currentRecord.existing, field) || '-'}
                       </TableCell>
                     ))}
                   </TableRow>
 
                   <TableRow className="bg-primary/5 hover:bg-primary/10">
                     <TableCell className="font-semibold text-primary bg-primary/10">
-                      {t('incomingRecord')} (File mới)
+                      {t('incomingRecord')}
                     </TableCell>
                     {displayFields.map((field) => (
                       <TableCell key={field.key} className="text-xs font-mono font-medium">

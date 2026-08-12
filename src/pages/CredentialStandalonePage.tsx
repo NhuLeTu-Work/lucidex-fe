@@ -5,7 +5,7 @@ import { mapOwnerCredentialToCertificateData } from '@/components/certificates/c
 import GraduationCertificate from '@/components/certificates/ctuGraduation/GraduationCertificate';
 import { CredentialCoverReveal } from '@/components/certificates/CredentialCoverReveal';
 import { apiClient } from '@/api/api';
-import { Loader2, AlertCircle, RefreshCw, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CertificateData } from '@/components/certificates/ctuGraduation/certificateData';
 
 /**
@@ -115,17 +115,7 @@ export function CredentialStandalonePage() {
 
   return (
     <div className="fixed inset-0 w-screen h-screen bg-[#2A3439] text-white flex flex-col justify-between items-center overflow-hidden select-none p-3 sm:p-6">
-      {/* Top Bar: Nút Đóng */}
-      <div className="w-full max-w-md flex items-center justify-end z-50">
-        <button
-          onClick={handleClose}
-          className="p-2.5 bg-black/40 hover:bg-black/60 active:bg-black/80 rounded-full text-white/80 hover:text-white backdrop-blur-md transition-all border border-white/10"
-          title="Đóng"
-          aria-label="Close"
-        >
-          <X size={20} />
-        </button>
-      </div>
+
 
       {/* State Loading */}
       {isLoading && (

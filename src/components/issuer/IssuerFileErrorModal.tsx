@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { useApp } from '@/app/AppContext';
 
 interface SearchComboboxProps {
   value: string;
@@ -15,9 +16,12 @@ function SearchCombobox({
   value,
   onChange,
   options,
-  placeholder = 'Chọn...',
-  searchPlaceholder = 'Tìm kiếm...',
+  placeholder,
+  searchPlaceholder,
 }: SearchComboboxProps) {
+  const { t } = useApp();
+  const effectivePlaceholder = placeholder || t('selectOptionPlaceholder') || 'Chọn...';
+  const effectiveSearchPlaceholder = searchPlaceholder || t('searchOptionPlaceholder') || 'Tìm kiếm...';
   const [open, setOpen] = useState(false);
 
   // Gom nhóm options nếu có group
@@ -44,7 +48,7 @@ function SearchCombobox({
           aria-expanded={open}
           className="h-8 text-xs w-full justify-between font-normal px-2 bg-background border-input"
         >
-          <span className="truncate">{selectedLabel || placeholder}</span>
+          <span className="truncate">{selectedLabel || effectivePlaceholder}</span>
           <ChevronsUpDownIcon className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -54,13 +58,13 @@ function SearchCombobox({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <Command className="max-h-[220px]">
-          <CommandInput placeholder={searchPlaceholder} className="h-8 text-xs" />
+          <CommandInput placeholder={effectiveSearchPlaceholder} className="h-8 text-xs" />
           <CommandList
             className="max-h-[175px] overflow-y-auto overscroll-contain"
             onWheel={(e) => e.stopPropagation()}
           >
             <CommandEmpty className="py-2 text-center text-xs text-muted-foreground">
-              Không tìm thấy kết quả
+              {t('noResultsFound')}
             </CommandEmpty>
             {Object.entries(groupedOptions).map(([groupName, groupItems]) => (
               <CommandGroup key={groupName} heading={groupName !== 'default' ? groupName : undefined}>
@@ -652,7 +656,7 @@ export function IssuerFileErrorModal({
       <Input
         value={currentVal}
         onChange={(e) => handleFieldValueChange(group, err, e.target.value)}
-        placeholder="Nhập giá trị đúng..."
+        placeholder={t('enterCorrectValuePlaceholder')}
         className={inputStyleClass}
       />
     );
@@ -690,11 +694,11 @@ export function IssuerFileErrorModal({
                 <TableRow>
                   <TableHead className="w-[50px] text-center">{t('rowNumber')}</TableHead>
                   <TableHead className="w-[120px]">{t('issueType')}</TableHead>
-                  <TableHead className="w-[140px]">Trường thông tin</TableHead>
-                  <TableHead className="w-[140px]">Dữ liệu gốc</TableHead>
-                  <TableHead className="w-[200px]">Sửa trực tiếp</TableHead>
+                  <TableHead className="w-[140px]">{t('fieldNameHeader')}</TableHead>
+                  <TableHead className="w-[140px]">{t('originalDataHeader')}</TableHead>
+                  <TableHead className="w-[200px]">{t('directEditHeader')}</TableHead>
                   <TableHead className="min-w-[240px]">{t('issueDetail')}</TableHead>
-                  <TableHead className="w-[100px] text-center">Hành động</TableHead>
+                  <TableHead className="w-[100px] text-center">{t('actions') || 'Hành động'}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -704,11 +708,11 @@ export function IssuerFileErrorModal({
                   const errorCount = group.errors.length;
 
                   // Xác định phân loại 3 nhóm
-                  let categoryTag = { label: 'Lỗi thông tin', color: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300' };
+                  let categoryTag = { label: t('statusFormatError'), color: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300' };
                   if (group.isDuplicate) {
-                    categoryTag = { label: 'Trùng trong file', color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
+                    categoryTag = { label: t('statusDuplicate'), color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
                   } else if (isValid) {
-                    categoryTag = { label: 'Đã sửa hợp lệ', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' };
+                    categoryTag = { label: t('statusFixedValid'), color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' };
                   }
 
                   return group.errors.map((err, errIdx) => (

@@ -96,7 +96,6 @@ export const en: Record<string, string> = {
     verificationId: 'Verification ID',
     verifiedBy: 'Verified By',
     verifiedAt: 'Verified At',
-    consentSettingsDesc: 'Manage how your credentials can be accessed by organizations.',
     verificationCode: 'Verification Code',
     credentialName: 'Credential Name',
     searchCodePlaceholder: 'Search verification code or credential...',

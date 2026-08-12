@@ -210,3 +210,15 @@ export interface GetVerifiedLinksResponse {
   message: string | null;
   error_code: string | null;
 }
+
+export interface VerifierItem {
+  id: string;
+  name: string;
+}
+
+export interface GetVerifiersListResponse {
+  success: boolean;
+  data: VerifierItem[];
+  message: string | null;
+  error_code: string | null;
+}
