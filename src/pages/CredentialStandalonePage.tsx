@@ -38,7 +38,7 @@ export function CredentialStandalonePage() {
     if ((window as any).ReactNativeWebView?.postMessage) {
       (window as any).ReactNativeWebView.postMessage(jsonString);
     }
-    
+
     // Flutter Webview / Standard Webview Channel
     if ((window as any).flutter_inappwebview?.callHandler) {
       (window as any).flutter_inappwebview.callHandler('NativeBridge', message);
@@ -69,7 +69,7 @@ export function CredentialStandalonePage() {
         headers['Authorization'] = `Bearer ${tokenFromUrl}`;
       }
 
-      const res = tokenFromUrl 
+      const res = tokenFromUrl
         ? (await apiClient.get(`/api/v1/owner/credentials/${id}`, { headers })).data
         : await getOwnerCredentialDetailApi(id);
 
@@ -103,10 +103,6 @@ export function CredentialStandalonePage() {
       return () => clearTimeout(timer);
     }
   }, [data, id]);
-
-  const handleClose = () => {
-    postToNative({ type: 'CLOSE', payload: { id } });
-  };
 
   const toggleLanguage = (lang: 'vi' | 'en') => {
     setActiveLang(lang);
@@ -176,9 +172,8 @@ export function CredentialStandalonePage() {
           <button
             onClick={() => toggleLanguage('en')}
             disabled={activeLang === 'en'}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${
-              activeLang === 'en' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
-            }`}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${activeLang === 'en' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
+              }`}
           >
             <ChevronLeft size={18} />
             <span>Tiếng Anh</span>
@@ -191,9 +186,8 @@ export function CredentialStandalonePage() {
           <button
             onClick={() => toggleLanguage('vi')}
             disabled={activeLang === 'vi'}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${
-              activeLang === 'vi' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
-            }`}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm font-medium transition-all ${activeLang === 'vi' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
+              }`}
           >
             <span>Tiếng Việt</span>
             <ChevronRight size={18} />
