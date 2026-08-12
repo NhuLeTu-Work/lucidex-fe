@@ -49,10 +49,13 @@ function SearchCombobox({
   value,
   onChange,
   options,
-  placeholder = 'Chọn...',
-  searchPlaceholder = 'Tìm kiếm...',
+  placeholder,
+  searchPlaceholder,
   disabled = false,
 }: SearchComboboxProps) {
+  const { t } = useApp();
+  const effectivePlaceholder = placeholder || t('selectOptionPlaceholder') || 'Chọn...';
+  const effectiveSearchPlaceholder = searchPlaceholder || t('searchOptionPlaceholder') || 'Tìm kiếm...';
   const [open, setOpen] = useState(false);
 
   const groupedOptions = useMemo(() => {
@@ -80,7 +83,7 @@ function SearchCombobox({
           disabled={disabled}
           className="h-10 text-sm w-full justify-between font-normal px-3 bg-background border-input"
         >
-          <span className="truncate">{selectedLabel || placeholder}</span>
+          <span className="truncate">{selectedLabel || effectivePlaceholder}</span>
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -90,13 +93,13 @@ function SearchCombobox({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <Command className="max-h-[260px]">
-          <CommandInput placeholder={searchPlaceholder} className="h-9 text-sm" />
+          <CommandInput placeholder={effectiveSearchPlaceholder} className="h-9 text-sm" />
           <CommandList
             className="max-h-[200px] overflow-y-auto overscroll-contain"
             onWheel={(e) => e.stopPropagation()}
           >
             <CommandEmpty className="py-3 text-center text-sm text-muted-foreground">
-              Không tìm thấy kết quả
+              {t('noResultsFound')}
             </CommandEmpty>
             {Object.entries(groupedOptions).map(([groupName, groupItems]) => (
               <CommandGroup key={groupName} heading={groupName !== 'default' ? groupName : undefined}>
@@ -228,11 +231,11 @@ export function IssuerManualImportModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Sanitize slash inputs '\' -> '/'
-    const sId = sanitizeTextField(formData.student_id);
+    // Sanitize slash inputs '\' -> '/' and convert student_id & class_id to UPPERCASE
+    const sId = sanitizeTextField(formData.student_id).toUpperCase();
     const fName = sanitizeTextField(formData.full_name);
     const dobVal = convertDateToDDMMYYYY(formData.dob);
-    const cId = sanitizeTextField(formData.class_id);
+    const cId = sanitizeTextField(formData.class_id).toUpperCase();
     const placeBirth = sanitizeTextField(formData.place_of_birth);
     const genderVal = formData.gender === 'N' ? 'N' : null;
     const fac = sanitizeTextField(formData.faculty);
@@ -388,13 +391,13 @@ export function IssuerManualImportModal({
           {/* Nhóm 1: Thông tin cá nhân */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
-              I. Nhóm Thông tin cá nhân
+              {t('sectionPersonalInfo')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {/* MSSV */}
               <div className="space-y-2">
                 <Label htmlFor="student_id" className="text-sm font-semibold">
-                  Mã SV / MSSV <span className="text-destructive">*</span>
+                  {t('studentIdLabel')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="student_id"
@@ -410,7 +413,7 @@ export function IssuerManualImportModal({
               {/* Họ và Tên */}
               <div className="space-y-2">
                 <Label htmlFor="full_name" className="text-sm font-semibold">
-                  Họ và Tên <span className="text-destructive">*</span>
+                  {t('fullNameLabel')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
@@ -426,7 +429,7 @@ export function IssuerManualImportModal({
               {/* Ngày sinh với Date Picker */}
               <div className="space-y-2">
                 <Label htmlFor="dob" className="text-sm font-semibold">
-                  Ngày sinh <span className="text-destructive">*</span>
+                  {t('dobLabel')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="dob"
@@ -441,21 +444,21 @@ export function IssuerManualImportModal({
 
               {/* Nơi sinh chọn từ danh sách 63 Tỉnh/Thành */}
               <div className="space-y-2">
-                <Label htmlFor="place_of_birth" className="text-sm font-semibold">Nơi sinh</Label>
+                <Label htmlFor="place_of_birth" className="text-sm font-semibold">{t('placeOfBirthLabel')}</Label>
                 <SearchCombobox
                   id="place_of_birth"
                   value={formData.place_of_birth}
                   onChange={(val) => handleChange('place_of_birth', val)}
                   options={VIETNAM_PROVINCES.map((p) => ({ label: p, value: p }))}
-                  placeholder="Chọn Tỉnh / Thành phố"
-                  searchPlaceholder="Tìm Tỉnh / Thành phố..."
+                  placeholder={t('selectOptionPlaceholder')}
+                  searchPlaceholder={t('searchOptionPlaceholder')}
                   disabled={isSubmitting}
                 />
               </div>
 
               {/* Giới tính */}
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Giới tính</Label>
+                <Label className="text-sm font-semibold">{t('genderLabel')}</Label>
                 <RadioGroup
                   value={formData.gender || 'NAM'}
                   onValueChange={(val) => handleChange('gender', val === 'N' ? 'N' : '')}
@@ -464,18 +467,18 @@ export function IssuerManualImportModal({
                 >
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem value="NAM" id="gender-nam" />
-                    <Label htmlFor="gender-nam" className="text-sm cursor-pointer font-medium">Nam</Label>
+                    <Label htmlFor="gender-nam" className="text-sm cursor-pointer font-medium">{t('genderMale')}</Label>
                   </div>
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem value="N" id="gender-nu" />
-                    <Label htmlFor="gender-nu" className="text-sm cursor-pointer font-medium">Nữ</Label>
+                    <Label htmlFor="gender-nu" className="text-sm cursor-pointer font-medium">{t('genderFemale')}</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               {/* CCCD */}
               <div className="space-y-2">
-                <Label htmlFor="national_id" className="text-sm font-semibold">Căn cước công dân</Label>
+                <Label htmlFor="national_id" className="text-sm font-semibold">{t('nationalIdLabel')}</Label>
                 <Input
                   id="national_id"
                   placeholder="VD: 079202012345"
@@ -488,7 +491,7 @@ export function IssuerManualImportModal({
 
               {/* University Email */}
               <div className="space-y-2 sm:col-span-3">
-                <Label htmlFor="university_email" className="text-sm font-semibold">Email trường</Label>
+                <Label htmlFor="university_email" className="text-sm font-semibold">{t('universityEmailLabel')}</Label>
                 <Input
                   id="university_email"
                   type="email"
@@ -505,12 +508,12 @@ export function IssuerManualImportModal({
           {/* Nhóm 2: Thông tin học vụ */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
-              II. Nhóm Thông tin học vụ
+              {t('sectionAcademicInfo')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="class_id" className="text-sm font-semibold">
-                  Lớp <span className="text-destructive">*</span>
+                  {t('classIdLabel')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="class_id"
@@ -525,7 +528,7 @@ export function IssuerManualImportModal({
 
               {/* Khoa / Viện */}
               <div className="space-y-2">
-                <Label htmlFor="faculty" className="text-sm font-semibold">Khoa / Viện</Label>
+                <Label htmlFor="faculty" className="text-sm font-semibold">{t('facultyLabel')}</Label>
                 <Input
                   id="faculty"
                   placeholder="VD: Công nghệ Thông tin"
@@ -538,7 +541,7 @@ export function IssuerManualImportModal({
 
               {/* Ngành học */}
               <div className="space-y-2">
-                <Label htmlFor="major" className="text-sm font-semibold">Ngành học</Label>
+                <Label htmlFor="major" className="text-sm font-semibold">{t('major')}</Label>
                 <Input
                   id="major"
                   placeholder="VD: Kỹ thuật Phần mềm"
@@ -551,7 +554,7 @@ export function IssuerManualImportModal({
 
               {/* Chuyên ngành */}
               <div className="space-y-2">
-                <Label htmlFor="specialization" className="text-sm font-semibold">Chuyên ngành</Label>
+                <Label htmlFor="specialization" className="text-sm font-semibold">{t('specializationLabel')}</Label>
                 <Input
                   id="specialization"
                   placeholder="VD: Trí tuệ Nhân tạo"
@@ -564,14 +567,14 @@ export function IssuerManualImportModal({
 
               {/* Hình thức đào tạo / Mode of study */}
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="mode_of_study" className="text-sm font-semibold">Hình thức đào tạo</Label>
+                <Label htmlFor="mode_of_study" className="text-sm font-semibold">{t('modeOfStudy')}</Label>
                 <Select
                   value={formData.mode_of_study}
                   onValueChange={(val) => handleChange('mode_of_study', val)}
                   disabled={isSubmitting}
                 >
                   <SelectTrigger id="mode_of_study" className="w-full h-10 text-sm">
-                    <SelectValue placeholder="Chọn Hình thức đào tạo" />
+                    <SelectValue placeholder={t('selectOptionPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {MODE_OF_STUDY_OPTIONS.map((mode) => (
@@ -588,12 +591,12 @@ export function IssuerManualImportModal({
           {/* Nhóm 3: Kết quả & Cấp bằng */}
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b pb-1.5">
-              III. Nhóm Kết quả & Cấp bằng
+              {t('sectionGraduationInfo')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {/* CPA */}
               <div className="space-y-2">
-                <Label htmlFor="cpa" className="text-sm font-semibold">Điểm TBC (CPA)</Label>
+                <Label htmlFor="cpa" className="text-sm font-semibold">{t('cpaLabel')}</Label>
                 <Input
                   id="cpa"
                   placeholder="VD: 3.45"
@@ -606,20 +609,20 @@ export function IssuerManualImportModal({
 
               {/* Xếp loại tốt nghiệp (tự động suy luận từ CPA & đọc chỉ) */}
               <div className="space-y-2">
-                <Label htmlFor="classification" className="text-sm font-semibold">Xếp loại tốt nghiệp (Tự động)</Label>
+                <Label htmlFor="classification" className="text-sm font-semibold">{t('autoClassificationLabel')}</Label>
                 <Input
                   id="classification"
                   value={formData.classification || (formData.cpa ? getAutoClassification(formData.cpa) : '')}
                   readOnly
                   disabled
-                  placeholder="Tự động từ CPA"
+                  placeholder={t('autoFromCpaPlaceholder')}
                   className="h-10 text-sm bg-muted font-medium text-foreground cursor-not-allowed"
                 />
               </div>
 
               {/* Số hiệu bằng */}
               <div className="space-y-2">
-                <Label htmlFor="degree_number" className="text-sm font-semibold">Số hiệu bằng</Label>
+                <Label htmlFor="degree_number" className="text-sm font-semibold">{t('degreeNumberLabel')}</Label>
                 <Input
                   id="degree_number"
                   placeholder="VD: 012345"
@@ -632,7 +635,7 @@ export function IssuerManualImportModal({
 
               {/* Số vào sổ gốc */}
               <div className="space-y-2">
-                <Label htmlFor="register_number" className="text-sm font-semibold">Số vào sổ gốc</Label>
+                <Label htmlFor="register_number" className="text-sm font-semibold">{t('registerNumberLabel')}</Label>
                 <Input
                   id="register_number"
                   placeholder="VD: 152/2026/QĐ-ĐHCT"
@@ -645,7 +648,7 @@ export function IssuerManualImportModal({
 
               {/* Loại bằng / Loại chứng chỉ từ list quy định */}
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="degree_type" className="text-sm font-semibold">Loại bằng / Loại chứng chỉ</Label>
+                <Label htmlFor="degree_type" className="text-sm font-semibold">{t('degreeTypeLabel')}</Label>
                 <SearchCombobox
                   id="degree_type"
                   value={formData.degree_type}
@@ -655,15 +658,15 @@ export function IssuerManualImportModal({
                     value: d.label,
                     group: d.category,
                   }))}
-                  placeholder="Chọn Loại bằng / Chứng chỉ"
-                  searchPlaceholder="Tìm Loại bằng / Chứng chỉ..."
+                  placeholder={t('selectDegreeTypePlaceholder')}
+                  searchPlaceholder={t('searchDegreeTypePlaceholder')}
                   disabled={isSubmitting}
                 />
               </div>
 
               {/* Năm tốt nghiệp mặc định năm hiện tại */}
               <div className="space-y-2">
-                <Label htmlFor="graduation_year" className="text-sm font-semibold">Năm tốt nghiệp</Label>
+                <Label htmlFor="graduation_year" className="text-sm font-semibold">{t('graduationYearLabel')}</Label>
                 <Input
                   id="graduation_year"
                   placeholder="VD: 2026"

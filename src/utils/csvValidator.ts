@@ -371,26 +371,39 @@ export async function filterValidExcelOrCsvFile(
     return !invalidSet.has(idx);
   });
 
-  // Nếu có giá trị cập nhật/được sửa thủ công, ghi đè vào cell tương ứng
-  if (updatedRowValues) {
-    validRows.forEach((row, rowIdx) => {
-      if (rowIdx === 0) return;
-      // Lưu ý: rowIdx thực tế trong file gốc
-      const originalRowIndex = parsed.indexOf(row);
-      const updates = updatedRowValues[originalRowIndex];
-      if (updates) {
-        Object.entries(updates).forEach(([fieldKey, newVal]) => {
-          // Tìm index của column tương ứng trong header
-          const colIdx = headers.findIndex(
-            (h) => normalizeHeaderString(h) === normalizeHeaderString(fieldKey)
-          );
-          if (colIdx !== -1) {
-            row[colIdx] = newVal;
-          }
-        });
-      }
-    });
-  }
+  // Tìm colIdx của student_id và class_id trong header để capslock toàn bộ
+  const studentIdColIdx = headers.findIndex((h) => {
+    const norm = normalizeHeaderString(h);
+    return ['mã sv / mssv', 'mã sv', 'mssv', 'mã sinh viên', 'studentid', 'student_id'].includes(norm);
+  });
+  const classIdColIdx = headers.findIndex((h) => {
+    const norm = normalizeHeaderString(h);
+    return ['lớp / khóa', 'lớp', 'khóa', 'mã lớp', 'classid', 'class_id'].includes(norm);
+  });
+
+  validRows.forEach((row, rowIdx) => {
+    if (rowIdx === 0) return;
+    if (studentIdColIdx !== -1 && row[studentIdColIdx]) {
+      row[studentIdColIdx] = row[studentIdColIdx].toUpperCase();
+    }
+    if (classIdColIdx !== -1 && row[classIdColIdx]) {
+      row[classIdColIdx] = row[classIdColIdx].toUpperCase();
+    }
+
+    // Nếu có giá trị cập nhật/được sửa thủ công, ghi đè vào cell tương ứng
+    const originalRowIndex = parsed.indexOf(row);
+    const updates = updatedRowValues ? updatedRowValues[originalRowIndex] : null;
+    if (updates) {
+      Object.entries(updates).forEach(([fieldKey, newVal]) => {
+        const colIdx = headers.findIndex(
+          (h) => normalizeHeaderString(h) === normalizeHeaderString(fieldKey)
+        );
+        if (colIdx !== -1) {
+          row[colIdx] = ['student_id', 'class_id'].includes(fieldKey) ? newVal.toUpperCase() : newVal;
+        }
+      });
+    }
+  });
 
   const fileNameLower = file.name.toLowerCase();
   if (fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls')) {
@@ -523,11 +536,11 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
       credRow.full_name = [credRow.last_name, credRow.first_name].filter(Boolean).join(' ');
     }
 
-    // Sanitize slash & spaces
-    const studentId = sanitizeTextField(credRow.student_id);
+    // Sanitize slash & spaces and convert student_id and class_id to uppercase
+    const studentId = sanitizeTextField(credRow.student_id).toUpperCase();
     const fullName = sanitizeTextField(credRow.full_name);
     const dob = sanitizeTextField(credRow.dob);
-    const classId = sanitizeTextField(credRow.class_id);
+    const classId = sanitizeTextField(credRow.class_id).toUpperCase();
     const major = sanitizeTextField(credRow.major || '');
     const placeOfBirth = sanitizeTextField(credRow.place_of_birth || '');
     const faculty = sanitizeTextField(credRow.faculty || '');
