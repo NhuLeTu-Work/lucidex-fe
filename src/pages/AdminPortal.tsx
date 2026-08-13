@@ -33,6 +33,7 @@ export function AdminPortal() {
     rejectModalOpen, setRejectModalOpen,
     rejectReason, setRejectReason,
     docViewerOpen, setDocViewerOpen, 
+    selectedDoc, setSelectedDoc,
     handleApprove,
     handleRejectSubmit 
   } = useAdminRequests(showToast);
@@ -93,7 +94,10 @@ export function AdminPortal() {
              }
           }}
           onRejectClick={() => setRejectModalOpen(true)}
-          onViewDoc={() => setDocViewerOpen(true)}
+          onViewDoc={(doc: any) => {
+            setSelectedDoc(doc);
+            setDocViewerOpen(true);
+          }}
           t={t}
         />
       )}
@@ -123,7 +127,7 @@ export function AdminPortal() {
       )}
 
       {docViewerOpen && (
-        <DocViewerModal onClose={() => setDocViewerOpen(false)} t={t} />
+        <DocViewerModal document={selectedDoc} onClose={() => setDocViewerOpen(false)} t={t} />
       )}
     </div>
   );

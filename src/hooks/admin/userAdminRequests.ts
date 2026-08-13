@@ -12,6 +12,7 @@ export function useAdminRequests(
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [docViewerOpen, setDocViewerOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [selectedReq, setSelectedReq] = useState<OrganizationRecord | null>(null);
@@ -99,6 +100,7 @@ export function useAdminRequests(
     rejectModalOpen, setRejectModalOpen,
     rejectReason, setRejectReason,
     docViewerOpen, setDocViewerOpen,
+    selectedDoc, setSelectedDoc,
     handleApprove, handleRejectSubmit,
     isApproving,
     isRejecting
