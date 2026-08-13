@@ -61,6 +61,7 @@ export const en: Record<string, string> = {
     approved: 'Approved',
     rejected: 'Rejected',
     active: 'Active',
+    inactive: 'Inactive',
     revoked: 'Revoked',
     expired: 'Expired',
     all: 'All',

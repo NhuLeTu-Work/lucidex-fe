@@ -61,6 +61,7 @@ export const vi: Record<string, string> = {
     approved: 'Đã duyệt',
     rejected: 'Đã từ chối',
     active: 'Hoạt động',
+    inactive: 'Ngưng hoạt động',
     revoked: 'Đã thu hồi',
     expired: 'Hết hạn',
     all: 'Tất cả',

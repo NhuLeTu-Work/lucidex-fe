@@ -45,24 +45,35 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
     return `${code.slice(0, 3)}...${code.slice(-3)}`;
   };
 
-  // Lọc theo từ khóa tìm kiếm
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive'>('active');
+
+  // Lọc theo từ khóa tìm kiếm & trạng thái (active vs inactive: expired + revoked)
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return apiItems;
-    const q = searchQuery.toLowerCase().trim();
-    return apiItems.filter(
-      (item) =>
+    return apiItems.filter((item) => {
+      const status = item.display_status || 'active';
+      const isInactive = status === 'expired' || status === 'revoked';
+
+      if (statusFilter === 'active' && isInactive) return false;
+      if (statusFilter === 'inactive' && !isInactive) return false;
+
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
         item.code?.toLowerCase().includes(q) ||
-        (item as any).credential_name?.toLowerCase().includes(q) ||
+        (item.degree_type || (item as any).credential_name)?.toLowerCase().includes(q) ||
+        item.issuer_name?.toLowerCase().includes(q) ||
+        String(item.graduation_year || '').includes(q) ||
         item.id?.toLowerCase().includes(q)
-    );
-  }, [apiItems, searchQuery]);
+      );
+    });
+  }, [apiItems, searchQuery, statusFilter]);
 
   return (
     <div className="space-y-4">
       {/* Title & Search Bar */}
       <h1 className="font-display text-2xl">{t('verifiedLinks')}</h1>
-      
-      <div className="flex items-center justify-between gap-4">
+
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -75,6 +86,31 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 h-9 text-sm"
           />
+        </div>
+
+        {/* Toggle Filter 2 lựa chọn: Hoạt động (active) / Ngưng hoạt động (inactive: expired + revoked) */}
+        <div className="flex items-center gap-1 bg-muted p-1 rounded-xl text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setStatusFilter('active')}
+            className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'active'
+                ? 'bg-background text-emerald-600 dark:text-emerald-400 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            {t('active') || 'Hoạt động'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter('inactive')}
+            className={`px-3 py-1.5 rounded-lg transition-all ${statusFilter === 'inactive'
+                ? 'bg-background text-rose-600 dark:text-rose-400 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            {t('inactive') || 'Ngưng hoạt động'}
+          </button>
         </div>
       </div>
 
@@ -128,33 +164,45 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                 const status = item.display_status || 'active';
                 const isRevoked = status === 'revoked';
                 const isExpired = status === 'expired';
+                const isInactive = isRevoked || isExpired;
                 const isCopied = copiedId === item.id;
-                const credentialName = (item as any).credential_name || '(blank)';
+                const degreeType = item.degree_type || (item as any).credential_name || '(blank)';
+                const issuerName = item.issuer_name || '';
+                const gradYear = item.graduation_year ? String(item.graduation_year) : '';
 
                 return (
                   <React.Fragment key={item.id}>
                     <TableRow className={`hover:bg-muted/30 transition-colors ${isRevoked ? 'opacity-50 select-none' : ''}`}>
-                      {/* Column 1: Verification Code + Copy Button */}
+                      {/* Column 1: Verification Code + Copy Button (khong hien copy nut khi expired/revoked) */}
                       <TableCell className="py-5 px-6 font-mono font-bold text-base">
                         <div className="flex items-center gap-2">
                           <span title={item.code}>{formatShortCode(item.code)}</span>
-                          <button
-                            onClick={() => handleCopyCode(item.id, item.code)}
-                            className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-                            title={t('copy') || 'Copy Code'}
-                          >
-                            {isCopied ? (
-                              <Check size={16} className="text-emerald-600" />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
+                          {!isInactive && (
+                            <button
+                              onClick={() => handleCopyCode(item.id, item.code)}
+                              className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                              title={t('copy') || 'Copy Code'}
+                            >
+                              {isCopied ? (
+                                <Check size={16} className="text-emerald-600" />
+                              ) : (
+                                <Copy size={16} />
+                              )}
+                            </button>
+                          )}
                         </div>
                       </TableCell>
 
-                      {/* Column 2: Credential Name */}
+                      {/* Column 2: Credential Name (degree_type, cùng dòng với issuer_name + graduation_year) */}
                       <TableCell className="py-5 px-6 text-base font-medium">
-                        {credentialName}
+                        <div>
+                          <span>{degreeType}</span>
+                          {(issuerName || gradYear) && (
+                            <p className="text-xs font-normal text-muted-foreground mt-0.5">
+                              {[issuerName, gradYear].filter(Boolean).join(' • ')}
+                            </p>
+                          )}
+                        </div>
                       </TableCell>
 
                       {/* Column 3: Status Badge */}

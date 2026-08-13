@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/app/AppContext';
 import { useCreateVerifiedLink } from '@/hooks/owner/useCreateVerifiedLink';
 import { cn } from '@/lib/utils';
@@ -75,12 +74,9 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
     }
 
     if (!createdData) {
-      // Gọi API tạo trước theo luồng yêu cầu
+      // Gọi API tạo mã chia sẻ không truyền tham số tùy chọn (omitted) để Backend tự động resolve default consent settings của Owner từ Database
       const res = await generateLinkCode({
         credential_id: credentialId,
-        expires_at: null,
-        allowed_org_ids: [],
-        max_access_count: null,
       });
 
       if (res) {
@@ -200,11 +196,6 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
           <div className="space-y-2 border-t pt-2 mt-2">
             <div className="flex items-center justify-between">
               <Label className="text-base font-bold">{t('accessConfig')}</Label>
-              {createdData.consent_mode && (
-                <Badge variant="outline" className="text-xs uppercase font-mono px-1.5 py-0.5">
-                  {createdData.consent_mode}
-                </Badge>
-              )}
             </div>
 
             {/* Selector 3 loại consent */}

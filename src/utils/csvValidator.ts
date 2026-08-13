@@ -549,7 +549,7 @@ export function validateParsedRows(parsed: string[][]): ParseCsvResult {
     const degreeNumber = sanitizeTextField(credRow.degree_number || '');
     const registerNumber = sanitizeTextField(credRow.register_number || '');
     const nationalId = sanitizeTextField(credRow.national_id || '');
-    const degreeType = sanitizeTextField(credRow.degree_type || '') || 'Bằng tốt nghiệp đại học';
+    const degreeType = sanitizeTextField(credRow.degree_type || '');
     const modeStudy = sanitizeTextField(credRow.mode_of_study || '');
     const cpa = (credRow.cpa || '').trim();
 

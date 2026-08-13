@@ -182,6 +182,9 @@ export interface VerifiedLinkData {
   display_status: string;
   created_at: string;
   revoked_at: string | null;
+  issuer_name?: string | null;
+  degree_type?: string | null;
+  graduation_year?: number | null;
 }
 
 export interface CreateVerifiedLinkResponse {
