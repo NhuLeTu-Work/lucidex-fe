@@ -16,8 +16,9 @@ export function VerifierPortal() {
     quotaUsed,
     verifyResult,
     verifiedData,
+    rawCredentialData,
     handleVerify
-  } = useVerifierPortal();
+  } = useVerifierPortal(showToast);
   const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
 
   useEffect(() => {
@@ -48,7 +49,9 @@ export function VerifierPortal() {
         {activeTab === 'verify' && (
           <VerifierVerify 
             t={t} result={verifyResult} verifiedData={verifiedData} 
+            rawCredentialData={rawCredentialData}
             onVerify={handleVerify} quotaUsed={quotaUsed} 
+            showToast={showToast}
           />
         )}
         

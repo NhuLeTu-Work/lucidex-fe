@@ -398,6 +398,7 @@ export const en: Record<string, string> = {
     "errorSessionExpired": "Session  or invalid token. Please log in again.",
     "errorFetchProfile": "Failed to load user profile information.",
     setupAccount: 'Set Up Your Account',
+    setupPassword: 'Set Up Password',
     setuppassword: "Set Up Password",
     errorInactiveAdmin: 'This Admin account is locked.',
     errorAdminRateLimit: 'Please wait 5 minute for your next attempt.',

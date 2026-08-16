@@ -22,7 +22,7 @@ export function SetupPasswordForm({ hookProps }: { hookProps: any }) {
           {error && (
             <div className="p-3.5 rounded-xl border flex items-start gap-2.5 text-sm animate-in shake" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red, rgba(239, 68, 68, 0.08))', color: '#ef4444' }}>
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <span className="font-medium text-balance">{error}</span>
+              <span className="font-medium text-balance">{t(error)}</span>
             </div>
           )}
 

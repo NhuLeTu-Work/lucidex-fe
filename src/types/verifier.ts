@@ -13,4 +13,5 @@ export interface VerifiedData {
   graduationYear?: number;
   gpa?: number;
   honors?: string;
+  issuerName?: string;
 }
