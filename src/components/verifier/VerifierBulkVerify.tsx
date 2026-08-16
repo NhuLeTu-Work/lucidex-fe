@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, UploadCloud, CheckCircle, XCircle, AlertTriangle, ShieldAlert, Eye, FileText, X, Loader2 } from 'lucide-react';
+import { Download, UploadCloud, CheckCircle, XCircle, AlertTriangle, ShieldAlert, Eye, Loader2 } from 'lucide-react';
 import { bulkVerifyApi } from '../../api/endpoints/verifier/bulkVerifyApi';
 import { verifyCodeApi } from '../../api/endpoints/verifier/verifyCodeApi';
 import type { BulkVerifySuccessData, BulkVerifyResultItem } from '../../api/types/verifier.types';
