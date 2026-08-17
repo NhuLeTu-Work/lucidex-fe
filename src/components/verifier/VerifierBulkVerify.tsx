@@ -22,7 +22,7 @@ export function downloadBulkVerifyTemplateCSV() {
   document.body.removeChild(link);
 }
 
-export function VerifierBulkVerify({ showToast, quotaUsed }: VerifierBulkVerifyProps) {
+export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [batchData, setBatchData] = useState<BulkVerifySuccessData | null>(null);
@@ -301,7 +301,7 @@ export function VerifierBulkVerify({ showToast, quotaUsed }: VerifierBulkVerifyP
               <button
                 type="button"
                 onClick={handleBulkVerify}
-                disabled={isLoading || quotaUsed >= 20}
+                disabled={isLoading}
                 className="px-6 py-2 text-xs font-semibold text-white rounded-xl shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center gap-2"
                 style={{ background: '#000' }}
               >

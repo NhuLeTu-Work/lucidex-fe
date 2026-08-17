@@ -57,12 +57,6 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
       {/* TAB 1: SINGLE VERIFY CODE - KHÔNG THAY ĐỔI GÌ HẾT */}
       {subTab === 'single' && (
         <>
-          {quotaUsed >= 20 && (
-            <div className="p-4 rounded-xl border mb-6" style={{ borderColor: '#f59e0b', background: 'var(--ct-accent-amber)' }}>
-              <p className="text-sm text-amber-700">{t('quotaExceeded')}</p>
-            </div>
-          )}
-
           {/* Form nhập mã */}
           <div className="max-w-lg mb-8">
             <div className="flex gap-2">
@@ -76,7 +70,7 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
               />
               <button
                 onClick={handleCheck}
-                disabled={!code.trim() || quotaUsed >= 20}
+                disabled={!code.trim()}
                 className="px-6 py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80 disabled:opacity-40"
                 style={{ background: '#000' }}
               >
