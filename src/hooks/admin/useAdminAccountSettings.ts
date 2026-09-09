@@ -57,7 +57,7 @@ export function useAdminAccountSettings(
         await fetchStatus(); // Tải lại trạng thái mới nhất để đồng bộ Cooldown 24h
       }
     } catch (err: any) {
-      if (err.response.status === 401) {
+      if (err.response?.status === 401) {
         showToast('error', 'errorAdminSession');
       } else {
         showToast('error', 'errorNetwork');
@@ -76,7 +76,7 @@ export function useAdminAccountSettings(
         await fetchStatus(); // Tải lại trạng thái mới nhất để đồng bộ Cooldown 24h
       }
     } catch (err: any) {
-      if (err.response.status === 401) {
+      if (err.response?.status === 401) {
         showToast('error', 'errorAdminSession');
       } else {
         showToast('error', 'errorNetwork');
