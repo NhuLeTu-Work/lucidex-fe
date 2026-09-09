@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://lucidex.ddns.net:8000/api/:path*"
+      "destination": "http://fusion.pikamc.vn:25693/api/:path*"
     },
     {
       "source": "/(.*)",
