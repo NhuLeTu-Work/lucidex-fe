@@ -22,9 +22,8 @@ export const LANDING_PENDING_LINKS: Record<'contact' | 'privacy' | 'terms', stri
 /**
  * Whether to show "Open app" instead of "Log in" / "Register".
  *
- * Deliberately the same check the previous `/` page used
- * (`src/hooks/useLanding.ts`), so the landing page's idea of "signed in" does
- * not drift from the rest of the app.
+ * Deliberately the same check the previous `/` page used, so the landing page's
+ * idea of "signed in" does not drift from the rest of the app.
  */
 export function hasAccessToken(): boolean {
   try {
