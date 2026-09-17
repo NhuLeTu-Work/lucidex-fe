@@ -26,7 +26,7 @@ export function LandingHeader({ isAuthenticated, appHomePath }: LandingHeaderPro
       <Link to={LANDING_ROUTES.login} className="nav-auth-link">
         Log in
       </Link>
-      <Link to={LANDING_ROUTES.register} className="nav-auth-link">
+      <Link to={LANDING_ROUTES.register} className="nav-auth-link nav-auth-link-secondary">
         Register
       </Link>
     </>

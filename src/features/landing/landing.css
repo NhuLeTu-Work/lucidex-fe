@@ -2128,3 +2128,28 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
 .lucidex-landing .nav-auth-link:hover {
   color: #ffffff;
 }
+
+/* The pill shrinks to 760px past 80px of scroll. That was sized for brand +
+   3 nav links + one CTA; the auth links need roughly 135px more, so the shrunk
+   width grows to match. Below 1000px the secondary auth link drops out instead
+   (it is still in the mobile dropdown), which keeps the pill from overflowing
+   between the 820px mobile breakpoint and here. */
+.lucidex-landing .site-header.is-shrunk {
+  width: min(900px, calc(100vw - 32px));
+}
+
+@media (max-width: 999px) {
+  .lucidex-landing .nav-auth-link-secondary {
+    display: none;
+  }
+}
+
+/* The app's own `body` rule (Tailwind's `bg-background text-foreground` plus a
+   font-family) sits between <html> and the landing root, so it wins over the
+   html rule above for everything inside the page. The standalone page had no
+   such rule in between and simply inherited from <html>; re-stating the two
+   inherited properties on the wrapper restores that. */
+.lucidex-landing {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}

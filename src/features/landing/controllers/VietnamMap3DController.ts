@@ -68,7 +68,6 @@ export class VietnamMap3DController {
 
   constructor(root: HTMLElement) {
     this.stage = root.querySelector<HTMLElement>('#stage');
-    this.canvas = root.querySelector<HTMLCanvasElement>('#national-three');
     this.nationalSection = root.querySelector<HTMLElement>('#national');
     this.resetBtn = root.querySelector<HTMLElement>('#national-reset-btn');
     this.hintText = root.querySelector<HTMLElement>('#national-hint-text');
@@ -77,9 +76,25 @@ export class VietnamMap3DController {
     this.pins.hs = root.querySelector<HTMLElement>('#pinHS');
     this.pins.ts = root.querySelector<HTMLElement>('#pinTS');
 
-    if (!this.stage || !this.canvas || !this.nationalSection) {
+    if (!this.stage || !this.nationalSection) {
       return;
     }
+
+    // The canvas is created here rather than rendered by React on purpose.
+    // destroy() calls forceContextLoss() to hand the WebGL context back, and a
+    // canvas that has had its context force-lost can never get another one - so
+    // reusing a React-owned node would break the next mount. (React's
+    // StrictMode double-invoke in development is exactly that case.) Owning the
+    // element means every mount starts from a clean canvas.
+    this.canvas = document.createElement('canvas');
+    this.canvas.id = 'national-three';
+    this.canvas.tabIndex = 0;
+    this.canvas.setAttribute('role', 'img');
+    this.canvas.setAttribute(
+      'aria-label',
+      '3D relief map of Vietnam including the Hoang Sa and Truong Sa archipelagos'
+    );
+    this.stage.prepend(this.canvas);
 
     this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -570,6 +585,9 @@ export class VietnamMap3DController {
       this.renderer.forceContextLoss();
       this.renderer = null;
     }
+
+    // Owned by this controller, and unusable once the context was force-lost.
+    this.canvas?.remove();
 
     // Written every frame while the map is visible.
     Object.values(this.pins).forEach((pin) => {

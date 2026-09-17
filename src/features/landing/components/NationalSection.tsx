@@ -26,8 +26,9 @@ export function NationalSection() {
           </div>
         </div>
 
+        {/* VietnamMap3DController creates the <canvas> inside #stage itself;
+            see the comment in its constructor for why React must not own it. */}
         <div id="stage" className="national-stage">
-          <canvas id="national-three" tabIndex={0} role="img" aria-label="3D relief map of Vietnam including the Hoang Sa and Truong Sa archipelagos"></canvas>
           <div className="pin home" id="pinCT">Can Tho, starting point</div>
           <div className="pin" id="pinHS">Hoang Sa Archipelago (Vietnam)</div>
           <div className="pin" id="pinTS">Truong Sa Archipelago (Vietnam)</div>
