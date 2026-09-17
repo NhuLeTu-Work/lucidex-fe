@@ -1,0 +1,2155 @@
+/* ==========================================================================
+   Lucidex - Dark Verification Design System
+   ========================================================================== */
+
+
+html.lucidex-landing-active, .lucidex-landing {
+  /* Color Palette */
+  --bg-primary: #060911;
+  --bg-secondary: #0c111e;
+  --bg-card: rgba(16, 23, 38, 0.7);
+  --bg-card-hover: rgba(22, 33, 56, 0.85);
+  --bg-glass: rgba(12, 17, 30, 0.75);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(16, 185, 129, 0.4);
+  --border-glow: rgba(59, 130, 246, 0.3);
+
+  --accent-emerald: #10B981;
+  --accent-emerald-light: #34D399;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+  
+  --accent-blue: #3B82F6;
+  --accent-cyan: #06B6D4;
+  --accent-amber: #F59E0B;
+  --accent-rose: #F43F5E;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #060911;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-headline: 'Archivo', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-giant: 'Michroma', 'Eurostile', sans-serif;
+  --font-display: 'Space Grotesk', var(--font-sans);
+
+  /* Elevation & Blur */
+  --glass-blur: blur(16px);
+  --shadow-subtle: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 50px -10px rgba(16, 185, 129, 0.2);
+  --shadow-blue-glow: 0 0 60px -10px rgba(59, 130, 246, 0.25);
+
+  --container-max: 1160px;
+  --site-header-height: 60px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base Resets */
+.lucidex-landing, .lucidex-landing *, .lucidex-landing *::before, .lucidex-landing *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.lucidex-landing .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html.lucidex-landing-active {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html.lucidex-landing-active body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  background: radial-gradient(circle at 50% 0%, #0d172e 0%, #060911 75%);
+}
+
+.lucidex-landing a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.lucidex-landing button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* Navigation links */
+.lucidex-landing .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lucidex-landing .nav-links a,
+.lucidex-landing .nav-link {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.lucidex-landing .nav-links a:hover,
+.lucidex-landing .nav-link:hover {
+  color: #FFFFFF;
+}
+
+.lucidex-landing .nav-links a.active,
+.lucidex-landing .nav-link.active {
+  color: #FFFFFF;
+}
+
+.lucidex-landing .nav-links a.active::after,
+.lucidex-landing .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #38BDF8;
+  box-shadow: 0 0 8px #38BDF8, 0 0 12px rgba(56, 189, 248, 0.8);
+}
+
+/* Container */
+.lucidex-landing .container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Typography Helpers */
+.lucidex-landing .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+/* Buttons */
+.lucidex-landing .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all var(--transition-smooth);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.lucidex-landing .btn-primary {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.lucidex-landing .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.55);
+  background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+}
+
+.lucidex-landing .btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: var(--glass-blur);
+}
+
+.lucidex-landing .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   SECTION 1: Hero (Stacked Media Layers & Content)
+   ========================================================================== */
+.lucidex-landing .hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  background-color: #000000; /* 1. Base layer: solid background color #000000 */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* Hero bottom fade: Soft fade transition into Section 2 */
+.lucidex-landing .hero-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38vh;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(5, 10, 23, 0) 0%, rgba(5, 10, 23, 0.55) 45%, #060911 100%);
+  z-index: 4; /* Above hero media layers (z-index 1-3), below content (z-index 5) & CTAs (z-index 6) */
+}
+
+/* Media layers container */
+.lucidex-landing .hero-media-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Common video styles: all full-bleed, covering 100% width and 100vh height, object-fit: cover */
+.lucidex-landing .hero-media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+
+/* 2. Background layer: lucidex-bg-blue.mp4 (initial opacity: 0, 1.5s cubic-bezier transition) */
+.lucidex-landing .hero-bg-video {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.lucidex-landing .hero-bg-video.fade-in {
+  opacity: 0.8;
+}
+
+.lucidex-landing .hero-bg-video.immediate-visible {
+  opacity: 0.8;
+  transition: none !important;
+}
+
+/* 1. Giant background word: BETWEEN background layer and hero video layer */
+.lucidex-landing .hero-giant-word {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  font-family: var(--font-giant);
+  font-size: clamp(96px, 16vw, 260px);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.06);
+  -webkit-text-stroke: 1px rgba(147, 197, 253, 0.35);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  opacity: 0;
+  animation: lx-giant-word-reveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lx-giant-word-reveal {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.08em;
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* 3. Hero video layer: hero-video.mp4 (mix-blend-mode: screen, centered on desktop) */
+.lucidex-landing .hero-main-video {
+  z-index: 3;
+  mix-blend-mode: screen;
+  object-position: 50% 48%;
+  transform: scale(0.8);
+  transform-origin: 50% 48%;
+  opacity: 1;
+}
+
+/* 4. Content layer: split layout (top-left, bottom-right, center CTAs) */
+.lucidex-landing .hero-content-wrap {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  pointer-events: none;
+}
+
+/* Top-Left: Vietnamese credentials & localized soft text scrim */
+.lucidex-landing .hero-top-left {
+  position: absolute;
+  top: clamp(48px, 9vh, 90px);
+  left: 24px;
+  max-width: 520px;
+  text-align: left;
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.lucidex-landing .hero-top-left::before {
+  content: '';
+  position: absolute;
+  inset: -120px;
+  background: radial-gradient(ellipse at 20% 25%, rgba(2, 6, 15, 0.55) 0%, rgba(2, 6, 15, 0.25) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.lucidex-landing .hero-title {
+  margin: 0;
+  padding: 0;
+}
+
+.lucidex-landing .hero-title-top {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: clamp(34px, 4.4vw, 68px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #F8FAFC;
+  text-transform: uppercase;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Thin divider below top headline */
+.lucidex-landing .hero-divider {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, #38BDF8 0%, rgba(255, 255, 255, 0.25) 100%);
+  margin: 20px 0 16px 0;
+}
+
+/* Subheadline */
+.lucidex-landing .hero-sub {
+  font-family: var(--font-sans);
+  font-size: clamp(15px, 1.15vw, 17px);
+  font-weight: 400;
+  color: rgba(248, 250, 252, 0.75);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 420px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Bottom-Right: Trusted worldwide & localized soft text scrim */
+.lucidex-landing .hero-bottom-right {
+  position: absolute;
+  right: 24px;
+  bottom: clamp(96px, 15vh, 140px);
+  text-align: right;
+  max-width: 520px;
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.lucidex-landing .hero-bottom-right::before {
+  content: '';
+  position: absolute;
+  inset: -120px;
+  background: radial-gradient(ellipse at 80% 78%, rgba(2, 6, 15, 0.5) 0%, rgba(2, 6, 15, 0.2) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.lucidex-landing .hero-title-bottom {
+  font-family: var(--font-headline);
+  font-size: clamp(34px, 4.4vw, 68px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #F8FAFC;
+  text-transform: uppercase;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+}
+
+.lucidex-landing .gradient-trusted {
+  background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.35));
+  display: inline-block;
+}
+
+/* 6. Centered CTAs (canh giữa để không che text Scroll) */
+.lucidex-landing .hero-center-ctas {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 4.5vh, 44px);
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.lucidex-landing .hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Primary pill button */
+.lucidex-landing .btn-pill-glow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  padding: 13px 30px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
+  color: #FFFFFF;
+  border: none;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+  transition: all var(--transition-smooth);
+  text-decoration: none;
+}
+
+.lucidex-landing .btn-pill-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.5), 0 4px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Secondary circular button with label */
+.lucidex-landing .hero-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.lucidex-landing .cta-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  transition: all var(--transition-smooth);
+}
+
+.lucidex-landing .cta-arrow {
+  transition: transform var(--transition-smooth);
+}
+
+.lucidex-landing .cta-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  transition: color var(--transition-fast);
+}
+
+.lucidex-landing .hero-cta-secondary:hover .cta-circle {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.lucidex-landing .hero-cta-secondary:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* 7. Scroll indicator (bottom-left) */
+.lucidex-landing .hero-scroll-indicator {
+  position: absolute;
+  bottom: 32px;
+  left: max(24px, calc((100vw - var(--container-max)) / 2 + 24px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.lucidex-landing .scroll-text {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+}
+
+.lucidex-landing .scroll-track {
+  position: relative;
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.lucidex-landing .scroll-dot {
+  position: absolute;
+  top: 0;
+  left: -1.5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #38BDF8;
+  box-shadow: 0 0 8px #38BDF8;
+  animation: lx-scroll-dot-move 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes lx-scroll-dot-move {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+/* Motion: Stagger-reveal on load (headline lines -> divider -> subheadline -> CTAs) */
+@keyframes lx-hero-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lucidex-landing .hero-title,
+.lucidex-landing .hero-bottom-right,
+.lucidex-landing .hero-divider,
+.lucidex-landing .hero-sub,
+.lucidex-landing .hero-cta-group {
+  opacity: 0;
+  animation: lx-hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.lucidex-landing .hero-title {
+  animation-delay: 0ms;
+}
+
+.lucidex-landing .hero-bottom-right {
+  animation-delay: 100ms;
+}
+
+.lucidex-landing .hero-divider {
+  animation-delay: 180ms;
+}
+
+.lucidex-landing .hero-sub {
+  animation-delay: 240ms;
+}
+
+.lucidex-landing .hero-cta-group {
+  animation-delay: 320ms;
+}
+
+/* ==========================================================================
+   SECTION 2: The problem
+   ========================================================================== */
+.lucidex-landing .problem-section {
+  padding: 120px 0;
+  position: relative;
+  background: linear-gradient(to bottom, #060911 0%, rgba(12, 20, 40, 0.55) 40%, rgba(12, 20, 40, 0.55) 100%);
+  border-top: none;
+}
+
+.lucidex-landing .section-head-center {
+  text-align: center;
+  max-width: 840px;
+  margin: 0 auto 60px auto;
+}
+
+.lucidex-landing .problem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.lucidex-landing .problem-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 38px 30px;
+  position: relative;
+  transition: all var(--transition-smooth);
+  backdrop-filter: var(--glass-blur);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.lucidex-landing .problem-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(244, 63, 94, 0.7), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.lucidex-landing .problem-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(244, 63, 94, 0.35);
+  box-shadow: 0 20px 40px -15px rgba(244, 63, 94, 0.15);
+  background: var(--bg-card-hover);
+}
+
+.lucidex-landing .problem-card:hover::before {
+  opacity: 1;
+}
+
+.lucidex-landing .problem-card-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #F8FAFC;
+}
+
+/* ==========================================================================
+   Roles Wrapper & Flight Path Overlay (Connecting Sec 3 → Sec 4 → Sec 5)
+   ========================================================================== */
+.lucidex-landing .roles-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  z-index: 1;
+}
+
+.lucidex-landing .flight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* Flies under illustrations (z-index 2) and text (z-index 3) */
+  overflow: visible;
+}
+
+.lucidex-landing .flight-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.lucidex-landing .flight-path-base {
+  fill: none;
+  stroke: url(#flight-gradient);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-dasharray: 4 8;
+  opacity: 0.15;
+}
+
+.lucidex-landing .flight-path-reveal {
+  fill: none;
+  stroke: url(#flight-gradient);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  filter: url(#flight-glow);
+}
+
+.lucidex-landing .flight-plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(64px, 8vw, 128px);
+  height: clamp(64px, 8vw, 128px);
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+  transform-origin: center center;
+  transform: translate3d(-1000px, -1000px, 0);
+  filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.45));
+}
+
+.lucidex-landing .flight-plane canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  pointer-events: none;
+}
+
+.lucidex-landing .flight-plane-fallback {
+  width: 60px;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+/* ==========================================================================
+   Digital Credential Transformation (Section 6 CTA)
+   ========================================================================== */
+.lucidex-landing .digital-credential {
+  --gap: clamp(32px, 4vw, 56px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: min(72%, calc(100% - 2 * var(--gap)));
+  max-height: 460px;
+  max-width: calc(100% - 2 * var(--gap));
+  aspect-ratio: 3 / 4;
+  width: auto;
+  pointer-events: none;
+  z-index: 2;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  filter: blur(1px);
+  will-change: transform, opacity, filter;
+  transition: filter 0.3s ease;
+}
+
+.lucidex-landing .credential-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  background: rgba(56, 189, 248, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.35), inset 0 0 24px rgba(56, 189, 248, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+}
+
+.lucidex-landing .credential-card-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #38BDF8 0%, #6366F1 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.lucidex-landing .credential-circuit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lucidex-landing .credential-badge {
+  position: relative;
+  z-index: 2;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lucidex-landing .credential-check-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.7));
+}
+
+.lucidex-landing #credential-check-path {
+  stroke-dasharray: 45;
+  stroke-dashoffset: 45;
+  transition: none;
+}
+
+/* Light flash (radial glow) at t = 0.3 */
+.lucidex-landing .credential-flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  transform: translate(-50%, -50%) scale(0.6);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.95) 0%, rgba(99, 102, 241, 0.5) 45%, rgba(56, 189, 248, 0) 70%);
+  opacity: 0;
+  filter: blur(20px);
+  will-change: opacity, transform;
+}
+
+/* Slow floating animation for resting state (translateY ±6px, 6s) */
+@keyframes lx-credential-float {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(-6px) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(6px) scale(1);
+  }
+}
+
+.lucidex-landing .digital-credential.is-resting {
+  opacity: 0.35 !important;
+  filter: blur(1px) !important;
+  animation: lx-credential-float 6s ease-in-out infinite !important;
+}
+
+/* ==========================================================================
+   SECTIONS 3, 4, 5: Visually Parallel Role Flow (Issuer → Owner → Verifier)
+   ========================================================================== */
+.lucidex-landing .role-section {
+  padding: 110px 0;
+  position: relative;
+  border-top: 1px solid var(--border-subtle);
+  overflow: visible;
+}
+
+.lucidex-landing .role-section .container {
+  position: relative;
+}
+
+.lucidex-landing #issuer {
+  background: radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+}
+
+.lucidex-landing #owner {
+  background: radial-gradient(circle at 85% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+}
+
+.lucidex-landing #verifier {
+  background: radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
+}
+
+/* Two-column layout per section, text and image columns at roughly 50/50 with vertical center alignment */
+.lucidex-landing .role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "text image";
+  gap: clamp(40px, 6vw, 72px);
+  align-items: center;
+}
+
+/* Alternate sides to create zig-zag flow: Issuer image right, Owner image left, Verifier image right */
+.lucidex-landing .role-grid.role-grid-reverse {
+  grid-template-areas: "image text";
+}
+
+.lucidex-landing .role-text-col {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3; /* Text blocks sit above flight path and plane */
+}
+
+.lucidex-landing .role-image-col {
+  grid-area: image;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2; /* Illustrations sit ABOVE flight path and plane (z-index 1) */
+}
+
+.lucidex-landing .role-label {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-emerald-light);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 3;
+}
+
+.lucidex-landing #owner .role-label {
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.lucidex-landing #verifier .role-label {
+  color: #38BDF8;
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.25);
+}
+
+.lucidex-landing .role-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.2vw, 2.65rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 3;
+}
+
+.lucidex-landing .role-points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 3;
+}
+
+.lucidex-landing .role-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  backdrop-filter: var(--glass-blur);
+  transition: all var(--transition-smooth);
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.lucidex-landing .role-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent-emerald), var(--accent-blue));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.lucidex-landing .role-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(16, 185, 129, 0.15);
+  background: var(--bg-card-hover);
+}
+
+.lucidex-landing #owner .role-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(59, 130, 246, 0.15);
+}
+
+.lucidex-landing #verifier .role-card:hover {
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(6, 182, 212, 0.15);
+}
+
+.lucidex-landing .role-card:hover::before {
+  opacity: 1;
+}
+
+.lucidex-landing .role-card-text {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #E2E8F0;
+  line-height: 1.6;
+}
+
+/* Image container with soft radial blue glow, fade-in, and subtle float */
+.lucidex-landing .role-image-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms ease-out, transform 600ms ease-out;
+}
+
+.lucidex-landing .role-image-wrap::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0.12) 40%, rgba(37, 99, 235, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(28px);
+}
+
+.lucidex-landing .role-image-wrap.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lucidex-landing .role-illustration {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  aspect-ratio: 1448 / 1086;
+  object-fit: contain;
+  display: block;
+}
+
+.lucidex-landing .role-image-wrap.is-visible .role-illustration {
+  animation: lx-subtle-float 6s ease-in-out infinite;
+}
+
+@keyframes lx-subtle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ==========================================================================
+   SECTION 6: Nationwide
+   ========================================================================== */
+.lucidex-landing .nationwide-section {
+  height: 100vh;
+  height: 100svh;
+  padding: calc(var(--site-header-height, 60px) + 16px) 0 clamp(16px, 2.5vh, 32px) 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
+  overflow: visible;
+}
+
+.lucidex-landing .nationwide-section .container {
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lucidex-landing .nationwide-card {
+  position: relative;
+  border-radius: 28px;
+  padding: clamp(20px, 3vh, 44px) clamp(20px, 3.5vw, 48px);
+  text-align: center;
+  overflow: visible;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+.lucidex-landing .nationwide-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(16, 26, 49, 0.94) 0%, rgba(9, 14, 28, 0.98) 100%);
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8), var(--shadow-blue-glow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 0; /* Card background sits at z-index 0 */
+  pointer-events: none;
+}
+
+.lucidex-landing .nationwide-card::after {
+  content: '';
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lucidex-landing .nationwide-content {
+  position: relative;
+  z-index: 3; /* CTA content wrapper sits at z-index 3 */
+}
+
+.lucidex-landing .nationwide-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: clamp(16px, 3vh, 32px);
+}
+
+.lucidex-landing .nationwide-points {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(14px, 1.8vw, 24px);
+  max-width: 1000px;
+  margin: 0 auto clamp(20px, 3vh, 36px) auto;
+  text-align: left;
+}
+
+.lucidex-landing .nationwide-cta-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.lucidex-landing .nationwide-point {
+  background: #0c1324;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: clamp(16px, 2.2vh, 24px) clamp(16px, 1.8vw, 22px);
+  transition: all var(--transition-smooth);
+}
+
+.lucidex-landing .nationwide-point:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-3px);
+  background: #101930;
+}
+
+.lucidex-landing .nationwide-point-text {
+  font-size: 1rem;
+  color: #E2E8F0;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .lucidex-landing .role-grid {
+    gap: 40px;
+  }
+
+  .lucidex-landing .problem-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lucidex-landing .nationwide-points {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .lucidex-landing .hero-main-video {
+    object-position: center 26%;
+    transform-origin: center 26%;
+  }
+
+  .lucidex-landing .hero-giant-word {
+    font-size: 20vw;
+    top: 26%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .lucidex-landing .hero-top-left::before,
+  .lucidex-landing .hero-bottom-right::before {
+    display: none;
+  }
+
+  .lucidex-landing .hero-content-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(2, 6, 15, 0.6) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .lucidex-landing .hero-content-wrap {
+    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: clamp(24px, 5vh, 40px);
+    padding-bottom: clamp(24px, 4vh, 36px);
+    pointer-events: none;
+  }
+
+  .lucidex-landing .hero-top-left {
+    position: static;
+    max-width: 100%;
+    text-align: left;
+    pointer-events: auto;
+  }
+
+  .lucidex-landing .hero-bottom-right {
+    position: static;
+    max-width: 100%;
+    text-align: right;
+    margin-top: auto;
+    margin-bottom: 20px;
+    pointer-events: auto;
+  }
+
+  .lucidex-landing .hero-center-ctas {
+    position: static;
+    transform: none;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+    white-space: normal;
+  }
+
+  .lucidex-landing .hero-title-top,
+  .lucidex-landing .hero-title-bottom {
+    font-size: clamp(26px, 7.5vw, 36px);
+  }
+
+  .lucidex-landing .hero-divider {
+    margin: 16px 0 12px 0;
+  }
+
+  .lucidex-landing .hero-sub {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .lucidex-landing .hero-scroll-indicator {
+    display: none !important;
+  }
+
+  /* Role sections mobile layout: single column, image above text, max-width 480px, centered */
+  .lucidex-landing .role-section {
+    padding: 72px 0;
+  }
+
+  .lucidex-landing .role-grid,
+  .lucidex-landing .role-grid.role-grid-reverse {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "image"
+      "text";
+    gap: 36px;
+  }
+
+  .lucidex-landing .role-image-col {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .lucidex-landing .role-image-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .lucidex-landing .role-title {
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
+    margin-bottom: 24px;
+  }
+
+  .lucidex-landing .nationwide-card {
+    padding: clamp(20px, 3vh, 32px) clamp(16px, 4vw, 24px);
+  }
+
+  .lucidex-landing .nationwide-points {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .lucidex-landing .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .lucidex-landing .btn-pill-glow,
+  .lucidex-landing .hero-cta-group .btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .lucidex-landing .hero-cta-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .lucidex-landing .flight-path-base,
+  .lucidex-landing .flight-path-reveal {
+    stroke-width: 1.5px;
+  }
+
+  .lucidex-landing .flight-plane {
+    width: 56px;
+    height: 56px;
+  }
+
+  .lucidex-landing .flight-plane-fallback {
+    width: 36px;
+  }
+}
+
+/* Prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .lucidex-landing .hero-bg-video {
+    opacity: 0.8 !important;
+    transition: none !important;
+  }
+
+  .lucidex-landing .hero-main-video {
+    animation: none !important;
+  }
+
+  /* Giant word: no reveal or letter-spacing animation, show immediately */
+  .lucidex-landing .hero-giant-word {
+    opacity: 1 !important;
+    letter-spacing: 0.02em !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Hero content stagger-reveal disabled */
+  .lucidex-landing .hero-title,
+  .lucidex-landing .hero-bottom-right,
+  .lucidex-landing .hero-divider,
+  .lucidex-landing .hero-sub,
+  .lucidex-landing .hero-cta-group {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .lucidex-landing .scroll-dot {
+    animation: none !important;
+  }
+
+  /* Disable entrance animation and floating animation for illustrations */
+  .lucidex-landing .role-image-wrap {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .lucidex-landing .role-image-wrap.is-visible .role-illustration,
+  .lucidex-landing .role-illustration {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* Flight path & plane reduced motion */
+  .lucidex-landing .flight-plane {
+    display: none !important;
+  }
+
+  .lucidex-landing .flight-path-reveal {
+    display: none !important;
+  }
+
+  .lucidex-landing .flight-path-base {
+    opacity: 0.2 !important;
+    stroke-dasharray: none !important;
+  }
+
+  .lucidex-landing .credential-flash {
+    display: none !important;
+  }
+
+  .lucidex-landing .digital-credential {
+    opacity: 0.35 !important;
+    filter: blur(1px) !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+    animation: none !important;
+  }
+
+  .lucidex-landing .pin.home::before {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   FEATURE 1: Fixed "Liquid" Vietnam Outline Background Layer
+   ========================================================================== */
+.lucidex-landing #mapLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  transition: opacity 0.6s ease;
+  opacity: 0.54;
+}
+
+.lucidex-landing #mapLayer svg {
+  height: 88vh;
+  max-width: 92vw;
+  overflow: visible;
+}
+
+.lucidex-landing .map-outline {
+  fill: none;
+  stroke: #38BDF8;
+  stroke-width: 2.2px;
+  stroke-linejoin: round;
+  opacity: 0.35;
+  filter: url(#glow);
+}
+
+.lucidex-landing .map-empty {
+  fill: rgba(56, 189, 248, 0.035);
+}
+
+@media (max-width: 860px) {
+  .lucidex-landing #mapLayer svg {
+    height: 70vh;
+  }
+}
+
+/* ==========================================================================
+   FEATURE 2: National Section & Interactive 3D Relief Map
+   ========================================================================== */
+.lucidex-landing .national-section {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border-subtle);
+  background: transparent;
+}
+
+.lucidex-landing .national-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 12vh clamp(20px, 6vw, 80px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  position: relative;
+}
+
+.lucidex-landing .national-copy {
+  max-width: 520px;
+  position: relative;
+  z-index: 2;
+}
+
+.lucidex-landing .national-title {
+  font-family: var(--font-headline);
+  font-size: clamp(40px, 5.4vw, 84px);
+  font-weight: 900;
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.lucidex-landing .national-title-line1 {
+  display: block;
+  color: var(--text-primary);
+}
+
+.lucidex-landing .national-title-line2 {
+  display: block;
+  background: linear-gradient(90deg, #38BDF8, #6366F1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lucidex-landing .national-body {
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  margin-top: 22px;
+  max-width: 44ch;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.lucidex-landing .national-stats {
+  display: flex;
+  gap: 36px;
+  margin-top: 36px;
+}
+
+.lucidex-landing .national-stat-num {
+  display: block;
+  font-family: var(--font-headline);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.lucidex-landing .national-stat-label {
+  display: block;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* 3D Map Stage */
+.lucidex-landing #stage.national-stage {
+  position: relative;
+  height: clamp(420px, 72vh, 720px);
+  width: 100%;
+}
+
+.lucidex-landing #stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  outline: none;
+}
+
+.lucidex-landing #stage canvas.dragging {
+  cursor: grabbing;
+}
+
+.lucidex-landing #stage canvas:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 3px;
+}
+
+/* Map Hint & Reset View Button */
+.lucidex-landing .hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.lucidex-landing .hint button {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 18px;
+  color: #dff3ff;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  border-radius: 99px;
+  padding: 8px 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.lucidex-landing .hint button:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.7);
+  transform: translateY(-1px);
+}
+
+.lucidex-landing .hint button:active {
+  transform: translateY(0);
+}
+
+.lucidex-landing .hint button:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 3px;
+}
+
+/* Pins projected from 3D model anchors */
+.lucidex-landing .pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #dff3ff;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 8px #000000;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 4;
+}
+
+.lucidex-landing .pin.is-visible {
+  opacity: 1;
+}
+
+.lucidex-landing .pin::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 18px;
+  margin: 4px auto 0;
+  background: linear-gradient(#9fdcff, transparent);
+}
+
+.lucidex-landing .pin.home {
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.lucidex-landing .pin.home::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: #38BDF8;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: lx-pin-ping 2s infinite;
+}
+
+@keyframes lx-pin-ping {
+  to {
+    box-shadow: 0 0 0 14px rgba(56, 189, 248, 0);
+  }
+}
+
+/* Mobile & Tablet Adjustments for National Section */
+@media (max-width: 640px) {
+  .lucidex-landing .national-container {
+    grid-template-columns: 1fr;
+    padding: 10vh 6vw;
+  }
+
+  .lucidex-landing #stage.national-stage {
+    height: 60vh;
+    min-height: 380px;
+  }
+}
+
+/* ==========================================================================
+   HEADER — Floating Glass Pill
+   ========================================================================== */
+.lucidex-landing .site-header {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1080px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  z-index: 1000;
+  pointer-events: none;
+  transition: width 0.35s ease, top 0.35s ease;
+}
+
+.lucidex-landing .site-header.is-shrunk {
+  width: min(760px, calc(100vw - 32px));
+  top: 10px;
+}
+
+.lucidex-landing .nav-pill {
+  width: 100%;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 999px;
+  padding: 10px 10px 10px 22px;
+  background: rgba(8, 16, 34, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+
+.lucidex-landing .nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.lucidex-landing .nav-brand .brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+.lucidex-landing .nav-brand .brand-text {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.lucidex-landing .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lucidex-landing .nav-link {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(241, 245, 251, 0.66);
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.lucidex-landing .site-header.is-shrunk .nav-links {
+  gap: clamp(18px, 2.2vw, 24px);
+}
+
+.lucidex-landing .nav-link:hover,
+.lucidex-landing .nav-link[aria-current="true"] {
+  color: #ffffff;
+}
+
+.lucidex-landing .nav-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lucidex-landing .header-cta {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 20px;
+  border-radius: 999px;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Menu Button (<820px) */
+.lucidex-landing .mobile-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lucidex-landing .mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.lucidex-landing .mobile-menu-btn .icon-close {
+  display: none;
+}
+
+.lucidex-landing .mobile-menu-btn[aria-expanded="true"] .icon-menu {
+  display: none;
+}
+
+.lucidex-landing .mobile-menu-btn[aria-expanded="true"] .icon-close {
+  display: block;
+}
+
+/* Mobile Dropdown Panel */
+.lucidex-landing .mobile-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(8, 16, 34, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.lucidex-landing .mobile-menu-dropdown:not([hidden]) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lucidex-landing .mobile-dropdown-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.lucidex-landing .mobile-nav-link {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: rgba(241, 245, 251, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.lucidex-landing .mobile-nav-link:hover,
+.lucidex-landing .mobile-nav-link[aria-current="true"] {
+  color: #ffffff;
+}
+
+.lucidex-landing .mobile-dropdown-cta {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  padding: 12px 20px;
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+@media (max-width: 819px) {
+  .lucidex-landing .site-header .nav-links,
+  .lucidex-landing .site-header .nav-actions {
+    display: none;
+  }
+
+  .lucidex-landing .site-header .mobile-menu-btn {
+    display: flex;
+  }
+}
+
+/* Body scroll lock when menu is open */
+html.lucidex-landing-active body.lucidex-landing-menu-open {
+  overflow: hidden !important;
+}
+
+/* Accessible visible focus rings */
+.lucidex-landing .nav-pill a:focus-visible,
+.lucidex-landing .nav-pill button:focus-visible,
+.lucidex-landing .mobile-menu-dropdown a:focus-visible,
+.lucidex-landing .site-footer a:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 3px;
+}
+
+/* Target Section Anchor Scroll Offsets */
+.lucidex-landing #problem,
+.lucidex-landing #issuer,
+.lucidex-landing #owner,
+.lucidex-landing #verifier,
+.lucidex-landing #nationwide,
+.lucidex-landing #national {
+  scroll-margin-top: calc(var(--site-header-height, 60px) + 16px);
+}
+
+/* ==========================================================================
+   FOOTER — Edge Minimal with Giant Wordmark
+   ========================================================================== */
+.lucidex-landing .site-footer {
+  width: 100%;
+  padding: 80px clamp(20px, 5vw, 72px) 0;
+  overflow: hidden;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.lucidex-landing .footer-container {
+  max-width: var(--container-max, 1160px);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.lucidex-landing .footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.lucidex-landing .footer-col-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.lucidex-landing .footer-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.lucidex-landing .footer-brand-link .brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.lucidex-landing .footer-brand-link .brand-text {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.lucidex-landing .footer-tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(241, 245, 251, 0.55);
+  max-width: 30ch;
+  margin: 0;
+}
+
+.lucidex-landing .footer-heading {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(241, 245, 251, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 16px 0;
+}
+
+.lucidex-landing .footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lucidex-landing .footer-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(241, 245, 251, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.lucidex-landing .footer-link:hover {
+  color: #ffffff;
+}
+
+.lucidex-landing .footer-wordmark {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(80px, 19vw, 320px);
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  text-align: center;
+  margin-top: 64px;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(147, 197, 253, 0.35);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.18) 0%, transparent 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.lucidex-landing .footer-legal {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(241, 245, 251, 0.5);
+}
+
+@media (max-width: 819px) {
+  .lucidex-landing .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lucidex-landing .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .lucidex-landing .footer-legal {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+/* Prefers-reduced-motion for Header and Smooth Scrolling */
+@media (prefers-reduced-motion: reduce) {
+  html.lucidex-landing-active {
+    scroll-behavior: auto !important;
+  }
+
+  .lucidex-landing .site-header {
+    transition: none !important;
+  }
+
+  .lucidex-landing .mobile-menu-dropdown {
+    transition: none !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   App integration additions
+   Not part of the standalone stylesheet. The landing page is reachable from
+   the rest of the app, so the pill header carries auth links the standalone
+   version had no need for. `.nav-actions` held a single child before, so the
+   gap below is a no-op for the original layout.
+   ========================================================================== */
+
+.lucidex-landing .nav-actions {
+  gap: 20px;
+}
+
+.lucidex-landing .nav-auth-link {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(241, 245, 251, 0.66);
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.lucidex-landing .nav-auth-link:hover {
+  color: #ffffff;
+}
+
+/* The pill shrinks to 760px past 80px of scroll. That was sized for brand +
+   3 nav links + one CTA; the auth links need roughly 135px more, so the shrunk
+   width grows to match. Below 1000px the secondary auth link drops out instead
+   (it is still in the mobile dropdown), which keeps the pill from overflowing
+   between the 820px mobile breakpoint and here. */
+.lucidex-landing .site-header.is-shrunk {
+  width: min(900px, calc(100vw - 32px));
+}
+
+@media (max-width: 999px) {
+  .lucidex-landing .nav-auth-link-secondary {
+    display: none;
+  }
+}
+
+/* The app's own `body` rule (Tailwind's `bg-background text-foreground` plus a
+   font-family) sits between <html> and the landing root, so it wins over the
+   html rule above for everything inside the page. The standalone page had no
+   such rule in between and simply inherited from <html>; re-stating the two
+   inherited properties on the wrapper restores that. */
+.lucidex-landing {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}

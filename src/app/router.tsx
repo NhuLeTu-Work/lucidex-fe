@@ -1,7 +1,7 @@
+import { Suspense, lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from './App';
 import { ProtectedRoute } from '../components/app/ProtectedRoute';
-import { LandingPage } from '../pages/LandingPage';
 import { Login } from '../pages/LoginPage';
 import { Register } from '../pages/RegisterPage';
 import { VerifyLinkPage } from '../pages/VerifyLinkPage';
@@ -12,15 +12,29 @@ import { AdminPortal } from '../pages/AdminPortal';
 import { SuperAdminPortal } from '@/pages/SuperAdminPortal';
 import { CredentialStandalonePage } from '@/pages/CredentialStandalonePage';
 
+// Lazy so that three.js and the landing stylesheet stay out of the main bundle
+// and are never downloaded on the other routes.
+const LandingPage = lazy(() => import('../features/landing/LandingPage'));
+
 export const router = createBrowserRouter([
   {
     path: '/owner/view/credential/:id',
     element: <CredentialStandalonePage />,
   },
   {
+    // Outside AppLayout: the landing page brings its own fixed header and
+    // footer, and its sections are sized in whole viewport heights, which the
+    // app header's h-16 + pt-16 would shift.
+    path: '/',
+    element: (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#060911' }} />}>
+        <LandingPage />
+      </Suspense>
+    ),
+  },
+  {
     element: <AppLayout />, // header + <Outlet/>
     children: [
-      { path: '/', element: <LandingPage /> },
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
       { path: '/verify', element: <VerifyLinkPage /> },
