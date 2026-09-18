@@ -26,7 +26,22 @@ export function HeroSection() {
         </video>
 
         {/* 1. Giant background word: BETWEEN background layer and hero video layer */}
-        <div className="hero-giant-word" aria-hidden="true">LUCIDEX</div>
+        <div className="hero-giant-word-container" aria-hidden="true">
+          <svg
+            id="hero-giant-word-svg"
+            className="hero-giant-word-svg"
+            aria-hidden="true"
+          >
+            <text
+              id="hero-giant-word-text"
+              className="hero-giant-word-text"
+              dominantBaseline="alphabetic"
+            >
+              LUCIDEX
+            </text>
+          </svg>
+          <div className="hero-giant-word hero-giant-word-fallback" aria-hidden="true">LUCIDEX</div>
+        </div>
 
         {/* 3. Hero video layer: hero-video.mp4 (mix-blend-mode: screen) */}
         <video

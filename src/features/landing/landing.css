@@ -270,12 +270,60 @@ html.lucidex-landing-active body {
 }
 
 /* 1. Giant background word: BETWEEN background layer and hero video layer */
-.lucidex-landing .hero-giant-word {
+.lucidex-landing .hero-giant-word-container {
   position: absolute;
   top: 48%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
   z-index: 2;
+  padding-inline: clamp(24px, 5vw, 96px);
+  box-sizing: border-box;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.8; /* Item 2: Giant word opacity -20% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lucidex-landing .hero-giant-word-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
+  visibility: hidden;
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lucidex-landing .hero-giant-word-text {
+  font-family: var(--font-giant);
+  font-size: 120px;
+  letter-spacing: 0.02em;
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: rgba(147, 197, 253, 0.35);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-svg {
+  visibility: visible;
+  position: relative;
+  opacity: 0;
+  animation: lx-giant-word-reveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-fallback {
+  display: none !important;
+}
+
+.lucidex-landing .hero-giant-word-fallback {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
   font-family: var(--font-giant);
   font-size: clamp(96px, 16vw, 260px);
   line-height: 0.9;
@@ -1217,11 +1265,12 @@ html.lucidex-landing-active body {
     transform-origin: center 26%;
   }
 
-  .lucidex-landing .hero-giant-word {
-    font-size: 20vw;
+  .lucidex-landing .hero-giant-word-container {
     top: 26%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  }
+
+  .lucidex-landing .hero-giant-word-fallback {
+    font-size: 20vw;
   }
 
   .lucidex-landing .hero-top-left::before,
@@ -1381,7 +1430,8 @@ html.lucidex-landing-active body {
   }
 
   /* Giant word: no reveal or letter-spacing animation, show immediately */
-  .lucidex-landing .hero-giant-word {
+  .lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-svg,
+  .lucidex-landing .hero-giant-word-fallback {
     opacity: 1 !important;
     letter-spacing: 0.02em !important;
     animation: none !important;
