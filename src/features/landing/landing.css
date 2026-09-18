@@ -50,6 +50,10 @@ html.lucidex-landing-active, .lucidex-landing {
 
   --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Hero text dark soft halo */
+  --hero-halo-text: 0 0 2px rgba(2, 6, 15, 0.66), 0 0 14px rgba(2, 6, 15, 0.9), 0 0 32px rgba(2, 6, 15, 0.72), 0 0 60px rgba(2, 6, 15, 0.54);
+  --hero-halo-gradient: drop-shadow(0 0 12px rgba(2, 6, 15, 0.96)) drop-shadow(0 0 28px rgba(2, 6, 15, 0.66));
 }
 
 /* Base Resets */
@@ -358,6 +362,101 @@ html.lucidex-landing-active body {
   opacity: 1;
 }
 
+.lucidex-landing .hero-credential-outer {
+  pointer-events: none;
+}
+
+.lucidex-landing .hero-credential-float {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+  transform-origin: 50% 48%;
+  transform: translateY(0) rotate(0deg);
+  will-change: transform, filter;
+}
+
+@media (max-width: 768px) {
+  .lucidex-landing .hero-credential-float {
+    transform-origin: center 26%;
+  }
+}
+
+.lucidex-landing .hero-credential-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: inherit;
+  display: block;
+}
+
+.lucidex-landing .hero-credential-shadow {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+  transform: translate(-50%, 0) scaleX(1);
+  width: clamp(280px, 38vw, 540px);
+  height: 28px;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.35) 0%, rgba(56, 189, 248, 0) 70%);
+  filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .lucidex-landing .hero-credential-shadow {
+    top: 41%;
+    width: clamp(200px, 60vw, 320px);
+  }
+}
+
+/* Floating animation triggered after video ends */
+.lucidex-landing .hero-credential-outer.is-floating .hero-credential-float {
+  animation: lx-hero-credential-float 6s ease-in-out infinite, lx-hero-credential-glow 3s ease-in-out infinite;
+}
+
+.lucidex-landing .hero-credential-outer.is-floating .hero-credential-shadow {
+  opacity: 1;
+  animation: lx-hero-credential-shadow 6s ease-in-out infinite;
+}
+
+@keyframes lx-hero-credential-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(0.8deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-0.4deg);
+  }
+  75% {
+    transform: translateY(-6px) rotate(-0.8deg);
+  }
+}
+
+@keyframes lx-hero-credential-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.2));
+  }
+}
+
+@keyframes lx-hero-credential-shadow {
+  0%, 100% {
+    transform: translate(-50%, 0) scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, 0) scaleX(0.82);
+    opacity: 0.6;
+  }
+}
+
 /* 4. Content layer: split layout (top-left, bottom-right, center CTAs) */
 .lucidex-landing .hero-content-wrap {
   position: relative;
@@ -402,7 +501,7 @@ html.lucidex-landing-active body {
   letter-spacing: -0.02em;
   color: #F8FAFC;
   text-transform: uppercase;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-shadow: var(--hero-halo-text);
 }
 
 /* Thin divider below top headline */
@@ -422,7 +521,7 @@ html.lucidex-landing-active body {
   line-height: 1.6;
   margin: 0;
   max-width: 420px;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
 }
 
 /* Bottom-Right: Trusted worldwide & localized soft text scrim */
@@ -453,15 +552,14 @@ html.lucidex-landing-active body {
   letter-spacing: -0.02em;
   color: #F8FAFC;
   text-transform: uppercase;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-shadow: var(--hero-halo-text);
 }
 
 .lucidex-landing .gradient-trusted {
   background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
-  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.35));
+  filter: var(--hero-halo-gradient);
   display: inline-block;
 }
 
@@ -539,7 +637,7 @@ html.lucidex-landing-active body {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #FFFFFF;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
   transition: color var(--transition-fast);
 }
 
@@ -571,7 +669,7 @@ html.lucidex-landing-active body {
   font-weight: 500;
   letter-spacing: 0.3em;
   color: rgba(255, 255, 255, 0.5);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
   text-transform: uppercase;
 }
 
@@ -1427,6 +1525,17 @@ html.lucidex-landing-active body {
 
   .lucidex-landing .hero-main-video {
     animation: none !important;
+  }
+
+  .lucidex-landing .hero-credential-float {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .lucidex-landing .hero-credential-shadow {
+    animation: none !important;
+    display: none !important;
   }
 
   /* Giant word: no reveal or letter-spacing animation, show immediately */

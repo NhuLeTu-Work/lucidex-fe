@@ -44,17 +44,22 @@ export function HeroSection() {
         </div>
 
         {/* 3. Hero video layer: hero-video.mp4 (mix-blend-mode: screen) */}
-        <video
-          id="hero-main-video"
-          className="hero-media hero-main-video"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          poster="/landing/hero-video-poster.jpg"
-        >
-          <source src="/landing/hero-video.mp4" type="video/mp4" />
-        </video>
+        <div className="hero-credential-outer hero-media hero-main-video" aria-hidden="true">
+          <div className="hero-credential-shadow" aria-hidden="true" />
+          <div className="hero-credential-float">
+            <video
+              id="hero-main-video"
+              className="hero-media hero-credential-video"
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              poster="/landing/hero-video-poster.jpg"
+            >
+              <source src="/landing/hero-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
       </div>
 
       {/* 4. Content layer */}

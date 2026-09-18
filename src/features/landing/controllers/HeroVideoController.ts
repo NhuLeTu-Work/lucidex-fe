@@ -10,11 +10,16 @@ export class HeroVideoController {
   private giantWordContainer: HTMLElement | null = null;
   private giantWordSvg: SVGSVGElement | null = null;
   private giantWordText: SVGTextElement | null = null;
+  private credentialOuter: HTMLElement | null = null;
   private resizeRafId: number | null = null;
   private onResizeFit: (() => void) | null = null;
   private isDestroyed = false;
 
   private readonly onError = (): void => this.showBackgroundImmediately();
+
+  private readonly onPlay = (): void => {
+    this.stopFloat();
+  };
 
   private readonly onTimeUpdate = (): void => {
     if (!this.heroVideo) return;
@@ -32,6 +37,7 @@ export class HeroVideoController {
       this.hasFadedIn = true;
       this.bgVideo.classList.add('fade-in');
     }
+    this.startFloat();
   };
 
   constructor(root: HTMLElement) {
@@ -40,6 +46,7 @@ export class HeroVideoController {
     this.giantWordContainer = root.querySelector<HTMLElement>('.hero-giant-word-container');
     this.giantWordSvg = root.querySelector<SVGSVGElement>('#hero-giant-word-svg');
     this.giantWordText = root.querySelector<SVGTextElement>('#hero-giant-word-text');
+    this.credentialOuter = root.querySelector<HTMLElement>('.hero-credential-outer');
 
     if (!this.bgVideo || !this.heroVideo) return;
 
@@ -124,6 +131,7 @@ export class HeroVideoController {
     this.bgVideo.removeAttribute('autoplay');
     this.bgVideo.pause();
     this.bgVideo.classList.add('immediate-visible');
+    this.stopFloat();
   }
 
   /**
@@ -155,8 +163,25 @@ export class HeroVideoController {
     // When hero video reaches 3.5s, fade background from opacity 0 to 1 over 1.5s
     this.heroVideo.addEventListener('timeupdate', this.onTimeUpdate);
 
-    // When hero video ends, keep it paused on its last frame
+    // Playback and float lifecycle
+    this.heroVideo.addEventListener('play', this.onPlay);
     this.heroVideo.addEventListener('ended', this.onEnded);
+
+    if (this.heroVideo.ended) {
+      this.onEnded();
+    }
+  }
+
+  private startFloat(): void {
+    if (this.isDestroyed) return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    this.credentialOuter?.classList.add('is-floating');
+  }
+
+  private stopFloat(): void {
+    this.credentialOuter?.classList.remove('is-floating');
   }
 
   /**
@@ -169,7 +194,9 @@ export class HeroVideoController {
   }
 
   public destroy(): void {
+    this.stopFloat();
     this.heroVideo?.removeEventListener('error', this.onError);
+    this.heroVideo?.removeEventListener('play', this.onPlay);
     this.heroVideo?.removeEventListener('timeupdate', this.onTimeUpdate);
     this.heroVideo?.removeEventListener('ended', this.onEnded);
     this.bgVideo?.removeEventListener('error', this.onError);
@@ -190,6 +217,7 @@ export class HeroVideoController {
       this.onResizeFit = null;
     }
 
+    this.credentialOuter = null;
     this.giantWordContainer = null;
     this.giantWordSvg = null;
     this.giantWordText = null;
