@@ -476,7 +476,7 @@ html.lucidex-landing-active body {
 /* Top-Left: Vietnamese credentials & localized soft text scrim */
 .lucidex-landing .hero-top-left {
   position: absolute;
-  top: clamp(48px, 9vh, 90px);
+  top: clamp(88px, 12vh, 120px);
   left: 24px;
   max-width: 520px;
   text-align: left;
@@ -1402,7 +1402,7 @@ html.lucidex-landing-active body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: clamp(24px, 5vh, 40px);
+    padding-top: calc(var(--site-header-height, 60px) + 28px);
     padding-bottom: clamp(24px, 4vh, 36px);
     pointer-events: none;
   }
@@ -1885,7 +1885,7 @@ html.lucidex-landing-active body {
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(1080px, calc(100vw - 32px));
+  width: min(840px, calc(100vw - 32px));
   max-width: calc(100vw - 32px);
   z-index: 1000;
   pointer-events: none;
@@ -1893,7 +1893,7 @@ html.lucidex-landing-active body {
 }
 
 .lucidex-landing .site-header.is-shrunk {
-  width: min(760px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 32px));
   top: 10px;
 }
 
@@ -2305,7 +2305,7 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
    (it is still in the mobile dropdown), which keeps the pill from overflowing
    between the 820px mobile breakpoint and here. */
 .lucidex-landing .site-header.is-shrunk {
-  width: min(900px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 32px));
 }
 
 @media (max-width: 999px) {

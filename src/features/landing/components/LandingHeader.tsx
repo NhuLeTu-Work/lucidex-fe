@@ -63,9 +63,6 @@ export function LandingHeader({ isAuthenticated, appHomePath }: LandingHeaderPro
 
         <div className="nav-actions">
           {authLinks}
-          <Link to={LANDING_ROUTES.verify} className="btn btn-primary btn-pill-glow header-cta" id="header-verify-cta">
-            Verify a credential
-          </Link>
         </div>
 
         {/* Mobile Menu Button (<820px) */}
@@ -96,9 +93,6 @@ export function LandingHeader({ isAuthenticated, appHomePath }: LandingHeaderPro
           <a href="#issuer" className="mobile-nav-link">How it works</a>
           <a href="#national" className="mobile-nav-link">Nationwide</a>
           {mobileAuthLinks}
-          <Link to={LANDING_ROUTES.verify} className="btn btn-primary btn-pill-glow mobile-dropdown-cta">
-            Verify a credential
-          </Link>
         </div>
       </div>
     </header>
