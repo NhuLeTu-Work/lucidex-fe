@@ -1,0 +1,17 @@
+{
+  "name": "composition",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.44 preview",
+    "check": "npx --yes hyperframes@0.8.44 check",
+    "render": "npx --yes hyperframes@0.8.44 render",
+    "publish": "npx --yes hyperframes@0.8.44 publish"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0"
+  }
+}

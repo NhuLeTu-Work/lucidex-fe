@@ -24,7 +24,7 @@ const BASE_TILT_X = -35 * DEG2RAD;
 const BASE_TILT_Y = 15 * DEG2RAD;
 
 export interface Plane3DController {
-  updateOrientation(angleDeg: number, bankDeg: number, transformProgress: number, visible: boolean): void;
+  updateOrientation(angleDeg: number, bankDeg: number, transformProgress: number, visible?: boolean): void;
   setInViewport(visible: boolean): void;
   destroy(): void;
   readonly isFallback: boolean;
@@ -238,13 +238,12 @@ export function mountPlane3D(container: HTMLElement): Plane3DController {
       return;
     }
 
-    // When transforming to digital credential, ease rotation/tilt to 0 so plane faces the camera
-    const easeT = Math.min(1, transformProgress / 0.40);
-    const activeMultiplier = 1 - easeT;
+    // When approaching landing, activeMultiplier eases base tilt / roll / bank to 0 so plane lies flat
+    const activeMultiplier = 1 - Math.min(1, transformProgress);
 
     // 1. Heading rotation: SVG screen y points down, Three.js y points up => rotation.z = -angle
     const angleRad = (angleDeg * Math.PI) / 180;
-    flightGroup.rotation.z = -angleRad * activeMultiplier;
+    flightGroup.rotation.z = -angleRad;
 
     // 2. Banking roll proportional to heading change, clamped to +/-20 deg
     const targetBank = (Math.max(-20, Math.min(20, bankDeg)) * DEG2RAD) * activeMultiplier;

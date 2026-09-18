@@ -843,7 +843,6 @@ html.lucidex-landing-active body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1; /* Flies under illustrations (z-index 2) and text (z-index 3) */
   overflow: visible;
 }
 
@@ -855,6 +854,7 @@ html.lucidex-landing-active body {
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  z-index: 1; /* SVG path layer goes BELOW the browser frame (frame z-index: 5) */
 }
 
 .lucidex-landing .flight-path-base {
@@ -881,11 +881,15 @@ html.lucidex-landing-active body {
   width: clamp(64px, 8vw, 128px);
   height: clamp(64px, 8vw, 128px);
   pointer-events: none;
-  z-index: 1;
+  z-index: 1; /* In sections 3-5, flies under illustrations (z-index: 2) and text (z-index: 3) */
   will-change: transform, opacity;
   transform-origin: center center;
   transform: translate3d(-1000px, -1000px, 0);
   filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.45));
+}
+
+.lucidex-landing .flight-plane.is-landing {
+  z-index: 10; /* Plane layer stays ABOVE the browser frame (frame z-index: 5) and video */
 }
 
 .lucidex-landing .flight-plane canvas {
@@ -905,120 +909,7 @@ html.lucidex-landing-active body {
   display: block;
 }
 
-/* ==========================================================================
-   Digital Credential Transformation (Section 6 CTA)
-   ========================================================================== */
-.lucidex-landing .digital-credential {
-  --gap: clamp(32px, 4vw, 56px);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: min(72%, calc(100% - 2 * var(--gap)));
-  max-height: 460px;
-  max-width: calc(100% - 2 * var(--gap));
-  aspect-ratio: 3 / 4;
-  width: auto;
-  pointer-events: none;
-  z-index: 2;
-  transform-origin: center center;
-  transform: translate(-50%, -50%) scale(0.7);
-  opacity: 0;
-  filter: blur(1px);
-  will-change: transform, opacity, filter;
-  transition: filter 0.3s ease;
-}
 
-.lucidex-landing .credential-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  background: rgba(56, 189, 248, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.35), inset 0 0 24px rgba(56, 189, 248, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1.5px solid transparent;
-}
-
-.lucidex-landing .credential-card-inner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  padding: 1.5px;
-  background: linear-gradient(135deg, #38BDF8 0%, #6366F1 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.lucidex-landing .credential-circuit {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.lucidex-landing .credential-badge {
-  position: relative;
-  z-index: 2;
-  width: 88px;
-  height: 88px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lucidex-landing .credential-check-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.7));
-}
-
-.lucidex-landing #credential-check-path {
-  stroke-dasharray: 45;
-  stroke-dashoffset: 45;
-  transition: none;
-}
-
-/* Light flash (radial glow) at t = 0.3 */
-.lucidex-landing .credential-flash {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 440px;
-  height: 440px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 2;
-  transform: translate(-50%, -50%) scale(0.6);
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.95) 0%, rgba(99, 102, 241, 0.5) 45%, rgba(56, 189, 248, 0) 70%);
-  opacity: 0;
-  filter: blur(20px);
-  will-change: opacity, transform;
-}
-
-/* Slow floating animation for resting state (translateY ±6px, 6s) */
-@keyframes lx-credential-float {
-  0%, 100% {
-    transform: translate(-50%, -50%) translateY(-6px) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(6px) scale(1);
-  }
-}
-
-.lucidex-landing .digital-credential.is-resting {
-  opacity: 0.35 !important;
-  filter: blur(1px) !important;
-  animation: lx-credential-float 6s ease-in-out infinite !important;
-}
 
 /* ==========================================================================
    SECTIONS 3, 4, 5: Visually Parallel Role Flow (Issuer → Owner → Verifier)
@@ -1238,14 +1129,15 @@ html.lucidex-landing-active body {
 }
 
 /* ==========================================================================
-   SECTION 6: Nationwide
+   SECTION 6: Product Demo Video Section
    ========================================================================== */
-.lucidex-landing .nationwide-section {
-  height: 100vh;
-  height: 100svh;
-  padding: calc(var(--site-header-height, 60px) + 16px) 0 clamp(16px, 2.5vh, 32px) 0;
+.lucidex-landing .demo-section {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(14px, 2.5vh, 32px) 5vw;
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -1254,98 +1146,159 @@ html.lucidex-landing-active body {
   overflow: visible;
 }
 
-.lucidex-landing .nationwide-section .container {
+.lucidex-landing .demo-section-container {
   width: 100%;
-  max-height: 100%;
+  max-width: min(1000px, calc((100svh - 260px) * 16 / 9));
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-.lucidex-landing .nationwide-card {
-  position: relative;
-  border-radius: 28px;
-  padding: clamp(20px, 3vh, 44px) clamp(20px, 3.5vw, 48px);
+  align-items: center;
   text-align: center;
-  overflow: visible;
-  max-height: 100%;
-  box-sizing: border-box;
 }
 
-.lucidex-landing .nationwide-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(135deg, rgba(16, 26, 49, 0.94) 0%, rgba(9, 14, 28, 0.98) 100%);
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8), var(--shadow-blue-glow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 0; /* Card background sits at z-index 0 */
-  pointer-events: none;
-}
-
-.lucidex-landing .nationwide-card::after {
-  content: '';
-  position: absolute;
-  top: -150px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.lucidex-landing .nationwide-content {
-  position: relative;
-  z-index: 3; /* CTA content wrapper sits at z-index 3 */
-}
-
-.lucidex-landing .nationwide-title {
+.lucidex-landing .demo-section-heading {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #fff;
-  margin-bottom: clamp(16px, 3vh, 32px);
+  margin-bottom: clamp(12px, 2vh, 22px);
+  text-align: center;
 }
 
-.lucidex-landing .nationwide-points {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(14px, 1.8vw, 24px);
-  max-width: 1000px;
-  margin: 0 auto clamp(20px, 3vh, 36px) auto;
-  text-align: left;
+.lucidex-landing .demo-gradient-text {
+  background: linear-gradient(90deg, #38BDF8, #6366F1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
 }
 
-.lucidex-landing .nationwide-cta-wrap {
+/* Browser-style Frame */
+.lucidex-landing .demo-browser-frame {
+  width: 100%;
+  max-width: min(1000px, calc((100svh - 260px) * 16 / 9));
+  margin-inline: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: relative;
+  z-index: 5; /* Layering: SVG path layer (z-index 1) sits below frame; plane (z-index 10) sits above */
+  transition: border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+.lucidex-landing .demo-browser-frame.is-active {
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(56, 189, 248, 0.35), inset 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* Top chrome bar */
+.lucidex-landing .demo-chrome-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: #0c111e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.lucidex-landing .demo-chrome-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.lucidex-landing .demo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2a3550;
+  display: inline-block;
+}
+
+/* Screen area: 16/9 aspect ratio */
+.lucidex-landing .demo-screen-area {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Fallback placeholder text of the opening scene */
+.lucidex-landing .demo-screen-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 46%, #0b1329 0%, #030611 100%);
+  padding: 24px;
+  z-index: 0;
+  user-select: none;
+}
+
+.lucidex-landing .demo-placeholder-text {
+  font-family: var(--font-display, var(--font-sans));
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.lucidex-landing .demo-placeholder-sub {
+  font-family: var(--font-sans);
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+}
+
+/* Video element */
+.lucidex-landing .demo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 1;
+}
+
+/* Ripple Canvas */
+.lucidex-landing .demo-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+  z-index: 2;
+}
+
+/* Get started button wrap */
+.lucidex-landing .demo-cta-wrap {
+  margin-top: clamp(14px, 2vh, 22px);
   display: flex;
   justify-content: center;
 }
 
-.lucidex-landing .nationwide-point {
-  background: #0c1324;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  padding: clamp(16px, 2.2vh, 24px) clamp(16px, 1.8vw, 22px);
-  transition: all var(--transition-smooth);
-}
-
-.lucidex-landing .nationwide-point:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  transform: translateY(-3px);
-  background: #101930;
-}
-
-.lucidex-landing .nationwide-point-text {
-  font-size: 1rem;
-  color: #E2E8F0;
-  line-height: 1.6;
-  font-weight: 500;
+@media (max-width: 760px) {
+  .lucidex-landing .demo-section {
+    min-height: auto;
+    height: auto;
+    padding: 36px 5vw 44px;
+  }
+  .lucidex-landing .demo-section-container,
+  .lucidex-landing .demo-browser-frame {
+    max-width: 100%;
+  }
 }
 
 /* ==========================================================================
@@ -1628,7 +1581,7 @@ html.lucidex-landing-active body {
   display: grid;
   place-items: center;
   transition: opacity 0.6s ease;
-  opacity: 0.54;
+  opacity: 0.432;
 }
 
 .lucidex-landing #mapLayer svg {
@@ -2128,7 +2081,14 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   right: 0;
   pointer-events: none;
   z-index: 1;
-  background: linear-gradient(to bottom, #070d1c 0%, #070d1c 78%, rgba(7, 13, 28, 0.85) 88%, rgba(7, 13, 28, 0.45) 95%, rgba(7, 13, 28, 0) 100%);
+  background: linear-gradient(
+    to bottom,
+    #070d1c 0%,
+    #070d1c 74%,
+    rgba(7, 13, 28, 0.85) 85.7%,
+    rgba(7, 13, 28, 0.45) 93.5%,
+    rgba(7, 13, 28, 0) 100%
+  );
 }
 
 .lucidex-landing .footer-container {
@@ -2215,6 +2175,13 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   color: #ffffff;
 }
 
+.lucidex-landing .footer-wordmark-wrap {
+  position: relative;
+  width: 100%;
+  margin-top: 28px;
+  z-index: 0;
+}
+
 .lucidex-landing .footer-wordmark {
   font-family: 'Inter', sans-serif;
   font-weight: 900;
@@ -2222,7 +2189,6 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   line-height: 0.78;
   letter-spacing: -0.04em;
   text-align: center;
-  margin-top: 28px;
   color: transparent;
   -webkit-text-stroke: 1px rgba(147, 197, 253, 0.35);
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.18) 0%, transparent 85%);
@@ -2234,7 +2200,31 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   white-space: nowrap;
   width: 100%;
   position: relative;
+  z-index: 1;
+}
+
+.lucidex-landing .footer-wordmark-glow {
+  position: absolute;
+  inset: 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(80px, 19vw, 320px);
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  width: 100%;
   z-index: 0;
+  background: none;
+  -webkit-text-stroke: 0;
+  color: rgba(120, 190, 255, 0.20);
+  -webkit-text-fill-color: rgba(120, 190, 255, 0.20);
+  filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 63%, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 63%, transparent 90%);
 }
 
 .lucidex-landing .footer-legal {

@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Lucidex — Brag</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 600;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-600-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 900;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-900-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+      }
+
+      /* Lucidex dark theme tokens, lifted from src/index.css (.dark) */
+      :root {
+        --ct-bg: #000000;
+        --ct-surface: #0a0a0a;
+        --ct-text: #f9f9f9;
+        --ct-text-secondary: #999999;
+        --ct-border: #333333;
+        --ct-verified: #22c55e;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ct-bg);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ct-bg);
+        color: var(--ct-text);
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      .inner {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 62% 55% at 50% 48%,
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 255, 255, 0) 70%
+        );
+      }
+      .mono {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      .display {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+      }
+
+      /* ---------- Scene 1 ---------- */
+      #s1-stack {
+        position: relative;
+        width: 1480px;
+        text-align: center;
+        perspective: 1000px;
+      }
+      #s1-head {
+        font-size: 104px;
+        line-height: 1.16;
+        color: var(--ct-text);
+      }
+      .s1-word {
+        display: inline-block;
+        transform-style: preserve-3d;
+        will-change: transform, filter, opacity;
+      }
+      #s1-sub {
+        margin-top: 54px;
+        font-size: 26px;
+        font-weight: 400;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Shared card ----------
+         Sized up from the first cut: this plays inside the landing page's demo
+         frame, so it is read at well under 1920px wide. */
+      .card {
+        width: 1560px;
+        background: var(--ct-surface);
+        border: 1px solid var(--ct-border);
+        border-radius: 32px;
+        padding: 80px 90px;
+      }
+      .eyebrow {
+        font-size: 28px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Scene 2 ---------- */
+      #s2-card {
+        position: relative;
+      }
+      #s2-code {
+        margin-top: 48px;
+        font-size: 112px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: var(--ct-text);
+        white-space: nowrap;
+      }
+      #s2-chips {
+        display: flex;
+        gap: 30px;
+        margin-top: 64px;
+      }
+      .chip {
+        border: 1px solid var(--ct-border);
+        border-radius: 999px;
+        padding: 20px 38px;
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        white-space: nowrap;
+        will-change: transform, opacity;
+      }
+      .chip-label {
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+      .chip-value {
+        font-size: 38px;
+        font-weight: 500;
+        color: var(--ct-text);
+      }
+
+      /* ---------- Scene 3 ---------- */
+      #s3-wrap {
+        position: relative;
+        width: 1560px;
+      }
+      #s3-head {
+        font-size: 46px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.4;
+        color: var(--ct-text);
+      }
+      #s3-row {
+        display: flex;
+        gap: 26px;
+        align-items: stretch;
+        margin-top: 40px;
+      }
+      #s3-field {
+        position: relative;
+        flex: 1;
+        background: var(--ct-surface);
+        border: 1px solid var(--ct-border);
+        border-radius: 18px;
+        padding: 30px 38px;
+        display: flex;
+        align-items: center;
+        min-height: 118px;
+      }
+      #s3-placeholder {
+        position: absolute;
+        left: 38px;
+        font-size: 42px;
+        font-weight: 400;
+        color: var(--ct-text-secondary);
+      }
+      #s3-typed {
+        font-size: 42px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        color: var(--ct-text);
+        white-space: pre;
+      }
+      #s3-caret {
+        width: 3px;
+        height: 50px;
+        background: var(--ct-text);
+        margin-left: 6px;
+      }
+      #s3-btn {
+        position: relative;
+        width: 280px;
+        border-radius: 18px;
+        background: var(--ct-text);
+        display: grid;
+        place-items: center;
+        will-change: transform;
+      }
+      #s3-btn-label {
+        font-size: 34px;
+        font-weight: 600;
+        color: #000000;
+      }
+      #s3-spinner {
+        position: absolute;
+        width: 38px;
+        height: 38px;
+        border: 4px solid rgba(0, 0, 0, 0.25);
+        border-top-color: #000000;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      #s3-cursor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 38px;
+        height: 38px;
+        opacity: 0;
+        will-change: transform;
+      }
+      /* The panel reserves its space from the start but stays invisible until
+         the verification lands — no empty outlined box sitting on screen. */
+      #s3-result {
+        margin-top: 42px;
+        border: 1px solid transparent;
+        border-radius: 24px;
+        padding: 48px 52px;
+        background: rgba(34, 197, 94, 0);
+      }
+      #s3-result-head {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        opacity: 0;
+      }
+      #s3-check {
+        width: 42px;
+        height: 42px;
+        flex: none;
+      }
+      #s3-result-title {
+        font-size: 50px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.35;
+        color: var(--ct-verified);
+      }
+      #s3-record {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 36px 72px;
+        margin-top: 42px;
+        opacity: 0;
+      }
+      .rec-label {
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+      .rec-value {
+        font-size: 38px;
+        font-weight: 500;
+        line-height: 1.3;
+        color: var(--ct-text);
+        margin-top: 10px;
+      }
+      #s3-audit {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 44px;
+        padding-top: 32px;
+        border-top: 1px solid var(--ct-border);
+        opacity: 0;
+      }
+      #s3-audit-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--ct-verified);
+        flex: none;
+      }
+      #s3-audit-text {
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Scene 4a — the closing claim ---------- */
+      #s4-stack {
+        position: relative;
+        width: 1700px;
+        text-align: center;
+      }
+      #s4-claim {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 104px;
+        line-height: 1.18;
+        color: var(--ct-text);
+        will-change: opacity;
+      }
+
+      /* ---------- Scene 4b — the end card ----------
+         Built to the end-card spec: mark + wordmark lockup, a spark that crosses
+         the FULL frame width (not the lockup box), a glint band that tracks the
+         spark across the lockup, and a low radial light that follows it. The
+         lockup is completely static once it has settled. */
+      #ec {
+        position: absolute;
+        inset: 0;
+        background: #000000;
+        opacity: 0;
+      }
+      .ec-lockup {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+      }
+      .ec-mark {
+        height: 84px;
+        width: auto;
+        display: block;
+        flex: none;
+      }
+      .ec-name {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 86px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+      }
+      #ec-lockup {
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      /* A pure-white duplicate of the lockup, masked to a narrow band that
+         tracks the spark. --gx is in frame pixels, so it maps 1:1 onto the
+         spark's own x translation. */
+      #ec-glint-layer {
+        --gx: -422px;
+        opacity: 0;
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent calc(var(--gx) - 60px),
+          #ffffff var(--gx),
+          transparent calc(var(--gx) + 60px)
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent calc(var(--gx) - 60px),
+          #ffffff var(--gx),
+          transparent calc(var(--gx) + 60px)
+        );
+      }
+      #ec-glint-layer .ec-name {
+        color: #ffffff;
+        text-shadow: 0 0 24px rgba(255, 255, 255, 0.9);
+      }
+      #ec-spark-layer {
+        position: absolute;
+        inset: 0;
+      }
+      #ec-spark {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      #ec-dot {
+        position: absolute;
+        left: -5px;
+        top: -5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ffffff;
+        /* The first two are the spec's. The third replaces the spec's separate
+           radial background layer: a 0.06-opacity gradient layer over pure
+           black quantises to ~13 alpha levels and rings visibly (blurring the
+           source does not help — the banding appears at composite). A wide
+           box-shadow gives the same following ambient spill with a falloff fine
+           enough not to band, and it tracks the spark for free. */
+        box-shadow:
+          0 0 26px 10px rgba(255, 255, 255, 0.75),
+          0 0 60px 24px rgba(160, 210, 255, 0.35),
+          0 0 190px 90px rgba(160, 210, 255, 0.13);
+      }
+      #ec-streak {
+        position: absolute;
+        left: -441px;
+        top: -1px;
+        width: 883px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.75),
+          #ffffff,
+          rgba(255, 255, 255, 0.75),
+          transparent
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="23"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <!-- ============ SCENE 1 — Hook / the claim ============ -->
+      <section id="s1" class="clip" data-layout-allow-overlap data-start="0" data-duration="5.6" data-track-index="0">
+        <div id="s1-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s1-stack">
+            <h1 id="s1-head" class="display">
+              <span class="s1-word">THE</span> <span class="s1-word">NEW</span>
+              <span class="s1-word">STANDARD</span> <span class="s1-word">FOR</span>
+              <span class="s1-word">DIGITAL</span> <span class="s1-word">CREDENTIALS</span>
+            </h1>
+            <p id="s1-sub" class="mono">Secure. Instant. Auditable.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 2 — The owner mints a share code ============ -->
+      <section id="s2" class="clip" data-layout-allow-overlap data-start="5" data-duration="6.5" data-track-index="1">
+        <div id="s2-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s2-card" class="card">
+            <p id="s2-label" class="eyebrow mono">Credential Share Code</p>
+            <p id="s2-code" class="mono">XXX-XXXX-XXXX-XXXX</p>
+            <div id="s2-chips">
+              <div id="s2-chip-1" class="chip">
+                <span class="chip-label mono">Max access count</span>
+                <span class="chip-value mono">5 times</span>
+              </div>
+              <div id="s2-chip-2" class="chip">
+                <span class="chip-label mono">Validity period</span>
+                <span class="chip-value mono">24 hours</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 3 — A stranger verifies it ============ -->
+      <section id="s3" class="clip" data-layout-allow-overlap data-start="10.9" data-duration="6.9" data-track-index="2">
+        <div id="s3-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s3-wrap">
+            <h2 id="s3-head">Verify Credential</h2>
+            <div id="s3-row">
+              <div id="s3-field">
+                <span id="s3-placeholder" class="mono">Enter verification code</span>
+                <span id="s3-typed" class="mono"></span>
+                <span id="s3-caret"></span>
+              </div>
+              <div id="s3-btn">
+                <span id="s3-btn-label">Check</span>
+                <span id="s3-spinner"></span>
+              </div>
+            </div>
+
+            <div id="s3-result">
+              <div id="s3-result-head">
+                <svg
+                  id="s3-check"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#22c55e"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M7.5 12.4l3.1 3.1 6-6.4"></path>
+                </svg>
+                <span id="s3-result-title">Credential Valid</span>
+              </div>
+
+              <div id="s3-record">
+                <div>
+                  <p class="rec-label mono">Owner Name</p>
+                  <p class="rec-value mono">NGUYEN VAN A</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Institution</p>
+                  <p class="rec-value mono">CAN THO UNIVERSITY</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Degree Type</p>
+                  <p class="rec-value mono">BACHELOR / SOFTWARE ENG.</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Issue Date</p>
+                  <p class="rec-value mono">2025-06-18</p>
+                </div>
+              </div>
+
+              <div id="s3-audit">
+                <span id="s3-audit-dot"></span>
+                <span id="s3-audit-text" class="mono">Immutable Audit Trail</span>
+              </div>
+            </div>
+
+            <svg id="s3-cursor" viewBox="0 0 24 24" fill="#f9f9f9" stroke="#000000" stroke-width="1">
+              <path d="M5 2.5l13 8.2-5.9 1.1 3.2 6.5-2.6 1.3-3.2-6.5-4.5 4z"></path>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 4 — closing claim, then the end card ============ -->
+      <section id="s4" class="clip" data-layout-allow-overlap data-start="17.2" data-duration="5.8" data-track-index="3">
+        <div id="s4-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s4-stack">
+            <h2 id="s4-claim" class="display">Verify degrees in 30 seconds.</h2>
+          </div>
+
+          <!-- End card: covers the claim with solid black, then plays its own
+               2.1s timeline. -->
+          <div id="ec" aria-hidden="true">
+            <div id="ec-lockup" class="ec-lockup">
+              <!-- MARK SLOT — pending the mark-only asset (see DELIVERY.md).
+                   Drop it in here and no other change is needed:
+                   <img class="ec-mark" src="assets/img/logo-mark.svg" alt="" /> -->
+              <span class="ec-name">Lucidex</span>
+            </div>
+
+            <div id="ec-glint-layer" class="ec-lockup" data-layout-ignore>
+              <!-- same MARK SLOT, duplicated for the glint -->
+              <span class="ec-name">Lucidex</span>
+            </div>
+
+            <div id="ec-spark-layer" data-layout-ignore>
+              <div id="ec-spark">
+                <div id="ec-streak"></div>
+                <div id="ec-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AUDIO ============ -->
+      <audio
+        id="bg-music"
+        data-start="0"
+        data-duration="23"
+        data-track-index="10"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.26},{"t":20.4,"v":0.26},{"t":20.7,"v":0.16},{"t":22.2,"v":0.16},{"t":23,"v":0}]}]}'
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+      ></audio>
+      <audio
+        id="sfx-code-settle"
+        data-start="8.7"
+        data-duration="0.13"
+        data-track-index="11"
+        data-volume="0.42"
+        src="assets/sfx/interface/bong_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-check-press"
+        data-start="13.11"
+        data-duration="0.02"
+        data-track-index="12"
+        data-volume="0.45"
+        src="assets/sfx/interface/click_003.ogg"
+      ></audio>
+      <audio
+        id="sfx-verified"
+        data-start="14.4"
+        data-duration="1.48"
+        data-track-index="13"
+        data-volume="0.5"
+        src="assets/sfx/impact/impactBell_heavy_000.ogg"
+      ></audio>
+    </div>
+
+    <script>
+      // ---------------------------------------------------------------
+      // Deterministic share code + glyph scramble.
+      // Every visual state is a pure function of tween progress, so the
+      // renderer can seek to any frame and get the same pixels.
+      // ---------------------------------------------------------------
+      const CODE = 'LCX-7F3A-92KD-4B1E';
+      const GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+
+      function scrambleAt(p) {
+        let out = '';
+        for (let i = 0; i < CODE.length; i++) {
+          const ch = CODE[i];
+          if (ch === '-') {
+            out += '-';
+            continue;
+          }
+          const revealAt = (i + 1) / CODE.length;
+          if (p >= revealAt) {
+            out += ch;
+          } else {
+            // integer churn derived only from p and i — no Math.random, no clock
+            const k = Math.floor(p * 150) * 13 + i * 29;
+            out += GLYPHS[((k % GLYPHS.length) + GLYPHS.length) % GLYPHS.length];
+          }
+        }
+        return out;
+      }
+
+      const codeEl = document.getElementById('s2-code');
+      const typedEl = document.getElementById('s3-typed');
+      codeEl.textContent = scrambleAt(0);
+
+      const scramble = { p: 0 };
+      const typing = { p: 0 };
+
+      const tl = gsap.timeline({ paused: true });
+
+      // =================== SCENE 1 — 0.0 → 5.6 ===================
+      // Project's own blurReveal keyframe, per word.
+      tl.fromTo(
+        '.s1-word',
+        { opacity: 0, filter: 'blur(8px)', rotationY: 90, rotationX: 45, y: 20 },
+        {
+          opacity: 1,
+          filter: 'blur(0px)',
+          rotationY: 0,
+          rotationX: 0,
+          y: 0,
+          duration: 0.78,
+          ease: 'power3.out',
+          stagger: 0.15,
+        },
+        0.35
+      );
+      // headline fully settled ~1.88s, holds until 5.0
+      tl.fromTo('#s1-sub', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 3.0);
+      tl.to('#s1-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 5.0);
+
+      // =================== SCENE 2 — 5.0 → 11.5 ===================
+      tl.fromTo('#s2-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 5.0);
+      tl.fromTo('#s2-card', { scale: 0.988 }, { scale: 1, duration: 0.9, ease: 'power2.out' }, 5.0);
+      tl.fromTo('#s2-label', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 5.75);
+
+      // consent chips arrive on alternating beats (110 BPM grid), ~1.08s apart
+      tl.fromTo('#s2-chip-1', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 6.56); // beat-grid: 6.56s
+      tl.fromTo('#s2-chip-2', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 7.64); // beat-grid: 7.64s
+
+      // the code resolves left-to-right and settles exactly on the strong cue
+      tl.to(
+        scramble,
+        {
+          p: 1,
+          duration: 2.74,
+          ease: 'none',
+          onUpdate: () => {
+            codeEl.textContent = scrambleAt(scramble.p);
+          },
+        },
+        6.0
+      ); // beat-locked: 8.74s (settle)
+      tl.to('#s2-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 10.9);
+
+      // =================== SCENE 3 — 10.9 → 17.8 ===================
+      // The block is offset so the heading + input row read as centred while the
+      // result panel is still invisible; it settles up as the panel lands.
+      tl.set('#s3-wrap', { y: 150 }, 0);
+      tl.fromTo('#s3-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 10.9);
+
+      // cursor drifts toward the Check button, then presses it
+      tl.fromTo(
+        '#s3-cursor',
+        { opacity: 0, x: 720, y: 252 },
+        { opacity: 1, x: 800, y: 222, duration: 0.7, ease: 'power2.out' },
+        11.3
+      );
+      tl.to('#s3-cursor', { x: 1414, y: 160, duration: 1.11, ease: 'power2.inOut' }, 12.0);
+
+      // placeholder clears, the code types in
+      tl.to('#s3-placeholder', { opacity: 0, duration: 0.2, ease: 'none' }, 11.4);
+      tl.to(
+        typing,
+        {
+          p: 1,
+          duration: 1.25,
+          ease: 'none',
+          onUpdate: () => {
+            const n = Math.round(typing.p * CODE.length);
+            typedEl.textContent = CODE.slice(0, n);
+          },
+        },
+        11.5
+      );
+
+      // the press
+      tl.to('#s3-cursor', { x: 1418, y: 164, duration: 0.09, ease: 'power2.in' }, 13.11); // beat-locked: 13.11s
+      tl.to('#s3-btn', { scale: 0.98, duration: 0.09, ease: 'power2.in' }, 13.11);
+      tl.to('#s3-btn', { scale: 1, duration: 0.18, ease: 'power2.out' }, 13.2);
+      tl.to('#s3-cursor', { x: 1414, y: 160, duration: 0.18, ease: 'power2.out' }, 13.2);
+      tl.to('#s3-cursor', { opacity: 0, duration: 0.3, ease: 'none' }, 13.4);
+      tl.to('#s3-caret', { opacity: 0, duration: 0.15, ease: 'none' }, 13.11);
+
+      // a held second of nothing but the spinner
+      tl.to('#s3-btn-label', { opacity: 0, duration: 0.12, ease: 'none' }, 13.2);
+      tl.to('#s3-spinner', { opacity: 1, duration: 0.12, ease: 'none' }, 13.2);
+      tl.to('#s3-spinner', { rotation: 360, duration: 0.55, ease: 'none', repeat: 1 }, 13.25);
+      tl.to('#s3-spinner', { opacity: 0, duration: 0.12, ease: 'none' }, 14.3);
+      tl.to('#s3-btn-label', { opacity: 1, duration: 0.12, ease: 'none' }, 14.32);
+
+      // the only colour in the film — and the block settles up as it arrives
+      tl.to('#s3-wrap', { y: 0, duration: 0.6, ease: 'power2.out' }, 14.4);
+      tl.to('#s3-field', { borderColor: '#22c55e', duration: 0.35, ease: 'power2.out' }, 14.4);
+      tl.to(
+        '#s3-result',
+        {
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.05)',
+          duration: 0.35,
+          ease: 'power2.out',
+        },
+        14.4
+      );
+      tl.fromTo('#s3-result-head', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 14.4);
+      // the record + audit line read as one block, not as a stagger
+      tl.fromTo('#s3-record', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 14.65);
+      tl.fromTo('#s3-audit', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 14.8);
+      tl.to('#s3-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 17.2);
+
+      // =================== SCENE 4 — 17.2 → 23.0 ===================
+      tl.fromTo('#s4-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 17.2);
+      tl.fromTo('#s4-claim', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 18.06); // beat-locked: 18.56s (settle)
+
+      // ---- End card (spec timeline, 2.1s) ----
+      const EC = 20.7; // end-card t=0
+      const SPARK_FROM = -422; // -22% of the 1920 frame
+      const SPARK_TO = 2342; //  122% of the 1920 frame
+      const SPARK_DUR = 1.15; // 0.55s → 1.70s on the end-card clock
+
+      // 250ms cross-fade onto the end card. The end card's own solid black would
+      // cover the claim on its own, but the claim is faded out too so it stops
+      // being painted (and stops registering as a live text box) underneath.
+      tl.fromTo('#ec', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.inOut' }, EC - 0.25);
+      tl.to('#s4-claim', { opacity: 0, duration: 0.25, ease: 'power2.inOut' }, EC - 0.25);
+
+      // Resting state for every end-card layer, authored at t=0 so a seek to any
+      // frame before the end card gets the same pixels. Without these, GSAP's
+      // immediateRender makes whichever fromTo was authored last the baseline.
+      tl.set('#ec-lockup', { opacity: 0, scale: 0.97 }, 0);
+      tl.set('#ec-spark', { x: SPARK_FROM, opacity: 0 }, 0);
+      tl.set('#ec-glint-layer', { '--gx': SPARK_FROM + 'px', opacity: 0 }, 0);
+
+      // 0.00–0.55s: the lockup fades in and scales 0.97 → 1, then never moves again
+      tl.to('#ec-lockup', { opacity: 1, scale: 1, duration: 0.55, ease: 'power2.out' }, EC);
+
+      // 0.55–1.70s: the spark crosses the full frame
+      tl.to('#ec-spark', { x: SPARK_TO, duration: SPARK_DUR, ease: 'power1.inOut' }, EC + 0.55);
+      tl.to('#ec-spark', { opacity: 1, duration: SPARK_DUR * 0.06, ease: 'none' }, EC + 0.55);
+      tl.to('#ec-spark', { opacity: 0, duration: SPARK_DUR * 0.1, ease: 'none' }, EC + 0.55 + SPARK_DUR * 0.9);
+
+      // the glint band tracks the spark across the lockup
+      tl.to(
+        '#ec-glint-layer',
+        { '--gx': SPARK_TO + 'px', duration: SPARK_DUR, ease: 'power1.inOut' },
+        EC + 0.55
+      );
+      tl.to('#ec-glint-layer', { opacity: 1, duration: SPARK_DUR * 0.06, ease: 'none' }, EC + 0.55);
+      tl.to('#ec-glint-layer', { opacity: 0, duration: SPARK_DUR * 0.1, ease: 'none' }, EC + 0.55 + SPARK_DUR * 0.9);
+
+
+      // after 1.70s the card holds statically on the logo alone
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

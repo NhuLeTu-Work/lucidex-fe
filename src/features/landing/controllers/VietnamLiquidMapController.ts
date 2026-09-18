@@ -107,6 +107,9 @@ export class VietnamLiquidMapController {
     return Math.min(Math.max(window.scrollY / denominator, 0), 1);
   }
 
+  private readonly BASE_OPACITY = 0.432; // 0.54 * 0.8 (20% dimmer than before)
+  private morphShown = 0;
+
   private tick(timestamp: number): void {
     const targetProgress = this.computeProgress();
 
@@ -136,14 +139,32 @@ export class VietnamLiquidMapController {
       );
     }
 
-    // Layer opacity fade as National section enters:
-    // hand = clamp((0.9 * innerHeight - nationalTop) / (0.6 * innerHeight), 0, 1)
-    // opacity = (0.9 - 0.75 * hand) * 0.6
+    // Scroll-driven morph transition & hand-off fade:
+    // Progress: with nationalTop = the National section's top relative to the viewport,
+    // t = clamp((0.95*innerHeight - nationalTop) / (0.95*innerHeight - 0.35*innerHeight), 0, 1)
+    // Smooth the displayed value: shown += (t - shown) * 0.12 per frame.
+    // Flat map: opacity = max(1 - shown*2.2, 0) * BASE_OPACITY
     if (this.layer && this.nationalSection) {
       const rect = this.nationalSection.getBoundingClientRect();
-      const hand = Math.min(Math.max((window.innerHeight * 0.9 - rect.top) / (window.innerHeight * 0.6), 0), 1);
-      const opacity = (0.9 - 0.75 * hand) * 0.6;
-      this.layer.style.opacity = opacity.toFixed(3);
+      const ih = window.innerHeight;
+      const isMobile = window.innerWidth < 768;
+      const skipMorph = isMobile || this.prefersReducedMotion;
+
+      if (skipMorph) {
+        // Below 768px or prefers-reduced-motion: skip the morph.
+        // Show the flat map at normal opacity until National section is reached (0.95 * ih), then hide directly.
+        const opacity = rect.top <= ih * 0.95 ? 0 : this.BASE_OPACITY;
+        this.layer.style.opacity = opacity.toFixed(3);
+      } else {
+        const t = Math.min(Math.max((0.95 * ih - rect.top) / (0.60 * ih), 0), 1);
+        this.morphShown += (t - this.morphShown) * 0.12;
+
+        // After the National section (it is the last section) the flat map stays hidden.
+        // Scrolling back up reverses everything smoothly.
+        const isPast = rect.bottom < 0;
+        const opacity = isPast ? 0 : Math.max(1 - this.morphShown * 2.2, 0) * this.BASE_OPACITY;
+        this.layer.style.opacity = opacity.toFixed(3);
+      }
     }
 
     this.rafId = requestAnimationFrame(this.tick);

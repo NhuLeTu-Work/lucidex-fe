@@ -1,0 +1,1 @@
+Introducing Lucidex: the new standard for digital credentials. Universities issue degrees in bulk, graduates share them behind a consent-scoped code they control, and employers verify in 30 seconds — every check logged to an immutable audit trail.

@@ -44,7 +44,7 @@ export function LandingFooter() {
       if (!footerRef.current || !wordmarkRef.current || !veilRef.current) return;
       const footerRect = footerRef.current.getBoundingClientRect();
       const wordmarkRect = wordmarkRef.current.getBoundingClientRect();
-      const veilHeight = (wordmarkRect.top - footerRect.top) + wordmarkRect.height * 0.55;
+      const veilHeight = (wordmarkRect.top - footerRect.top) + wordmarkRect.height * 0.90;
       veilRef.current.style.height = `${veilHeight}px`;
     };
 
@@ -117,8 +117,11 @@ export function LandingFooter() {
           </div>
         </div>
 
-        {/* Giant Wordmark */}
-        <div className="footer-wordmark" ref={wordmarkRef} aria-hidden="true">LUCIDEX</div>
+        {/* Giant Wordmark & Glow Layer */}
+        <div className="footer-wordmark-wrap" ref={wordmarkRef} aria-hidden="true">
+          <div className="footer-wordmark-glow" aria-hidden="true">LUCIDEX</div>
+          <div className="footer-wordmark">LUCIDEX</div>
+        </div>
 
         {/* Legal Row */}
         <div className="footer-legal">
