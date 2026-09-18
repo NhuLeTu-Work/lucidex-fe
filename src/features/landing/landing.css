@@ -259,7 +259,7 @@ html.lucidex-landing-active body {
 
 /* 2. Background layer: lucidex-bg-blue.mp4 (initial opacity: 0, 1.5s cubic-bezier transition) */
 .lucidex-landing .hero-bg-video {
-  z-index: 1;
+  z-index: 2; /* Wave background video above giant word */
   opacity: 0;
   transition: opacity 1.5s cubic-bezier(0.4, 0, 1, 1);
 }
@@ -273,14 +273,14 @@ html.lucidex-landing-active body {
   transition: none !important;
 }
 
-/* 1. Giant background word: BETWEEN background layer and hero video layer */
+/* 1. Giant background word: Lowest layer in stacking order */
 .lucidex-landing .hero-giant-word-container {
   position: absolute;
   top: 48%;
   left: 0;
   width: 100%;
   transform: translateY(-50%);
-  z-index: 2;
+  z-index: 1; /* Giant word stays the lowest */
   padding-inline: clamp(24px, 5vw, 96px);
   box-sizing: border-box;
   pointer-events: none;
@@ -360,6 +360,11 @@ html.lucidex-landing-active body {
   transform: scale(0.8);
   transform-origin: 50% 48%;
   opacity: 1;
+  mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
+  -webkit-mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .lucidex-landing .hero-credential-outer {
@@ -374,6 +379,7 @@ html.lucidex-landing-active body {
   transform-origin: 50% 48%;
   transform: translateY(0) rotate(0deg);
   will-change: transform, filter;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
@@ -460,7 +466,7 @@ html.lucidex-landing-active body {
 /* 4. Content layer: split layout (top-left, bottom-right, center CTAs) */
 .lucidex-landing .hero-content-wrap {
   position: relative;
-  z-index: 5;
+  z-index: 10;
   width: 100%;
   height: 100vh;
   min-height: 100vh;
@@ -476,6 +482,7 @@ html.lucidex-landing-active body {
   text-align: left;
   pointer-events: auto;
   isolation: isolate;
+  z-index: 10;
 }
 
 .lucidex-landing .hero-top-left::before {
@@ -533,6 +540,7 @@ html.lucidex-landing-active body {
   max-width: 520px;
   pointer-events: auto;
   isolation: isolate;
+  z-index: 10;
 }
 
 .lucidex-landing .hero-bottom-right::before {
@@ -559,6 +567,7 @@ html.lucidex-landing-active body {
   background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: none; /* Prevent inherited dark text-shadow from occluding transparent text clip */
   filter: var(--hero-halo-gradient);
   display: inline-block;
 }
@@ -569,7 +578,7 @@ html.lucidex-landing-active body {
   left: 50%;
   bottom: clamp(28px, 4.5vh, 44px);
   transform: translateX(-50%);
-  z-index: 6;
+  z-index: 10;
   pointer-events: auto;
   width: auto;
   white-space: nowrap;
@@ -659,7 +668,7 @@ html.lucidex-landing-active body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  z-index: 5;
+  z-index: 10;
   pointer-events: none;
 }
 
@@ -1361,6 +1370,8 @@ html.lucidex-landing-active body {
   .lucidex-landing .hero-main-video {
     object-position: center 26%;
     transform-origin: center 26%;
+    mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
   }
 
   .lucidex-landing .hero-giant-word-container {
