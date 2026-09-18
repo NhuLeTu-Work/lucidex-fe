@@ -285,7 +285,7 @@ html.lucidex-landing-active body {
   box-sizing: border-box;
   pointer-events: none;
   user-select: none;
-  opacity: 0.8; /* Item 2: Giant word opacity -20% */
+  opacity: 1; /* Giant word opacity increased by 25% (0.8 -> 1.0) */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2114,11 +2114,21 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
    ========================================================================== */
 .lucidex-landing .site-footer {
   width: 100%;
-  padding: 80px clamp(20px, 5vw, 72px) 0;
+  padding: 52px clamp(20px, 5vw, 72px) 0;
   overflow: hidden;
   background: transparent;
   position: relative;
   z-index: 2;
+}
+
+.lucidex-landing .footer-veil {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(to bottom, #070d1c 0%, #070d1c 78%, rgba(7, 13, 28, 0.85) 88%, rgba(7, 13, 28, 0.45) 95%, rgba(7, 13, 28, 0) 100%);
 }
 
 .lucidex-landing .footer-container {
@@ -2132,6 +2142,8 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: 32px;
   align-items: flex-start;
+  position: relative;
+  z-index: 2;
 }
 
 .lucidex-landing .footer-col-brand {
@@ -2210,7 +2222,7 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   line-height: 0.78;
   letter-spacing: -0.04em;
   text-align: center;
-  margin-top: 64px;
+  margin-top: 28px;
   color: transparent;
   -webkit-text-stroke: 1px rgba(147, 197, 253, 0.35);
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.18) 0%, transparent 85%);
@@ -2221,17 +2233,21 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   pointer-events: none;
   white-space: nowrap;
   width: 100%;
+  position: relative;
+  z-index: 0;
 }
 
 .lucidex-landing .footer-legal {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 18px 0 22px;
+  padding: 14px 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   color: rgba(241, 245, 251, 0.5);
+  position: relative;
+  z-index: 2;
 }
 
 @media (max-width: 819px) {
@@ -2288,15 +2304,23 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   font-weight: 500;
   font-size: 14px;
   color: rgba(241, 245, 251, 0.66);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 9px 16px;
+  border-radius: 999px;
   text-decoration: none;
   text-transform: none;
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
   position: relative;
 }
 
-.lucidex-landing .nav-auth-link:hover {
-  color: #ffffff;
+.lucidex-landing .nav-auth-link:hover,
+.lucidex-landing .nav-auth-link:focus-visible {
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.28), rgba(99, 102, 241, 0.28));
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.28);
 }
 
 /* The pill shrinks to 760px past 80px of scroll. That was sized for brand +
