@@ -71,8 +71,7 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
               <button
                 onClick={handleCheck}
                 disabled={!code.trim()}
-                className="px-6 py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80 disabled:opacity-40"
-                style={{ background: '#000' }}
+                className="portal-cta px-6 py-3 text-sm font-semibold rounded-xl transition-all hover:opacity-80 disabled:opacity-40"
               >
                 {result === 'checking' ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : t('check')}
               </button>

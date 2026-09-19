@@ -300,7 +300,7 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
       <Button
         onClick={handleInitialShareClick}
         disabled={isSubmitting}
-        className="rounded-full shadow-2xl h-12 px-5 font-semibold text-sm bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 border border-white/20"
+        className="portal-cta rounded-full shadow-2xl h-12 px-5 font-semibold text-sm hover:opacity-90 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 border border-white/20"
       >
         {isSubmitting ? (
           <Loader2 size={18} className="animate-spin" />

@@ -11,7 +11,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://lucidex.ddns.net:8000',
+        target: 'http://fusion.pikamc.vn:25693',
         changeOrigin: true,
       },
     },

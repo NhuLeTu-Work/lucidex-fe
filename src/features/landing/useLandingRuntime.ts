@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import type { RefObject } from 'react';
 
-import { CtaScrollSnapController } from './controllers/CtaScrollSnapController';
 import { FlightPathController } from './controllers/FlightPathController';
 import { HeroVideoController } from './controllers/HeroVideoController';
 import { LandingHeaderController } from './controllers/LandingHeaderController';
@@ -118,7 +117,6 @@ export function useLandingRuntime(rootRef: RefObject<HTMLDivElement | null>): vo
       new FlightPathController(root),
       new VietnamLiquidMapController(root),
       new VietnamMap3DController(root),
-      new CtaScrollSnapController(root),
     ];
 
     return () => {

@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Lucidex — Brag (VI)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Latin + Vietnamese subsets. Without the Vietnamese faces the diacritics
+         fall back to a system font mid-word. */
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-400-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/inter-vietnamese-400-normal.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+          U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+          U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 600;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-600-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 600;
+        font-display: block;
+        src: url('assets/fonts/inter-vietnamese-600-normal.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+          U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+          U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 900;
+        font-display: block;
+        src: url('assets/fonts/inter-latin-900-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 900;
+        font-display: block;
+        src: url('assets/fonts/inter-vietnamese-900-normal.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+          U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+          U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-vietnamese-400-normal.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+          U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+          U+1EA0-1EF9, U+20AB;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+          U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url('assets/fonts/jetbrains-mono-vietnamese-500-normal.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+          U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+          U+1EA0-1EF9, U+20AB;
+      }
+
+      /* Lucidex dark theme tokens, lifted from src/index.css (.dark) */
+      :root {
+        --ct-bg: #000000;
+        --ct-surface: #0a0a0a;
+        --ct-text: #f9f9f9;
+        --ct-text-secondary: #999999;
+        --ct-border: #333333;
+        --ct-verified: #22c55e;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ct-bg);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ct-bg);
+        color: var(--ct-text);
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      .inner {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 62% 55% at 50% 48%,
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 255, 255, 0) 70%
+        );
+      }
+      .mono {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      .display {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+      }
+
+      /* ---------- Scene 1 ---------- */
+      /* Measure is set so the headline breaks after "MỚI". At a wider measure it
+         breaks as "... CHO BẰNG / CẤP SỐ", splitting the compound "bằng cấp". */
+      #s1-stack {
+        position: relative;
+        width: 1060px;
+        text-align: center;
+        perspective: 1000px;
+      }
+      /* line-height is looser than the English cut: uppercase Vietnamese stacks
+         tone marks above the cap height and 1.16 clipped them between lines. */
+      #s1-head {
+        font-size: 100px;
+        line-height: 1.3;
+        color: var(--ct-text);
+      }
+      .s1-word {
+        display: inline-block;
+        transform-style: preserve-3d;
+        will-change: transform, filter, opacity;
+      }
+      #s1-sub {
+        margin-top: 54px;
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        line-height: 1.5;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Shared card ---------- */
+      .card {
+        width: 1180px;
+        background: var(--ct-surface);
+        border: 1px solid var(--ct-border);
+        border-radius: 28px;
+        padding: 72px 80px;
+      }
+      .eyebrow {
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        line-height: 1.5;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Scene 2 ---------- */
+      #s2-card {
+        position: relative;
+      }
+      #s2-code {
+        margin-top: 42px;
+        font-size: 86px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        color: var(--ct-text);
+        white-space: nowrap;
+      }
+      #s2-chips {
+        display: flex;
+        gap: 26px;
+        margin-top: 60px;
+      }
+      .chip {
+        border: 1px solid var(--ct-border);
+        border-radius: 999px;
+        padding: 18px 32px;
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        white-space: nowrap;
+        will-change: transform, opacity;
+      }
+      .chip-label {
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+      .chip-value {
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--ct-text);
+      }
+
+      /* ---------- Scene 3 ---------- */
+      #s3-wrap {
+        position: relative;
+        width: 1180px;
+      }
+      #s3-head {
+        font-size: 34px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.4;
+        color: var(--ct-text);
+      }
+      #s3-row {
+        display: flex;
+        gap: 22px;
+        align-items: stretch;
+        margin-top: 34px;
+      }
+      #s3-field {
+        position: relative;
+        flex: 1;
+        background: var(--ct-surface);
+        border: 1px solid var(--ct-border);
+        border-radius: 16px;
+        padding: 26px 30px;
+        display: flex;
+        align-items: center;
+        min-height: 92px;
+      }
+      #s3-placeholder {
+        position: absolute;
+        left: 30px;
+        font-size: 30px;
+        font-weight: 400;
+        color: var(--ct-text-secondary);
+      }
+      #s3-typed {
+        font-size: 30px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        color: var(--ct-text);
+        white-space: pre;
+      }
+      #s3-caret {
+        width: 2px;
+        height: 36px;
+        background: var(--ct-text);
+        margin-left: 4px;
+      }
+      #s3-btn {
+        position: relative;
+        width: 230px;
+        border-radius: 16px;
+        background: var(--ct-text);
+        display: grid;
+        place-items: center;
+        will-change: transform;
+      }
+      #s3-btn-label {
+        font-size: 26px;
+        font-weight: 600;
+        color: #000000;
+        white-space: nowrap;
+      }
+      #s3-spinner {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(0, 0, 0, 0.25);
+        border-top-color: #000000;
+        border-radius: 50%;
+        opacity: 0;
+      }
+      #s3-cursor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 30px;
+        height: 30px;
+        opacity: 0;
+        will-change: transform;
+      }
+      /* The panel reserves its space from the start but stays invisible until
+         the verification lands — no empty outlined box sitting on screen. */
+      #s3-result {
+        margin-top: 36px;
+        border: 1px solid transparent;
+        border-radius: 20px;
+        padding: 40px 44px;
+        background: rgba(34, 197, 94, 0);
+      }
+      #s3-result-head {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        opacity: 0;
+      }
+      #s3-check {
+        width: 30px;
+        height: 30px;
+        flex: none;
+      }
+      #s3-result-title {
+        font-size: 36px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        line-height: 1.35;
+        color: var(--ct-verified);
+      }
+      #s3-record {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px 64px;
+        margin-top: 36px;
+        opacity: 0;
+      }
+      .rec-label {
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+      .rec-value {
+        font-size: 26px;
+        font-weight: 500;
+        line-height: 1.3;
+        color: var(--ct-text);
+        margin-top: 9px;
+      }
+      #s3-audit {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 38px;
+        padding-top: 28px;
+        border-top: 1px solid var(--ct-border);
+        opacity: 0;
+      }
+      #s3-audit-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--ct-verified);
+        flex: none;
+      }
+      #s3-audit-text {
+        font-size: 18px;
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ct-text-secondary);
+      }
+
+      /* ---------- Scene 4 ---------- */
+      #s4-stack {
+        position: relative;
+        width: 1620px;
+        text-align: center;
+      }
+      #s4-claim {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 88px;
+        line-height: 1.24;
+        color: var(--ct-text);
+        will-change: opacity;
+      }
+      #s4-mark {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        will-change: opacity;
+      }
+      #s4-name {
+        font-size: 84px;
+        line-height: 1.1;
+        color: var(--ct-text);
+      }
+      #s4-tag {
+        margin-top: 38px;
+        font-size: 21px;
+        font-weight: 400;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        line-height: 1.5;
+        color: var(--ct-text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="22.4"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <!-- ============ SCENE 1 — Hook / the claim ============ -->
+      <section id="s1" class="clip" data-layout-allow-overlap data-start="0" data-duration="5.6" data-track-index="0">
+        <div id="s1-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s1-stack">
+            <h1 id="s1-head" class="display">
+              <span class="s1-word">TIÊU</span> <span class="s1-word">CHUẨN</span>
+              <span class="s1-word">MỚI</span> <span class="s1-word">CHO</span>
+              <span class="s1-word">BẰNG</span> <span class="s1-word">CẤP</span>
+              <span class="s1-word">SỐ</span>
+            </h1>
+            <p id="s1-sub" class="mono">Bảo mật. Tức thì. Kiểm chứng được.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 2 — The owner mints a share code ============ -->
+      <section id="s2" class="clip" data-layout-allow-overlap data-start="5" data-duration="6.5" data-track-index="1">
+        <div id="s2-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s2-card" class="card">
+            <p id="s2-label" class="eyebrow mono">Mã chia sẻ văn bằng</p>
+            <p id="s2-code" class="mono">XXX-XXXX-XXXX-XXXX</p>
+            <div id="s2-chips">
+              <div id="s2-chip-1" class="chip">
+                <span class="chip-label mono">Số lần truy cập tối đa</span>
+                <span class="chip-value mono">5 lần</span>
+              </div>
+              <div id="s2-chip-2" class="chip">
+                <span class="chip-label mono">Thời gian hiệu lực</span>
+                <span class="chip-value mono">24 giờ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 3 — A stranger verifies it ============ -->
+      <section id="s3" class="clip" data-layout-allow-overlap data-start="10.9" data-duration="6.9" data-track-index="2">
+        <div id="s3-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s3-wrap">
+            <h2 id="s3-head">Xác minh Bằng cấp</h2>
+            <div id="s3-row">
+              <div id="s3-field">
+                <span id="s3-placeholder" class="mono">Nhập mã chia sẻ...</span>
+                <span id="s3-typed" class="mono"></span>
+                <span id="s3-caret"></span>
+              </div>
+              <div id="s3-btn">
+                <span id="s3-btn-label">Kiểm tra</span>
+                <span id="s3-spinner"></span>
+              </div>
+            </div>
+
+            <div id="s3-result">
+              <div id="s3-result-head">
+                <svg
+                  id="s3-check"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#22c55e"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M7.5 12.4l3.1 3.1 6-6.4"></path>
+                </svg>
+                <span id="s3-result-title">Bằng cấp Hợp lệ</span>
+              </div>
+
+              <div id="s3-record">
+                <div>
+                  <p class="rec-label mono">Tên chủ sở hữu</p>
+                  <p class="rec-value mono">NGUYỄN VĂN A</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Trường</p>
+                  <p class="rec-value mono">ĐẠI HỌC CẦN THƠ</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Loại Bằng</p>
+                  <p class="rec-value mono">CỬ NHÂN KỸ THUẬT PHẦN MỀM</p>
+                </div>
+                <div>
+                  <p class="rec-label mono">Ngày Cấp</p>
+                  <p class="rec-value mono">18-06-2025</p>
+                </div>
+              </div>
+
+              <div id="s3-audit">
+                <span id="s3-audit-dot"></span>
+                <span id="s3-audit-text" class="mono">Audit Trail Bất biến</span>
+              </div>
+            </div>
+
+            <svg id="s3-cursor" viewBox="0 0 24 24" fill="#f9f9f9" stroke="#000000" stroke-width="1">
+              <path d="M5 2.5l13 8.2-5.9 1.1 3.2 6.5-2.6 1.3-3.2-6.5-4.5 4z"></path>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCENE 4 — The mark ============ -->
+      <section id="s4" class="clip" data-layout-allow-overlap data-start="17.2" data-duration="5.2" data-track-index="3">
+        <div id="s4-inner" class="inner">
+          <div class="vignette"></div>
+          <div id="s4-stack">
+            <h2 id="s4-claim" class="display">Xác minh bằng trong 30 giây.</h2>
+            <div id="s4-mark">
+              <span id="s4-name" class="display">Lucidex</span>
+              <p id="s4-tag" class="mono">Bảo mật. Tức thì. Kiểm chứng được.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AUDIO ============ -->
+      <audio
+        id="bg-music"
+        data-start="0"
+        data-duration="22.4"
+        data-track-index="10"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.26},{"t":20.6,"v":0.26},{"t":20.9,"v":0.16},{"t":22.4,"v":0}]}]}'
+        src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3"
+      ></audio>
+      <audio
+        id="sfx-code-settle"
+        data-start="8.7"
+        data-duration="0.13"
+        data-track-index="11"
+        data-volume="0.42"
+        src="assets/sfx/interface/bong_001.ogg"
+      ></audio>
+      <audio
+        id="sfx-check-press"
+        data-start="13.11"
+        data-duration="0.02"
+        data-track-index="12"
+        data-volume="0.45"
+        src="assets/sfx/interface/click_003.ogg"
+      ></audio>
+      <audio
+        id="sfx-verified"
+        data-start="14.4"
+        data-duration="1.48"
+        data-track-index="13"
+        data-volume="0.5"
+        src="assets/sfx/impact/impactBell_heavy_000.ogg"
+      ></audio>
+    </div>
+
+    <script>
+      // ---------------------------------------------------------------
+      // Deterministic share code + glyph scramble.
+      // Every visual state is a pure function of tween progress, so the
+      // renderer can seek to any frame and get the same pixels.
+      // ---------------------------------------------------------------
+      const CODE = 'LCX-7F3A-92KD-4B1E';
+      const GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+
+      function scrambleAt(p) {
+        let out = '';
+        for (let i = 0; i < CODE.length; i++) {
+          const ch = CODE[i];
+          if (ch === '-') {
+            out += '-';
+            continue;
+          }
+          const revealAt = (i + 1) / CODE.length;
+          if (p >= revealAt) {
+            out += ch;
+          } else {
+            // integer churn derived only from p and i — no Math.random, no clock
+            const k = Math.floor(p * 150) * 13 + i * 29;
+            out += GLYPHS[((k % GLYPHS.length) + GLYPHS.length) % GLYPHS.length];
+          }
+        }
+        return out;
+      }
+
+      const codeEl = document.getElementById('s2-code');
+      const typedEl = document.getElementById('s3-typed');
+      codeEl.textContent = scrambleAt(0);
+
+      const scramble = { p: 0 };
+      const typing = { p: 0 };
+
+      const tl = gsap.timeline({ paused: true });
+
+      // =================== SCENE 1 — 0.0 → 5.6 ===================
+      // Project's own blurReveal keyframe, per word.
+      tl.fromTo(
+        '.s1-word',
+        { opacity: 0, filter: 'blur(8px)', rotationY: 90, rotationX: 45, y: 20 },
+        {
+          opacity: 1,
+          filter: 'blur(0px)',
+          rotationY: 0,
+          rotationX: 0,
+          y: 0,
+          duration: 0.78,
+          ease: 'power3.out',
+          stagger: 0.13,
+        },
+        0.35
+      );
+      // headline fully settled ~1.91s, holds until 5.0
+      tl.fromTo(
+        '#s1-sub',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        3.0
+      );
+      tl.to('#s1-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 5.0);
+
+      // =================== SCENE 2 — 5.0 → 11.5 ===================
+      tl.fromTo('#s2-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 5.0);
+      tl.fromTo('#s2-card', { scale: 0.988 }, { scale: 1, duration: 0.9, ease: 'power2.out' }, 5.0);
+      tl.fromTo(
+        '#s2-label',
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+        5.75
+      );
+
+      // consent chips arrive on alternating beats (110 BPM grid), ~1.08s apart
+      tl.fromTo(
+        '#s2-chip-1',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+        6.56
+      ); // beat-grid: 6.56s
+      tl.fromTo(
+        '#s2-chip-2',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+        7.64
+      ); // beat-grid: 7.64s
+
+      // the code resolves left-to-right and settles exactly on the strong cue
+      tl.to(
+        scramble,
+        {
+          p: 1,
+          duration: 2.74,
+          ease: 'none',
+          onUpdate: () => {
+            codeEl.textContent = scrambleAt(scramble.p);
+          },
+        },
+        6.0
+      ); // beat-locked: 8.74s (settle)
+      tl.to('#s2-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 10.9);
+
+      // =================== SCENE 3 — 10.9 → 17.8 ===================
+      // The block is offset so the heading + input row read as centred while the
+      // result panel is still invisible; it settles up as the panel lands.
+      tl.set('#s3-wrap', { y: 200 }, 0);
+      tl.fromTo('#s3-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 10.9);
+
+      // cursor drifts toward the Check button, then presses it
+      tl.fromTo(
+        '#s3-cursor',
+        { opacity: 0, x: 690, y: 236 },
+        { opacity: 1, x: 760, y: 210, duration: 0.7, ease: 'power2.out' },
+        11.3
+      );
+      tl.to('#s3-cursor', { x: 1030, y: 152, duration: 1.11, ease: 'power2.inOut' }, 12.0);
+
+      // placeholder clears, the code types in
+      tl.to('#s3-placeholder', { opacity: 0, duration: 0.2, ease: 'none' }, 11.4);
+      tl.to(
+        typing,
+        {
+          p: 1,
+          duration: 1.25,
+          ease: 'none',
+          onUpdate: () => {
+            const n = Math.round(typing.p * CODE.length);
+            typedEl.textContent = CODE.slice(0, n);
+          },
+        },
+        11.5
+      );
+
+      // the press
+      tl.to('#s3-cursor', { x: 1034, y: 156, duration: 0.09, ease: 'power2.in' }, 13.11); // beat-locked: 13.11s
+      tl.to('#s3-btn', { scale: 0.98, duration: 0.09, ease: 'power2.in' }, 13.11);
+      tl.to('#s3-btn', { scale: 1, duration: 0.18, ease: 'power2.out' }, 13.2);
+      tl.to('#s3-cursor', { x: 1030, y: 152, duration: 0.18, ease: 'power2.out' }, 13.2);
+      tl.to('#s3-cursor', { opacity: 0, duration: 0.3, ease: 'none' }, 13.4);
+      tl.to('#s3-caret', { opacity: 0, duration: 0.15, ease: 'none' }, 13.11);
+
+      // a held second of nothing but the spinner
+      tl.to('#s3-btn-label', { opacity: 0, duration: 0.12, ease: 'none' }, 13.2);
+      tl.to('#s3-spinner', { opacity: 1, duration: 0.12, ease: 'none' }, 13.2);
+      tl.to('#s3-spinner', { rotation: 360, duration: 0.55, ease: 'none', repeat: 1 }, 13.25);
+      tl.to('#s3-spinner', { opacity: 0, duration: 0.12, ease: 'none' }, 14.3);
+      tl.to('#s3-btn-label', { opacity: 1, duration: 0.12, ease: 'none' }, 14.32);
+
+      // the only colour in the film — and the block settles up as it arrives
+      tl.to('#s3-wrap', { y: 0, duration: 0.6, ease: 'power2.out' }, 14.4);
+      tl.to('#s3-field', { borderColor: '#22c55e', duration: 0.35, ease: 'power2.out' }, 14.4);
+      tl.to(
+        '#s3-result',
+        {
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.05)',
+          duration: 0.35,
+          ease: 'power2.out',
+        },
+        14.4
+      );
+      tl.fromTo(
+        '#s3-result-head',
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        14.4
+      );
+      // the record + audit line read as one block, not as a stagger
+      tl.fromTo(
+        '#s3-record',
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        14.65
+      );
+      tl.fromTo('#s3-audit', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 14.8);
+      tl.to('#s3-inner', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 17.2);
+
+      // =================== SCENE 4 — 17.2 → 22.4 ===================
+      tl.fromTo('#s4-inner', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 17.2);
+      tl.fromTo('#s4-claim', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 18.06); // beat-locked: 18.56s (settle)
+      tl.to('#s4-claim', { opacity: 0, duration: 0.25, ease: 'power2.inOut' }, 20.45);
+      tl.fromTo('#s4-mark', { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 20.55);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -26,7 +26,7 @@ export function CreateLinkModal({ t, onClose, onCreate }: CreateLinkModalProps) 
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-      <div className="w-full max-w-md rounded-2xl border p-6 shadow-2xl" style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}>
+      <div className="portal-panel w-full max-w-md rounded-2xl border p-6 shadow-2xl" style={{ background: 'var(--ct-surface)', borderColor: 'var(--ct-border)' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-xl">{t('createVerifiedLink')}</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:opacity-70 transition-opacity"><X size={18} /></button>
@@ -57,7 +57,7 @@ export function CreateLinkModal({ t, onClose, onCreate }: CreateLinkModalProps) 
           </div>
         </div>
 
-        <button onClick={() => onCreate(expiry, consent)} className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80" style={{ background: '#000' }}>
+        <button onClick={() => onCreate(expiry, consent)} className="portal-cta w-full py-3 text-sm font-semibold rounded-xl transition-all hover:opacity-80">
           {t('createVerifiedLink')}
         </button>
       </div>

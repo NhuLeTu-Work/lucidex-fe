@@ -43,7 +43,9 @@ export class VietnamMap3DController {
   private yaw = this.DEF_YAW;
   private tilt = this.DEF_TILT;
   private yawShown = this.DEF_YAW;
-  private tiltShown = this.DEF_TILT;
+  private tiltShown = 0; // Starts face-on top-down (0°) and tilts to 30°
+  private userTiltDelta = 0;
+  private shown = 0;
 
   private vy = 0;
   private vt = 0;
@@ -54,7 +56,8 @@ export class VietnamMap3DController {
   private mx = 0;
   private my = 0;
 
-  private isVisible = false;
+  private isSectionNear = false;
+  private needsRender = false;
   private isModelLoaded = false;
   private isModelLoading = false;
   private rafId: number | null = null;
@@ -121,9 +124,8 @@ export class VietnamMap3DController {
     // Intersection Observers for Lazy Loading and Conditional Rendering
     this.setupObservers();
 
-    // Start render loop
-    this.render = this.render.bind(this);
-    this.rafId = requestAnimationFrame(this.render);
+    // Scroll listener for render-on-demand
+    window.addEventListener('scroll', this.onScroll, { passive: true });
   }
 
   private setupScene(): void {
@@ -136,7 +138,8 @@ export class VietnamMap3DController {
       powerPreference: 'high-performance'
     });
 
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Cap pixel ratio at 1.5 for this scene
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -245,11 +248,7 @@ export class VietnamMap3DController {
 
         this.isModelLoaded = true;
         this.isModelLoading = false;
-
-        // Fade in HTML pins after model loads
-        Object.values(this.pins).forEach((pin) => {
-          if (pin) pin.classList.add('is-visible');
-        });
+        this.requestRender();
       },
       undefined,
       (error) => {
@@ -265,6 +264,7 @@ export class VietnamMap3DController {
       this.vy = 0;
       this.vt = 0;
     }
+    this.requestRender();
   };
 
   private onPointerDown = (e: PointerEvent): void => {
@@ -276,6 +276,7 @@ export class VietnamMap3DController {
     this.lastTime = performance.now();
     this.canvas?.setPointerCapture(e.pointerId);
     this.canvas?.classList.add('dragging');
+    this.requestRender();
   };
 
   private onPointerMove = (e: PointerEvent): void => {
@@ -284,7 +285,10 @@ export class VietnamMap3DController {
     this.mx = (e.clientX - rect.left) / rect.width - 0.5;
     this.my = (e.clientY - rect.top) / rect.height - 0.5;
 
-    if (!this.dragging) return;
+    if (!this.dragging) {
+      this.requestRender();
+      return;
+    }
 
     const now = performance.now();
     const dt = Math.max(now - this.lastTime, 1);
@@ -301,24 +305,27 @@ export class VietnamMap3DController {
     const dtilt = e.pointerType === 'touch' ? 0 : dy * 0.3;
 
     this.yaw += dyaw;
-    this.tilt = this.clampTilt(this.tilt + dtilt);
+    this.userTiltDelta = Math.min(Math.max(this.userTiltDelta + dtilt, -30), 50);
 
     if (!this.prefersReducedMotion) {
       this.vy = (dyaw / dt) * 16;
       this.vt = (dtilt / dt) * 16;
     }
+    this.requestRender();
   };
 
   private onEndDrag = (): void => {
     if (!this.dragging) return;
     this.dragging = false;
     this.canvas?.classList.remove('dragging');
+    this.requestRender();
   };
 
   private onStagePointerLeave = (): void => {
     if (!this.dragging) {
       this.mx = 0;
       this.my = 0;
+      this.requestRender();
     }
   };
 
@@ -342,9 +349,10 @@ export class VietnamMap3DController {
     if (delta) {
       e.preventDefault();
       this.yaw += delta[0];
-      this.tilt = this.clampTilt(this.tilt + delta[1]);
+      this.userTiltDelta = Math.min(Math.max(this.userTiltDelta + delta[1], -30), 50);
       this.vy = 0;
       this.vt = 0;
+      this.requestRender();
     }
 
     if (e.key === 'r' || e.key === 'R') {
@@ -380,22 +388,29 @@ export class VietnamMap3DController {
 
   public resetView(): void {
     this.yaw = this.DEF_YAW;
-    this.tilt = this.DEF_TILT;
+    this.userTiltDelta = 0;
     this.vy = 0;
     this.vt = 0;
+    this.requestRender();
   }
 
   private setupObservers(): void {
     if (!this.stage || !this.nationalSection) return;
 
-    // Render only while section is within 200px of viewport
+    // Run loop only while National section is within 200px of viewport
     this.visibilityObserver = new IntersectionObserver(
       (entries) => {
-        this.isVisible = entries[0].isIntersecting;
+        const isNear = entries[0].isIntersecting;
+        this.isSectionNear = isNear;
+        if (isNear) {
+          this.requestRender();
+        } else {
+          this.stopLoop();
+        }
       },
       { rootMargin: '200px' }
     );
-    this.visibilityObserver.observe(this.stage);
+    this.visibilityObserver.observe(this.nationalSection);
 
     // Load GLB lazily when section is about 1 viewport away
     this.loadObserver = new IntersectionObserver(
@@ -429,51 +444,114 @@ export class VietnamMap3DController {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.requestRender();
   }
 
-  private render(t: number): void {
-    this.rafId = requestAnimationFrame(this.render);
+  private startLoop = (): void => {
+    if (this.rafId === null && this.isSectionNear) {
+      this.rafId = requestAnimationFrame(this.render);
+    }
+  };
 
-    if (!this.isVisible || !this.renderer || !this.scene || !this.camera || !this.pivot) {
+  private stopLoop = (): void => {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  };
+
+  private requestRender = (): void => {
+    this.needsRender = true;
+    this.startLoop();
+  };
+
+  private onScroll = (): void => {
+    if (this.isSectionNear) {
+      this.requestRender();
+    }
+  };
+
+  private render = (): void => {
+    this.rafId = null;
+
+    if (!this.isSectionNear || !this.renderer || !this.scene || !this.camera || !this.pivot || !this.nationalSection) {
       return;
     }
 
+    const rect = this.nationalSection.getBoundingClientRect();
+    const ih = window.innerHeight;
+    const isMobile = window.innerWidth < 768;
+    const skipMorph = isMobile || this.prefersReducedMotion;
+
+    let t = 0;
+    if (skipMorph) {
+      // Below 768px or prefers-reduced-motion: skip the morph.
+      // Directly show 3D map at default view once National section is reached (0.95 * ih)
+      t = rect.top <= ih * 0.95 ? 1 : 0;
+      this.shown = t;
+    } else {
+      // Progress: with nationalTop = the National section's top relative to the viewport,
+      // t = clamp((0.95*innerHeight - nationalTop) / (0.95*innerHeight - 0.35*innerHeight), 0, 1)
+      t = Math.min(Math.max((0.95 * ih - rect.top) / (0.60 * ih), 0), 1);
+      this.shown += (t - this.shown) * 0.12;
+    }
+
+    // Smoothstep: e = shown*shown*(3 - 2*shown)
+    const e = skipMorph ? t : this.shown * this.shown * (3 - 2 * this.shown);
+
     // Inertia decay after release
+    let hasInertia = false;
     if (!this.dragging && !this.prefersReducedMotion && (Math.abs(this.vy) > 0.01 || Math.abs(this.vt) > 0.01)) {
       this.yaw += this.vy;
-      this.tilt = this.clampTilt(this.tilt + this.vt);
+      this.userTiltDelta = Math.min(Math.max(this.userTiltDelta + this.vt, -30), 50);
       this.vy *= 0.93;
       this.vt *= 0.93;
+      hasInertia = Math.abs(this.vy) > 0.01 || Math.abs(this.vt) > 0.01;
     }
+
+    // Camera tilt: 0° + 30° * e (measured from straight top-down; at t=0 seen face-on, at t=1 default view)
+    const baseTilt = skipMorph ? this.DEF_TILT : (30 * e);
+    this.tilt = this.clampTilt(baseTilt + this.userTiltDelta);
 
     // Smooth displayed values (lerp 0.35 dragging, 0.12 otherwise)
     const lerpFactor = this.prefersReducedMotion ? 1 : (this.dragging ? 0.35 : 0.12);
+    const prevYawShown = this.yawShown;
+    const prevTiltShown = this.tiltShown;
     this.yawShown += (this.yaw - this.yawShown) * lerpFactor;
     this.tiltShown += (this.tilt - this.tiltShown) * lerpFactor;
 
-    // Camera distance formula: 2.3 * max(1, 0.85 / aspect) so whole country including both archipelagos fits
-    const polar = THREE.MathUtils.degToRad(this.tiltShown);
+    const isAngleMoving = Math.abs(this.yawShown - prevYawShown) > 0.005 || Math.abs(this.tiltShown - prevTiltShown) > 0.005;
+    const isMorphMoving = !skipMorph && Math.abs(t - this.shown) > 0.0005;
+
+    // 3D map terrain relief height: scale.y = max(e, 0.001)
+    // At t=0 completely flat to match 2D outline silhouette; terrain grows out as user scrolls
+    if (this.modelScene) {
+      this.modelScene.scale.set(1, Math.max(e, 0.001), 1);
+    }
+
+    // Camera distance formula with tilt from straight top-down
+    const polar = THREE.MathUtils.degToRad(Math.max(this.tiltShown, 0.001));
     const dist = 2.3 * Math.max(1, 0.85 / this.camera.aspect);
     this.camera.position.set(0, Math.cos(polar) * dist, Math.sin(polar) * dist);
     this.camera.lookAt(0, 0, 0);
 
-    // Entrance animation progress based on section scroll
-    let enter = 1;
-    if (this.nationalSection) {
-      const rect = this.nationalSection.getBoundingClientRect();
-      enter = Math.min(Math.max((window.innerHeight - rect.top) / window.innerHeight, 0), 1);
+    // Canvas opacity = min(shown * 2.4, 1)
+    if (this.canvas) {
+      const canvasOpacity = skipMorph ? (t > 0 ? 1 : 0) : Math.min(this.shown * 2.4, 1);
+      this.canvas.style.opacity = canvasOpacity.toFixed(3);
     }
 
+    // Pins: stay hidden until shown > 0.55
+    const showPins = this.isModelLoaded && (skipMorph ? t > 0 : this.shown > 0.55);
+    Object.values(this.pins).forEach((pin) => {
+      if (pin) pin.classList.toggle('is-visible', showPins);
+    });
+
     const parallax = (this.dragging || this.prefersReducedMotion) ? 0 : 1;
-
-    // Idle motion & entrance ease
-    const extraYaw = this.prefersReducedMotion ? 0 : (1 - enter) * 0.6;
-    this.pivot.rotation.y = THREE.MathUtils.degToRad(this.yawShown) + extraYaw + this.mx * 0.15 * parallax;
+    this.pivot.rotation.y = THREE.MathUtils.degToRad(this.yawShown) + this.mx * 0.15 * parallax;
     this.pivot.rotation.x = this.my * 0.05 * parallax;
-    this.pivot.position.y = this.prefersReducedMotion ? 0 : Math.sin(t / 1400) * 0.012;
-
-    const scaleVal = (this.prefersReducedMotion ? 1.0 : (0.85 + 0.15 * enter)) * 1.25;
-    this.pivot.scale.setScalar(scaleVal);
+    this.pivot.position.y = 0;
+    this.pivot.scale.setScalar(1.25);
 
     this.renderer.render(this.scene, this.camera);
 
@@ -494,7 +572,13 @@ export class VietnamMap3DController {
         }
       }
     }
-  }
+
+    // Render-on-demand: continue animation loop only while values are still updating
+    if (isMorphMoving || isAngleMoving || hasInertia || this.dragging || this.needsRender) {
+      this.needsRender = false;
+      this.startLoop();
+    }
+  };
 
   private static disposeObject(obj: THREE.Object3D): void {
     obj.traverse((child) => {
@@ -517,10 +601,8 @@ export class VietnamMap3DController {
   }
 
   public destroy(): void {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
+    this.stopLoop();
+    window.removeEventListener('scroll', this.onScroll);
 
     if (this.motionQuery) {
       this.motionQuery.removeEventListener('change', this.onMotionPreferenceChange);

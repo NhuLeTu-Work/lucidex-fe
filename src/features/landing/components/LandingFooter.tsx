@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { LANDING_PENDING_LINKS, LANDING_ROUTES } from '../links';
@@ -34,8 +35,46 @@ function PendingLink({ pendingKey, label }: { pendingKey: PendingKey; label: str
 
 /** Site Footer: Edge Minimal with Giant Wordmark */
 export function LandingFooter() {
+  const footerRef = useRef<HTMLElement>(null);
+  const veilRef = useRef<HTMLDivElement>(null);
+  const wordmarkRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateVeilHeight = () => {
+      if (!footerRef.current || !wordmarkRef.current || !veilRef.current) return;
+      const footerRect = footerRef.current.getBoundingClientRect();
+      const wordmarkRect = wordmarkRef.current.getBoundingClientRect();
+      const veilHeight = (wordmarkRect.top - footerRect.top) + wordmarkRect.height * 0.90;
+      veilRef.current.style.height = `${veilHeight}px`;
+    };
+
+    updateVeilHeight();
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && footerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        updateVeilHeight();
+      });
+      resizeObserver.observe(footerRef.current);
+    }
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        updateVeilHeight();
+      });
+    }
+
+    window.addEventListener('resize', updateVeilHeight);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', updateVeilHeight);
+    };
+  }, []);
+
   return (
-    <footer className="site-footer" id="site-footer">
+    <footer className="site-footer" id="site-footer" ref={footerRef}>
+      <div className="footer-veil" ref={veilRef} aria-hidden="true" />
       <nav className="footer-container" aria-label="Footer">
         <div className="footer-grid">
           {/* Col 1: Brand & Tagline */}
@@ -78,13 +117,15 @@ export function LandingFooter() {
           </div>
         </div>
 
-        {/* Giant Wordmark */}
-        <div className="footer-wordmark" aria-hidden="true">LUCIDEX</div>
+        {/* Giant Wordmark & Glow Layer */}
+        <div className="footer-wordmark-wrap" ref={wordmarkRef} aria-hidden="true">
+          <div className="footer-wordmark-glow" aria-hidden="true">LUCIDEX</div>
+          <div className="footer-wordmark">LUCIDEX</div>
+        </div>
 
         {/* Legal Row */}
         <div className="footer-legal">
           <span className="legal-copy">© 2026 Lucidex</span>
-          <span className="legal-origin">Built in Can Tho, Vietnam</span>
         </div>
       </nav>
     </footer>

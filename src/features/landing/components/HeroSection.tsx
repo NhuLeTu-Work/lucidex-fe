@@ -26,20 +26,40 @@ export function HeroSection() {
         </video>
 
         {/* 1. Giant background word: BETWEEN background layer and hero video layer */}
-        <div className="hero-giant-word" aria-hidden="true">LUCIDEX</div>
+        <div className="hero-giant-word-container" aria-hidden="true">
+          <svg
+            id="hero-giant-word-svg"
+            className="hero-giant-word-svg"
+            aria-hidden="true"
+          >
+            <text
+              id="hero-giant-word-text"
+              className="hero-giant-word-text"
+              dominantBaseline="alphabetic"
+            >
+              LUCIDEX
+            </text>
+          </svg>
+          <div className="hero-giant-word hero-giant-word-fallback" aria-hidden="true">LUCIDEX</div>
+        </div>
 
         {/* 3. Hero video layer: hero-video.mp4 (mix-blend-mode: screen) */}
-        <video
-          id="hero-main-video"
-          className="hero-media hero-main-video"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          poster="/landing/hero-video-poster.jpg"
-        >
-          <source src="/landing/hero-video.mp4" type="video/mp4" />
-        </video>
+        <div className="hero-credential-outer hero-media hero-main-video" aria-hidden="true">
+          <div className="hero-credential-shadow" aria-hidden="true" />
+          <div className="hero-credential-float">
+            <video
+              id="hero-main-video"
+              className="hero-media hero-credential-video"
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              poster="/landing/hero-video-poster.jpg"
+            >
+              <source src="/landing/hero-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
       </div>
 
       {/* 4. Content layer */}

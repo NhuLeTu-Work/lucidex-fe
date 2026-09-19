@@ -11,7 +11,7 @@ export function IssuerAnalytics({ t }: IssuerAnalyticsProps) {
       <h1 className="font-display text-2xl mb-6">{t('analytics')}</h1>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
-        <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <h3 className="font-semibold mb-4">{t('verifyTrends')}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={monthlyVerifications}>
@@ -30,7 +30,7 @@ export function IssuerAnalytics({ t }: IssuerAnalyticsProps) {
           </ResponsiveContainer>
         </div>
 
-        <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <h3 className="font-semibold mb-4">{t('topEmployers')}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={topEmployers} layout="vertical">
@@ -44,7 +44,7 @@ export function IssuerAnalytics({ t }: IssuerAnalyticsProps) {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <h3 className="font-semibold mb-4">{t('topMajors')}</h3>
         <div className="grid sm:grid-cols-5 gap-4">
           {topMajors.map((major, idx) => (

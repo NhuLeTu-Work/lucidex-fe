@@ -50,6 +50,10 @@ html.lucidex-landing-active, .lucidex-landing {
 
   --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Hero text dark soft halo */
+  --hero-halo-text: 0 0 2px rgba(2, 6, 15, 0.66), 0 0 14px rgba(2, 6, 15, 0.9), 0 0 32px rgba(2, 6, 15, 0.72), 0 0 60px rgba(2, 6, 15, 0.54);
+  --hero-halo-gradient: drop-shadow(0 0 12px rgba(2, 6, 15, 0.96)) drop-shadow(0 0 28px rgba(2, 6, 15, 0.66));
 }
 
 /* Base Resets */
@@ -255,7 +259,7 @@ html.lucidex-landing-active body {
 
 /* 2. Background layer: lucidex-bg-blue.mp4 (initial opacity: 0, 1.5s cubic-bezier transition) */
 .lucidex-landing .hero-bg-video {
-  z-index: 1;
+  z-index: 2; /* Wave background video above giant word */
   opacity: 0;
   transition: opacity 1.5s cubic-bezier(0.4, 0, 1, 1);
 }
@@ -269,13 +273,61 @@ html.lucidex-landing-active body {
   transition: none !important;
 }
 
-/* 1. Giant background word: BETWEEN background layer and hero video layer */
-.lucidex-landing .hero-giant-word {
+/* 1. Giant background word: Lowest layer in stacking order */
+.lucidex-landing .hero-giant-word-container {
   position: absolute;
   top: 48%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  z-index: 1; /* Giant word stays the lowest */
+  padding-inline: clamp(24px, 5vw, 96px);
+  box-sizing: border-box;
+  pointer-events: none;
+  user-select: none;
+  opacity: 1; /* Giant word opacity increased by 25% (0.8 -> 1.0) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lucidex-landing .hero-giant-word-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
+  visibility: hidden;
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lucidex-landing .hero-giant-word-text {
+  font-family: var(--font-giant);
+  font-size: 120px;
+  letter-spacing: 0.02em;
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: rgba(147, 197, 253, 0.35);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-svg {
+  visibility: visible;
+  position: relative;
+  opacity: 0;
+  animation: lx-giant-word-reveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-fallback {
+  display: none !important;
+}
+
+.lucidex-landing .hero-giant-word-fallback {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
   font-family: var(--font-giant);
   font-size: clamp(96px, 16vw, 260px);
   line-height: 0.9;
@@ -308,12 +360,113 @@ html.lucidex-landing-active body {
   transform: scale(0.8);
   transform-origin: 50% 48%;
   opacity: 1;
+  mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
+  -webkit-mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.lucidex-landing .hero-credential-outer {
+  pointer-events: none;
+}
+
+.lucidex-landing .hero-credential-float {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+  transform-origin: 50% 48%;
+  transform: translateY(0) rotate(0deg);
+  will-change: transform, filter;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .lucidex-landing .hero-credential-float {
+    transform-origin: center 26%;
+  }
+}
+
+.lucidex-landing .hero-credential-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: inherit;
+  display: block;
+}
+
+.lucidex-landing .hero-credential-shadow {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+  transform: translate(-50%, 0) scaleX(1);
+  width: clamp(280px, 38vw, 540px);
+  height: 28px;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.35) 0%, rgba(56, 189, 248, 0) 70%);
+  filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .lucidex-landing .hero-credential-shadow {
+    top: 41%;
+    width: clamp(200px, 60vw, 320px);
+  }
+}
+
+/* Floating animation triggered after video ends */
+.lucidex-landing .hero-credential-outer.is-floating .hero-credential-float {
+  animation: lx-hero-credential-float 6s ease-in-out infinite, lx-hero-credential-glow 3s ease-in-out infinite;
+}
+
+.lucidex-landing .hero-credential-outer.is-floating .hero-credential-shadow {
+  opacity: 1;
+  animation: lx-hero-credential-shadow 6s ease-in-out infinite;
+}
+
+@keyframes lx-hero-credential-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(0.8deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-0.4deg);
+  }
+  75% {
+    transform: translateY(-6px) rotate(-0.8deg);
+  }
+}
+
+@keyframes lx-hero-credential-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.2));
+  }
+}
+
+@keyframes lx-hero-credential-shadow {
+  0%, 100% {
+    transform: translate(-50%, 0) scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, 0) scaleX(0.82);
+    opacity: 0.6;
+  }
 }
 
 /* 4. Content layer: split layout (top-left, bottom-right, center CTAs) */
 .lucidex-landing .hero-content-wrap {
   position: relative;
-  z-index: 5;
+  z-index: 10;
   width: 100%;
   height: 100vh;
   min-height: 100vh;
@@ -323,12 +476,13 @@ html.lucidex-landing-active body {
 /* Top-Left: Vietnamese credentials & localized soft text scrim */
 .lucidex-landing .hero-top-left {
   position: absolute;
-  top: clamp(48px, 9vh, 90px);
+  top: clamp(88px, 12vh, 120px);
   left: 24px;
   max-width: 520px;
   text-align: left;
   pointer-events: auto;
   isolation: isolate;
+  z-index: 10;
 }
 
 .lucidex-landing .hero-top-left::before {
@@ -354,7 +508,7 @@ html.lucidex-landing-active body {
   letter-spacing: -0.02em;
   color: #F8FAFC;
   text-transform: uppercase;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-shadow: var(--hero-halo-text);
 }
 
 /* Thin divider below top headline */
@@ -374,7 +528,7 @@ html.lucidex-landing-active body {
   line-height: 1.6;
   margin: 0;
   max-width: 420px;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
 }
 
 /* Bottom-Right: Trusted worldwide & localized soft text scrim */
@@ -386,6 +540,7 @@ html.lucidex-landing-active body {
   max-width: 520px;
   pointer-events: auto;
   isolation: isolate;
+  z-index: 10;
 }
 
 .lucidex-landing .hero-bottom-right::before {
@@ -405,15 +560,15 @@ html.lucidex-landing-active body {
   letter-spacing: -0.02em;
   color: #F8FAFC;
   text-transform: uppercase;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-shadow: var(--hero-halo-text);
 }
 
 .lucidex-landing .gradient-trusted {
   background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
-  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.35));
+  text-shadow: none; /* Prevent inherited dark text-shadow from occluding transparent text clip */
+  filter: var(--hero-halo-gradient);
   display: inline-block;
 }
 
@@ -423,7 +578,7 @@ html.lucidex-landing-active body {
   left: 50%;
   bottom: clamp(28px, 4.5vh, 44px);
   transform: translateX(-50%);
-  z-index: 6;
+  z-index: 10;
   pointer-events: auto;
   width: auto;
   white-space: nowrap;
@@ -491,7 +646,7 @@ html.lucidex-landing-active body {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #FFFFFF;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
   transition: color var(--transition-fast);
 }
 
@@ -513,7 +668,7 @@ html.lucidex-landing-active body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  z-index: 5;
+  z-index: 10;
   pointer-events: none;
 }
 
@@ -523,7 +678,7 @@ html.lucidex-landing-active body {
   font-weight: 500;
   letter-spacing: 0.3em;
   color: rgba(255, 255, 255, 0.5);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-halo-text);
   text-transform: uppercase;
 }
 
@@ -688,7 +843,6 @@ html.lucidex-landing-active body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1; /* Flies under illustrations (z-index 2) and text (z-index 3) */
   overflow: visible;
 }
 
@@ -700,6 +854,7 @@ html.lucidex-landing-active body {
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  z-index: 1; /* SVG path layer goes BELOW the browser frame (frame z-index: 5) */
 }
 
 .lucidex-landing .flight-path-base {
@@ -726,11 +881,15 @@ html.lucidex-landing-active body {
   width: clamp(64px, 8vw, 128px);
   height: clamp(64px, 8vw, 128px);
   pointer-events: none;
-  z-index: 1;
+  z-index: 1; /* In sections 3-5, flies under illustrations (z-index: 2) and text (z-index: 3) */
   will-change: transform, opacity;
   transform-origin: center center;
   transform: translate3d(-1000px, -1000px, 0);
   filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.45));
+}
+
+.lucidex-landing .flight-plane.is-landing {
+  z-index: 10; /* Plane layer stays ABOVE the browser frame (frame z-index: 5) and video */
 }
 
 .lucidex-landing .flight-plane canvas {
@@ -750,120 +909,7 @@ html.lucidex-landing-active body {
   display: block;
 }
 
-/* ==========================================================================
-   Digital Credential Transformation (Section 6 CTA)
-   ========================================================================== */
-.lucidex-landing .digital-credential {
-  --gap: clamp(32px, 4vw, 56px);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: min(72%, calc(100% - 2 * var(--gap)));
-  max-height: 460px;
-  max-width: calc(100% - 2 * var(--gap));
-  aspect-ratio: 3 / 4;
-  width: auto;
-  pointer-events: none;
-  z-index: 2;
-  transform-origin: center center;
-  transform: translate(-50%, -50%) scale(0.7);
-  opacity: 0;
-  filter: blur(1px);
-  will-change: transform, opacity, filter;
-  transition: filter 0.3s ease;
-}
 
-.lucidex-landing .credential-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  background: rgba(56, 189, 248, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.35), inset 0 0 24px rgba(56, 189, 248, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1.5px solid transparent;
-}
-
-.lucidex-landing .credential-card-inner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  padding: 1.5px;
-  background: linear-gradient(135deg, #38BDF8 0%, #6366F1 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.lucidex-landing .credential-circuit {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.lucidex-landing .credential-badge {
-  position: relative;
-  z-index: 2;
-  width: 88px;
-  height: 88px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lucidex-landing .credential-check-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.7));
-}
-
-.lucidex-landing #credential-check-path {
-  stroke-dasharray: 45;
-  stroke-dashoffset: 45;
-  transition: none;
-}
-
-/* Light flash (radial glow) at t = 0.3 */
-.lucidex-landing .credential-flash {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 440px;
-  height: 440px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 2;
-  transform: translate(-50%, -50%) scale(0.6);
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.95) 0%, rgba(99, 102, 241, 0.5) 45%, rgba(56, 189, 248, 0) 70%);
-  opacity: 0;
-  filter: blur(20px);
-  will-change: opacity, transform;
-}
-
-/* Slow floating animation for resting state (translateY ±6px, 6s) */
-@keyframes lx-credential-float {
-  0%, 100% {
-    transform: translate(-50%, -50%) translateY(-6px) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(6px) scale(1);
-  }
-}
-
-.lucidex-landing .digital-credential.is-resting {
-  opacity: 0.35 !important;
-  filter: blur(1px) !important;
-  animation: lx-credential-float 6s ease-in-out infinite !important;
-}
 
 /* ==========================================================================
    SECTIONS 3, 4, 5: Visually Parallel Role Flow (Issuer → Owner → Verifier)
@@ -1083,14 +1129,15 @@ html.lucidex-landing-active body {
 }
 
 /* ==========================================================================
-   SECTION 6: Nationwide
+   SECTION 6: Product Demo Video Section
    ========================================================================== */
-.lucidex-landing .nationwide-section {
-  height: 100vh;
-  height: 100svh;
-  padding: calc(var(--site-header-height, 60px) + 16px) 0 clamp(16px, 2.5vh, 32px) 0;
+.lucidex-landing .demo-section {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(14px, 2.5vh, 32px) 5vw;
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -1099,98 +1146,159 @@ html.lucidex-landing-active body {
   overflow: visible;
 }
 
-.lucidex-landing .nationwide-section .container {
+.lucidex-landing .demo-section-container {
   width: 100%;
-  max-height: 100%;
+  max-width: min(1000px, calc((100svh - 260px) * 16 / 9));
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-.lucidex-landing .nationwide-card {
-  position: relative;
-  border-radius: 28px;
-  padding: clamp(20px, 3vh, 44px) clamp(20px, 3.5vw, 48px);
+  align-items: center;
   text-align: center;
-  overflow: visible;
-  max-height: 100%;
-  box-sizing: border-box;
 }
 
-.lucidex-landing .nationwide-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: linear-gradient(135deg, rgba(16, 26, 49, 0.94) 0%, rgba(9, 14, 28, 0.98) 100%);
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8), var(--shadow-blue-glow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 0; /* Card background sits at z-index 0 */
-  pointer-events: none;
-}
-
-.lucidex-landing .nationwide-card::after {
-  content: '';
-  position: absolute;
-  top: -150px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.lucidex-landing .nationwide-content {
-  position: relative;
-  z-index: 3; /* CTA content wrapper sits at z-index 3 */
-}
-
-.lucidex-landing .nationwide-title {
+.lucidex-landing .demo-section-heading {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #fff;
-  margin-bottom: clamp(16px, 3vh, 32px);
+  margin-bottom: clamp(12px, 2vh, 22px);
+  text-align: center;
 }
 
-.lucidex-landing .nationwide-points {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(14px, 1.8vw, 24px);
-  max-width: 1000px;
-  margin: 0 auto clamp(20px, 3vh, 36px) auto;
-  text-align: left;
+.lucidex-landing .demo-gradient-text {
+  background: linear-gradient(90deg, #38BDF8, #6366F1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
 }
 
-.lucidex-landing .nationwide-cta-wrap {
+/* Browser-style Frame */
+.lucidex-landing .demo-browser-frame {
+  width: 100%;
+  max-width: min(1000px, calc((100svh - 260px) * 16 / 9));
+  margin-inline: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: relative;
+  z-index: 5; /* Layering: SVG path layer (z-index 1) sits below frame; plane (z-index 10) sits above */
+  transition: border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+.lucidex-landing .demo-browser-frame.is-active {
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(56, 189, 248, 0.35), inset 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* Top chrome bar */
+.lucidex-landing .demo-chrome-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: #0c111e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.lucidex-landing .demo-chrome-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.lucidex-landing .demo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2a3550;
+  display: inline-block;
+}
+
+/* Screen area: 16/9 aspect ratio */
+.lucidex-landing .demo-screen-area {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Fallback placeholder text of the opening scene */
+.lucidex-landing .demo-screen-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 46%, #0b1329 0%, #030611 100%);
+  padding: 24px;
+  z-index: 0;
+  user-select: none;
+}
+
+.lucidex-landing .demo-placeholder-text {
+  font-family: var(--font-display, var(--font-sans));
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.lucidex-landing .demo-placeholder-sub {
+  font-family: var(--font-sans);
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+}
+
+/* Video element */
+.lucidex-landing .demo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 1;
+}
+
+/* Ripple Canvas */
+.lucidex-landing .demo-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+  z-index: 2;
+}
+
+/* Get started button wrap */
+.lucidex-landing .demo-cta-wrap {
+  margin-top: clamp(14px, 2vh, 22px);
   display: flex;
   justify-content: center;
 }
 
-.lucidex-landing .nationwide-point {
-  background: #0c1324;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  padding: clamp(16px, 2.2vh, 24px) clamp(16px, 1.8vw, 22px);
-  transition: all var(--transition-smooth);
-}
-
-.lucidex-landing .nationwide-point:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  transform: translateY(-3px);
-  background: #101930;
-}
-
-.lucidex-landing .nationwide-point-text {
-  font-size: 1rem;
-  color: #E2E8F0;
-  line-height: 1.6;
-  font-weight: 500;
+@media (max-width: 760px) {
+  .lucidex-landing .demo-section {
+    min-height: auto;
+    height: auto;
+    padding: 36px 5vw 44px;
+  }
+  .lucidex-landing .demo-section-container,
+  .lucidex-landing .demo-browser-frame {
+    max-width: 100%;
+  }
 }
 
 /* ==========================================================================
@@ -1215,13 +1323,16 @@ html.lucidex-landing-active body {
   .lucidex-landing .hero-main-video {
     object-position: center 26%;
     transform-origin: center 26%;
+    mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
   }
 
-  .lucidex-landing .hero-giant-word {
-    font-size: 20vw;
+  .lucidex-landing .hero-giant-word-container {
     top: 26%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  }
+
+  .lucidex-landing .hero-giant-word-fallback {
+    font-size: 20vw;
   }
 
   .lucidex-landing .hero-top-left::before,
@@ -1244,7 +1355,7 @@ html.lucidex-landing-active body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: clamp(24px, 5vh, 40px);
+    padding-top: calc(var(--site-header-height, 60px) + 28px);
     padding-bottom: clamp(24px, 4vh, 36px);
     pointer-events: none;
   }
@@ -1380,8 +1491,20 @@ html.lucidex-landing-active body {
     animation: none !important;
   }
 
+  .lucidex-landing .hero-credential-float {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .lucidex-landing .hero-credential-shadow {
+    animation: none !important;
+    display: none !important;
+  }
+
   /* Giant word: no reveal or letter-spacing animation, show immediately */
-  .lucidex-landing .hero-giant-word {
+  .lucidex-landing .hero-giant-word-container.is-svg-fitted .hero-giant-word-svg,
+  .lucidex-landing .hero-giant-word-fallback {
     opacity: 1 !important;
     letter-spacing: 0.02em !important;
     animation: none !important;
@@ -1458,7 +1581,7 @@ html.lucidex-landing-active body {
   display: grid;
   place-items: center;
   transition: opacity 0.6s ease;
-  opacity: 0.54;
+  opacity: 0.432;
 }
 
 .lucidex-landing #mapLayer svg {
@@ -1715,7 +1838,7 @@ html.lucidex-landing-active body {
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(1080px, calc(100vw - 32px));
+  width: min(840px, calc(100vw - 32px));
   max-width: calc(100vw - 32px);
   z-index: 1000;
   pointer-events: none;
@@ -1723,7 +1846,7 @@ html.lucidex-landing-active body {
 }
 
 .lucidex-landing .site-header.is-shrunk {
-  width: min(760px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 32px));
   top: 10px;
 }
 
@@ -1944,11 +2067,28 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
    ========================================================================== */
 .lucidex-landing .site-footer {
   width: 100%;
-  padding: 80px clamp(20px, 5vw, 72px) 0;
+  padding: 52px clamp(20px, 5vw, 72px) 0;
   overflow: hidden;
   background: transparent;
   position: relative;
   z-index: 2;
+}
+
+.lucidex-landing .footer-veil {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    #070d1c 0%,
+    #070d1c 74%,
+    rgba(7, 13, 28, 0.85) 85.7%,
+    rgba(7, 13, 28, 0.45) 93.5%,
+    rgba(7, 13, 28, 0) 100%
+  );
 }
 
 .lucidex-landing .footer-container {
@@ -1962,6 +2102,8 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: 32px;
   align-items: flex-start;
+  position: relative;
+  z-index: 2;
 }
 
 .lucidex-landing .footer-col-brand {
@@ -2033,6 +2175,13 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   color: #ffffff;
 }
 
+.lucidex-landing .footer-wordmark-wrap {
+  position: relative;
+  width: 100%;
+  margin-top: 28px;
+  z-index: 0;
+}
+
 .lucidex-landing .footer-wordmark {
   font-family: 'Inter', sans-serif;
   font-weight: 900;
@@ -2040,7 +2189,6 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   line-height: 0.78;
   letter-spacing: -0.04em;
   text-align: center;
-  margin-top: 64px;
   color: transparent;
   -webkit-text-stroke: 1px rgba(147, 197, 253, 0.35);
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.18) 0%, transparent 85%);
@@ -2051,17 +2199,45 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   pointer-events: none;
   white-space: nowrap;
   width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.lucidex-landing .footer-wordmark-glow {
+  position: absolute;
+  inset: 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(80px, 19vw, 320px);
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 0;
+  background: none;
+  -webkit-text-stroke: 0;
+  color: rgba(120, 190, 255, 0.20);
+  -webkit-text-fill-color: rgba(120, 190, 255, 0.20);
+  filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 63%, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 63%, transparent 90%);
 }
 
 .lucidex-landing .footer-legal {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 18px 0 22px;
+  padding: 14px 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   color: rgba(241, 245, 251, 0.5);
+  position: relative;
+  z-index: 2;
 }
 
 @media (max-width: 819px) {
@@ -2118,15 +2294,23 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   font-weight: 500;
   font-size: 14px;
   color: rgba(241, 245, 251, 0.66);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 9px 16px;
+  border-radius: 999px;
   text-decoration: none;
   text-transform: none;
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
   position: relative;
 }
 
-.lucidex-landing .nav-auth-link:hover {
-  color: #ffffff;
+.lucidex-landing .nav-auth-link:hover,
+.lucidex-landing .nav-auth-link:focus-visible {
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.28), rgba(99, 102, 241, 0.28));
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.28);
 }
 
 /* The pill shrinks to 760px past 80px of scroll. That was sized for brand +
@@ -2135,7 +2319,7 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
    (it is still in the mobile dropdown), which keeps the pill from overflowing
    between the 820px mobile breakpoint and here. */
 .lucidex-landing .site-header.is-shrunk {
-  width: min(900px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 32px));
 }
 
 @media (max-width: 999px) {

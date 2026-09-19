@@ -1,5 +1,6 @@
 import { useApp } from '../app/AppContext';
 import { useVerifierPortal } from '../hooks/verifier/userVerifierPortal';
+import { PortalWatermark } from '../components/app/PortalWatermark';
 import { VerifierSidebarDesktop, VerifierSidebarMobile } from '../components/verifier/VerifierSidebar';
 import { VerifierDashboard } from '../components/verifier/VerifierDashboard';
 import { VerifierVerify } from '../components/verifier/VerifierVerify';
@@ -33,7 +34,9 @@ export function VerifierPortal() {
         userProfile={userProfile}
       />
 
-      <main className="flex-1 p-6 lg:p-10 overflow-auto">
+      <main className="relative isolate flex-1 p-6 lg:p-10 overflow-hidden">
+        <PortalWatermark role="verifier" />
+
         <VerifierSidebarMobile 
           activeTab={activeTab} setActiveTab={setActiveTab} 
           quotaUsed={quotaUsed} t={t} 

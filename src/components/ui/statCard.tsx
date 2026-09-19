@@ -18,7 +18,7 @@ export function StatCard({ label, value, icon, badge, onClick, isLegacyStyle = f
   return (
     <button 
       onClick={onClick} 
-      className="p-5 rounded-2xl border text-left transition-all hover:scale-[1.02] group relative" 
+      className="portal-panel p-5 rounded-2xl border text-left transition-all hover:scale-[1.02] group relative" 
       style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}
     >
       {/* Logic hiển thị badge của File 1 */}

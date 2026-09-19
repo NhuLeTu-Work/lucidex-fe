@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, Users, LogOut, LayoutDashboard } from 'lucide-react';
+import { Sun, Moon, Globe, GraduationCap, Building2, ShieldCheck, LogOut } from 'lucide-react';
 import { useApp } from '../../app/AppContext';
+import { ROLE_IDENTITY } from './roleIdentity';
 
 export function Header() {
   const { role, t, lang, setLang, theme, toggleTheme, logout} = useApp();
@@ -15,7 +16,7 @@ export function Header() {
             alt="Lucidex" 
             className="h-8 w-8 transition-all" 
           />
-          <span className="font-display text-xl tracking-tight">Lucidex</span>
+          <span className="font-display text-xl tracking-tight brand-wordmark">Lucidex</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -26,9 +27,9 @@ export function Header() {
               <NavBtn icon={<ShieldCheck size={16} />} label={t('verify') || 'Xác thực'} to="/verify" />
             </>
           )}
-          {role === 'owner' && <PortalBadge icon={<GraduationCap size={14} />} label={t('OwnerPortal') || 'Cổng Sinh viên'} />}
-          {role === 'issuer' && <PortalBadge icon={<Building2 size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
-          {role === 'verifier' && <PortalBadge icon={<Users size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
+          {role === 'owner' && <PortalBadge icon={<ROLE_IDENTITY.owner.Icon size={14} />} label={t('OwnerPortal') || 'Cổng Sinh viên'} />}
+          {role === 'issuer' && <PortalBadge icon={<ROLE_IDENTITY.issuer.Icon size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
+          {role === 'verifier' && <PortalBadge icon={<ROLE_IDENTITY.verifier.Icon size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
           {role === 'admin' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('adminPortal') || 'Quản trị hệ thống'} />}
           {role === 'super' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('superAdminPortal') || 'Quản trị hệ thống cấp cao'} />}
         </nav>
@@ -50,16 +51,6 @@ export function Header() {
               </>
             ) : (
               <>
-                {/* NÚT QUAY LẠI PORTAL */}
-                <Link 
-                  to={`/${role}`} 
-                  className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95" 
-                  style={{ borderColor: 'var(--ct-border)' }}
-                  title={t('goToPortal') || 'Về trang chủ Portal'}
-                >
-                  <LayoutDashboard size={16} />
-                </Link>
-
                 {/* NÚT ĐĂNG XUẤT */}
                 <button onClick={logout} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 active:scale-95" style={{ borderColor: 'var(--ct-border)' }}>
                   <LogOut size={14} /> <span className="hidden sm:inline">{t('logout') || 'Đăng xuất'}</span>
@@ -83,7 +74,7 @@ function NavBtn({ icon, label, to }: { icon: React.ReactNode; label: string; to:
 
 function PortalBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <div className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full" style={{ background: 'var(--ct-accent-blue)', color: 'var(--ct-text)' }}>
+    <div className="portal-pill flex items-center gap-2 px-4 py-1.5 text-sm font-semibold">
       {icon}{label}
     </div>
   );

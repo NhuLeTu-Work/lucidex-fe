@@ -6,39 +6,39 @@
 
 @layer base {
   :root {
-    --background: 0 0% 97.6%;
-    --foreground: 0 0% 0%;
+    --background: 220 50% 98%;
+    --foreground: 220 49% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 220 49% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;
+    --popover-foreground: 220 49% 8%;
+    --primary: 220 49% 8%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 95%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 0 0% 95%;
-    --accent-foreground: 0 0% 0%;
+    --secondary: 216 50% 96%;
+    --secondary-foreground: 220 49% 8%;
+    --muted: 216 50% 96%;
+    --muted-foreground: 220 16% 46%;
+    --accent: 216 50% 96%;
+    --accent-foreground: 220 49% 8%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 0%;
+    --border: 220 18% 91%;
+    --input: 220 18% 91%;
+    --ring: 220 49% 8%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 25%;
-    --sidebar-primary: 0 0% 0%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 30%;
+    --sidebar-primary: 220 49% 8%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 0%;
-    --ct-bg: #f9f9f9;
+    --sidebar-accent: 216 50% 96%;
+    --sidebar-accent-foreground: 220 49% 8%;
+    --sidebar-border: 220 18% 91%;
+    --sidebar-ring: 220 49% 8%;
+    --ct-bg: #f6f8fc;
     --ct-surface: #ffffff;
-    --ct-text: #000000;
-    --ct-text-secondary: #666666;
-    --ct-border: #e5e5e5;
+    --ct-text: #0b1220;
+    --ct-text-secondary: #5b6577;
+    --ct-border: #dee1e7;
     --ct-accent-blue: #eef2ff;
     --ct-accent-green: #f0fdf4;
     --ct-accent-red: #fef2f2;
@@ -46,38 +46,38 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 97.6%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 97.6%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 97.6%;
-    --primary: 0 0% 97.6%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 97.6%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 10%;
-    --accent-foreground: 0 0% 97.6%;
+    --background: 223 60% 7%;
+    --foreground: 216 56% 96%;
+    --card: 223 54% 10%;
+    --card-foreground: 216 56% 96%;
+    --popover: 223 54% 10%;
+    --popover-foreground: 216 56% 96%;
+    --primary: 216 56% 96%;
+    --primary-foreground: 223 60% 7%;
+    --secondary: 222 52% 14%;
+    --secondary-foreground: 216 56% 96%;
+    --muted: 222 52% 14%;
+    --muted-foreground: 216 20% 65%;
+    --accent: 222 52% 14%;
+    --accent-foreground: 216 56% 96%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 80%;
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 0 0% 80%;
-    --ct-bg: #000000;
-    --ct-surface: #0a0a0a;
-    --ct-text: #f9f9f9;
-    --ct-text-secondary: #999999;
-    --ct-border: #333333;
+    --border: 221 33% 20%;
+    --input: 221 33% 20%;
+    --ring: 216 30% 70%;
+    --sidebar-background: 223 54% 10%;
+    --sidebar-foreground: 216 25% 78%;
+    --sidebar-primary: 216 56% 96%;
+    --sidebar-primary-foreground: 223 60% 7%;
+    --sidebar-accent: 222 52% 14%;
+    --sidebar-accent-foreground: 216 56% 96%;
+    --sidebar-border: 221 33% 20%;
+    --sidebar-ring: 216 30% 70%;
+    --ct-bg: #070d1c;
+    --ct-surface: #0c1428;
+    --ct-text: #f1f5fb;
+    --ct-text-secondary: #959ba7;
+    --ct-border: #22293b;
     --ct-accent-blue: #111827;
     --ct-accent-green: #051a0f;
     --ct-accent-red: #1a0505;
@@ -188,4 +188,178 @@
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background: var(--ct-border);
   border-radius: 3px;
+}
+/* ==========================================================================
+   Portal identity — one accent pair drives every role-coloured surface.
+   The role is published as [data-portal-role] on the app layout root; the
+   value comes from the existing AppContext `role`. Nothing here changes
+   behaviour, only appearance.
+   ========================================================================== */
+
+:root {
+  /* brand gradient, shared with the landing page — never role-tinted */
+  --brand-a: #38bdf8;
+  --brand-b: #6366f1;
+
+  /* role accents */
+  --role-issuer: #38bdf8;
+  --role-issuer-2: #0ea5e9;
+  --role-owner: #a78bfa;
+  --role-owner-2: #7c3aed;
+  --role-verifier: #2dd4bf;
+  --role-verifier-2: #14b8a6;
+
+  /* default accent = brand, so guest / admin / super never render undefined */
+  --portal-accent: var(--brand-a);
+  --portal-accent-2: var(--brand-b);
+
+  /* shell radii, aligned with the landing page */
+  --portal-r-nav: 11px;
+  --portal-r-card: 14px;
+  --portal-r-panel: 16px;
+  --portal-r-pill: 99px;
+}
+
+[data-portal-role='issuer'] {
+  --portal-accent: var(--role-issuer);
+  --portal-accent-2: var(--role-issuer-2);
+}
+[data-portal-role='owner'] {
+  --portal-accent: var(--role-owner);
+  --portal-accent-2: var(--role-owner-2);
+}
+[data-portal-role='verifier'] {
+  --portal-accent: var(--role-verifier);
+  --portal-accent-2: var(--role-verifier-2);
+}
+
+.portal-accent-gradient {
+  background-image: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+}
+
+/* Lucidex wordmark — takes the accent of the portal it sits in. Outside the
+   three portals --portal-accent falls back to the brand pair, so the landing
+   page and the admin / super shells keep the original brand gradient. */
+.brand-wordmark {
+  background-image: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* avatar disc */
+.portal-avatar {
+  background-image: linear-gradient(135deg, var(--portal-accent), var(--portal-accent-2));
+}
+
+/* sidebar nav items */
+.portal-navitem {
+  border-radius: var(--portal-r-nav);
+  color: var(--ct-text-secondary);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.portal-navitem:hover {
+  background: var(--ct-bg);
+  color: var(--ct-text);
+}
+/* mobile nav chips keep the surface fill when inactive */
+.portal-navitem--chip {
+  background: var(--ct-surface);
+}
+.portal-navitem.is-active,
+.portal-navitem.is-active:hover {
+  color: #fff;
+  background: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--portal-accent) 30%, transparent);
+}
+
+/* header portal pill */
+.portal-pill {
+  border-radius: var(--portal-r-pill);
+  color: var(--portal-accent);
+  background: color-mix(in srgb, var(--portal-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--portal-accent) 38%, transparent);
+}
+
+/* back to landing */
+.portal-backlink {
+  color: var(--ct-text-secondary);
+  transition: color 0.18s ease;
+}
+.portal-backlink:hover {
+  color: var(--portal-accent);
+}
+
+/* primary call to action */
+.portal-cta {
+  color: #fff;
+  background: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--portal-accent) 28%, transparent);
+}
+
+/* quota bar fill */
+.portal-quota-fill {
+  background: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+}
+
+/* content panels — accent hairline along the top edge */
+.portal-panel {
+  position: relative;
+}
+.portal-panel::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 0;
+  height: 2px;
+  border-radius: 2px;
+  /* Eased in at BOTH ends: the rail used to start at full accent on its first
+     pixel, which read as a broken-off line. It now ramps up over the first
+     ~22% and tapers out, so neither end has a hard edge. */
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--portal-accent) 40%, transparent) 8%,
+    var(--portal-accent) 22%,
+    color-mix(in srgb, var(--portal-accent) 55%, transparent) 55%,
+    transparent 95%
+  );
+  pointer-events: none;
+}
+
+/* large role watermark in the content area */
+.portal-watermark {
+  position: absolute;
+  right: -40px;
+  bottom: -60px;
+  width: 380px;
+  height: 380px;
+  opacity: 0.05;
+  color: var(--portal-accent);
+  pointer-events: none;
+  /* Behind everything in the content area. At z-index 0 it still painted over
+     the non-positioned panels; -1 puts it under them, and the `isolate` on the
+     <main> keeps it from sinking behind the page background. */
+  z-index: -1;
+}
+.portal-watermark > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* accent focus rings + accent primary shadcn buttons inside a portal */
+[data-portal-role='issuer'] :focus-visible,
+[data-portal-role='owner'] :focus-visible,
+[data-portal-role='verifier'] :focus-visible {
+  outline: 2px solid var(--portal-accent);
+  outline-offset: 2px;
+}
+[data-portal-role='issuer'] [data-slot='button'][data-variant='default'],
+[data-portal-role='owner'] [data-slot='button'][data-variant='default'],
+[data-portal-role='verifier'] [data-slot='button'][data-variant='default'] {
+  color: #fff;
+  background: linear-gradient(90deg, var(--portal-accent), var(--portal-accent-2));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--portal-accent) 26%, transparent);
 }

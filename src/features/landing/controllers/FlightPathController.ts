@@ -3,14 +3,288 @@ import type { Plane3DController } from './plane3d/mountPlane3D';
 import { monotonicCatmullRomToBezier } from './geometry';
 import type { PathSample, Point } from './geometry';
 
+const VS_SOURCE = `
+attribute vec2 position;
+varying vec2 uv;
+void main() {
+  uv = vec2(position.x * 0.5 + 0.5, 1.0 - (position.y * 0.5 + 0.5));
+  gl_Position = vec4(position, 0.0, 1.0);
+}
+`;
+
+const FS_SOURCE = `
+precision highp float; varying vec2 uv; uniform sampler2D tex;
+uniform vec2 center; uniform float time; uniform float aspect; uniform float amp; uniform float speed;
+void main(){
+  vec2 d=uv-center; d.x*=aspect; float r=length(d);
+  float front=time*0.62; float ring=r-front;
+  float wave=sin(ring*speed*2.4)*exp(-abs(ring)*11.0)*exp(-time*0.55);
+  float fall=smoothstep(0.0,0.035,r);
+  vec2 dir=r>0.0001?normalize(d):vec2(0.0);
+  vec2 off=dir*wave*amp*0.06*fall;
+  vec2 s=uv+vec2(off.x/aspect,off.y);
+  vec3 col=texture2D(tex,clamp(s,0.001,0.999)).rgb;
+  col+=vec3(0.35,0.65,1.0)*max(wave,0.0)*1.5;
+  float reveal=smoothstep(front+0.012,front-0.012,r);
+  gl_FragColor=vec4(col*reveal,reveal);
+}
+`;
+
+function easeInOutCubic(x: number): number {
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.warn('Shader compilation failed:', gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
+}
+
+function createProgram(gl: WebGLRenderingContext, vsSrc: string, fsSrc: string): WebGLProgram | null {
+  const vs = createShader(gl, gl.VERTEX_SHADER, vsSrc);
+  const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+  if (!vs || !fs) return null;
+  const program = gl.createProgram();
+  if (!program) return null;
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.warn('Program linking failed:', gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+    return null;
+  }
+  return program;
+}
+
 /**
- * Controller for scroll-driven flight path connecting Section 3 -> 4 -> 5 -> 6 (CTA)
+ * Owns the WebGL ripple reveal effect for the product demo video section
+ */
+class VideoRippleReveal {
+  private canvas: HTMLCanvasElement;
+  private video: HTMLVideoElement;
+  private frame: HTMLElement | null;
+  private screenArea: HTMLElement;
+  private gl: WebGLRenderingContext | null = null;
+  private program: WebGLProgram | null = null;
+  private texture: WebGLTexture | null = null;
+  private buffer: WebGLBuffer | null = null;
+  private centerLoc: WebGLUniformLocation | null = null;
+  private timeLoc: WebGLUniformLocation | null = null;
+  private aspectLoc: WebGLUniformLocation | null = null;
+  private ampLoc: WebGLUniformLocation | null = null;
+  private speedLoc: WebGLUniformLocation | null = null;
+  private texLoc: WebGLUniformLocation | null = null;
+
+  private startTime = 0;
+  private rafId: number | null = null;
+  private isRunning = false;
+  private isCompleted = false;
+  private isInView = true;
+  private isDestroyed = false;
+
+  constructor(screenArea: HTMLElement) {
+    this.screenArea = screenArea;
+    this.canvas = screenArea.querySelector<HTMLCanvasElement>('#demo-ripple-canvas')!;
+    this.video = screenArea.querySelector<HTMLVideoElement>('#demo-verify-video')!;
+    this.frame = screenArea.closest<HTMLElement>('#demo-browser-frame');
+
+    if (!this.canvas || !this.video) return;
+
+    this.initGL();
+  }
+
+  private initGL(): void {
+    try {
+      this.gl = (this.canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true }) ||
+        this.canvas.getContext('experimental-webgl', { alpha: true, premultipliedAlpha: true })) as WebGLRenderingContext | null;
+    } catch {
+      this.gl = null;
+    }
+
+    if (!this.gl) return;
+
+    const gl = this.gl;
+    this.program = createProgram(gl, VS_SOURCE, FS_SOURCE);
+    if (!this.program) {
+      this.gl = null;
+      return;
+    }
+
+    this.centerLoc = gl.getUniformLocation(this.program, 'center');
+    this.timeLoc = gl.getUniformLocation(this.program, 'time');
+    this.aspectLoc = gl.getUniformLocation(this.program, 'aspect');
+    this.ampLoc = gl.getUniformLocation(this.program, 'amp');
+    this.speedLoc = gl.getUniformLocation(this.program, 'speed');
+    this.texLoc = gl.getUniformLocation(this.program, 'tex');
+
+    // Full-screen triangle covering [-1, 1] clip space
+    this.buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1.0, -1.0, 3.0, -1.0, -1.0, 3.0]),
+      gl.STATIC_DRAW
+    );
+
+    const posAttr = gl.getAttribLocation(this.program, 'position');
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    // Texture for video frames
+    this.texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
+  }
+
+  public setInView(inView: boolean): void {
+    this.isInView = inView;
+    if (inView && this.isRunning && !this.isCompleted && this.rafId === null) {
+      this.loop();
+    }
+  }
+
+  public start(): void {
+    if (this.isDestroyed) return;
+
+    // Fallback: No WebGL support
+    if (!this.gl || !this.program) {
+      this.isCompleted = true;
+      this.canvas.style.display = 'none';
+      this.video.style.transition = 'opacity 0.5s ease';
+      this.video.style.opacity = '1';
+      this.video.play().catch(() => {});
+      this.frame?.classList.add('is-active');
+      return;
+    }
+
+    this.isRunning = true;
+    this.isCompleted = false;
+    this.canvas.style.display = 'block';
+    this.video.style.opacity = '0';
+    this.video.style.transition = '';
+
+    // Play video and light up frame border (0.8s transition)
+    this.video.play().catch(() => {});
+    this.frame?.classList.add('is-active');
+
+    this.startTime = performance.now();
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.loop();
+  }
+
+  private loop = (): void => {
+    if (this.isDestroyed || !this.isRunning || !this.gl || !this.program) return;
+
+    if (!this.isInView) {
+      this.rafId = null;
+      return;
+    }
+
+    const elapsed = (performance.now() - this.startTime) / 1000;
+
+    // After 2.6s: hide canvas, show plain video at opacity 1, stop render loop
+    if (elapsed >= 2.6) {
+      this.isRunning = false;
+      this.isCompleted = true;
+      this.rafId = null;
+      this.canvas.style.display = 'none';
+      this.video.style.opacity = '1';
+      return;
+    }
+
+    const gl = this.gl;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(this.screenArea.clientWidth * dpr);
+    const h = Math.round(this.screenArea.clientHeight * dpr);
+
+    if (this.canvas.width !== w || this.canvas.height !== h) {
+      this.canvas.width = w;
+      this.canvas.height = h;
+    }
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+
+    // Upload current video frame to texture
+    if (this.video.readyState >= 2) {
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.video);
+    }
+
+    gl.useProgram(this.program);
+    gl.uniform2f(this.centerLoc, 0.5, 0.46);
+    gl.uniform1f(this.timeLoc, elapsed);
+    gl.uniform1f(this.aspectLoc, this.canvas.width / Math.max(1, this.canvas.height));
+    gl.uniform1f(this.ampLoc, 1.0);
+    gl.uniform1f(this.speedLoc, 12.0);
+    gl.uniform1i(this.texLoc, 0);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    this.rafId = requestAnimationFrame(this.loop);
+  };
+
+  public reset(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.isRunning = false;
+    this.isCompleted = false;
+
+    this.canvas.style.display = 'none';
+    this.video.pause();
+    this.video.currentTime = 0;
+    this.video.style.opacity = '0';
+    this.video.style.transition = '';
+    this.frame?.classList.remove('is-active');
+  }
+
+  public destroy(): void {
+    this.isDestroyed = true;
+    this.reset();
+
+    if (this.gl) {
+      if (this.buffer) this.gl.deleteBuffer(this.buffer);
+      if (this.texture) this.gl.deleteTexture(this.texture);
+      if (this.program) this.gl.deleteProgram(this.program);
+      this.gl.getExtension('WEBGL_lose_context')?.loseContext();
+      this.gl = null;
+    }
+    this.program = null;
+    this.texture = null;
+    this.buffer = null;
+  }
+}
+
+/**
+ * Controller for scroll-driven flight path connecting Section 3 -> 4 -> 5 -> 6 (Demo Video)
  * Features:
- * - Plane strictly anchored to viewport horizontal center line (50% innerHeight)
- * - Binary search lookup table (~600 points) with no position lerp
- * - Monotonic Catmull-Rom spline
- * - Flying behind illustrations and text
- * - Digital credential transformation at Section 6 CTA card over 30vh scroll
+ * - Plane strictly anchored to viewport horizontal center line during Sections 3-5
+ * - Binary search lookup table (~600 points) with monotonic Catmull-Rom spline
+ * - Flying behind illustrations and text in sections 3-5 (z-index 1)
+ * - Self-contained landing animation triggered at 60% section visibility (threshold 0.6)
+ * - Path revealed stroke stops at browser frame top minus 40px and fades out over last 120px
+ * - Layering: SVG path layer goes BELOW the browser frame (frame z-index 5, path z-index 1)
+ * - Plane layer stays ABOVE the frame (z-index 10) during landing
+ * - Triggers WebGL water ripple reveal on arrival
  */
 export class FlightPathController {
   private wrapper: HTMLElement | null = null;
@@ -18,9 +292,6 @@ export class FlightPathController {
   private basePath: SVGPathElement | null = null;
   private revealPath: SVGPathElement | null = null;
   private plane: HTMLElement | null = null;
-  private flash: HTMLElement | null = null;
-  private credential: HTMLElement | null = null;
-  private checkPath: SVGPathElement | null = null;
   private plane3D: Plane3DController | null = null;
   private maskLinear: SVGLinearGradientElement | null = null;
   private maskHole: SVGCircleElement | null = null;
@@ -28,26 +299,27 @@ export class FlightPathController {
   private maskStop2: SVGStopElement | null = null;
 
   private totalLength = 0;
+  private maxStrokeLength = 0;
   private lookupTable: PathSample[] = [];
   private currentHeadingDeg = 0;
+  private currentPlaneLength = 0;
   private hasInitializedHeading = false;
   private isRafScheduled = false;
   private prefersReducedMotion = false;
   private debouncedResizeRaf: number | null = null;
 
-  // Plane-to-credential transformation state
-  private targetT = 0;
-  private displayT = 0;
-  private lastPathPosition: { x: number; y: number; s: number } | null = null;
-  private isAnimatingFallback = false;
-  private cardObserver: IntersectionObserver | null = null;
+  // Landing & Ripple Reveal state
+  private rippleReveal: VideoRippleReveal | null = null;
+  private landingState: 'scroll_driven' | 'animating' | 'holding' | 'revealed' = 'scroll_driven';
+  private hasTriggeredLanding = false;
+  private landingAnimRafId: number | null = null;
+  private tapTimer: number | null = null;
+  private sectionObserver: IntersectionObserver | null = null;
 
-  // Teardown bookkeeping. The standalone page never unmounted, so none of this
-  // existed there; inside the SPA every one of these has to be releasable.
+  // Teardown bookkeeping
   private readonly root: HTMLElement;
   private resizeObserver: ResizeObserver | null = null;
   private rafId: number | null = null;
-  private fallbackRafId: number | null = null;
   private pendingLoadListeners: Array<() => void> = [];
   private isDestroyed = false;
 
@@ -58,17 +330,14 @@ export class FlightPathController {
     this.basePath = root.querySelector<SVGPathElement>('#flight-path-base');
     this.revealPath = root.querySelector<SVGPathElement>('#flight-path-reveal');
     this.plane = root.querySelector<HTMLElement>('#flight-plane');
-    this.flash = root.querySelector<HTMLElement>('#credential-flash');
-    this.credential = root.querySelector<HTMLElement>('#digital-credential');
-    this.checkPath = root.querySelector<SVGPathElement>('#credential-check-path');
     this.maskLinear = root.querySelector<SVGLinearGradientElement>('#flight-mask-linear');
     this.maskHole = root.querySelector<SVGCircleElement>('#flight-mask-hole');
     this.maskStop1 = root.querySelector<SVGStopElement>('#flight-mask-stop-1');
     this.maskStop2 = root.querySelector<SVGStopElement>('#flight-mask-stop-2');
 
-    if (this.checkPath) {
-      this.checkPath.style.strokeDasharray = '45';
-      this.checkPath.style.strokeDashoffset = '45';
+    const screenArea = root.querySelector<HTMLElement>('#demo-screen-area');
+    if (screenArea) {
+      this.rippleReveal = new VideoRippleReveal(screenArea);
     }
 
     if (!this.wrapper || !this.overlay || !this.basePath || !this.revealPath || !this.plane) return;
@@ -82,18 +351,6 @@ export class FlightPathController {
     this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     this.updatePath();
-
-    // On page load or refresh when the CTA is already in view (including anchor links),
-    // show the final credential state immediately
-    const sec6 = this.root.querySelector<HTMLElement>('#nationwide');
-    if (sec6) {
-      const top = sec6.getBoundingClientRect().top;
-      const vh = window.innerHeight;
-      if (top <= 0.35 * vh || window.location.hash === '#nationwide') {
-        this.targetT = 1;
-        this.displayT = 1;
-      }
-    }
 
     if (this.prefersReducedMotion) {
       this.handleReducedMotion();
@@ -115,19 +372,14 @@ export class FlightPathController {
     this.basePath.style.opacity = '0.2';
     this.basePath.style.strokeDasharray = 'none';
 
-    // Hide flash and mask hole
-    if (this.flash) this.flash.style.display = 'none';
     if (this.maskHole) this.maskHole.setAttribute('r', '0');
 
-    // Show final credential behind CTA statically
-    if (this.credential) {
-      this.credential.style.transform = 'translate(-50%, -50%) scale(1)';
-      this.credential.style.opacity = '0.35';
-      this.credential.style.filter = 'blur(1px)';
-      this.credential.classList.remove('is-resting');
-    }
-    if (this.checkPath) {
-      this.checkPath.style.strokeDashoffset = '0';
+    // Show video immediately paused with native controls
+    const video = this.root.querySelector<HTMLVideoElement>('#demo-verify-video');
+    if (video) {
+      video.style.opacity = '1';
+      video.controls = true;
+      video.pause();
     }
   }
 
@@ -151,13 +403,35 @@ export class FlightPathController {
     window.addEventListener('resize', this.onLayoutChange, { passive: true });
     window.addEventListener('orientationchange', this.onLayoutChange, { passive: true });
 
-    // IntersectionObserver fallback on the CTA card (threshold 0.6):
-    // if the card is at least 60% visible and displayT < 1, animate displayT to 1 over 400ms (easeOutCubic)
-    this.setupIntersectionObserver();
+    // Observe section visibility for landing handoff (FIX 1) and WebGL loop optimization
+    const sec6 = this.root.querySelector<HTMLElement>('#nationwide');
+    if (sec6 && 'IntersectionObserver' in window) {
+      this.sectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const ratio = entry.intersectionRatio;
+            const isVis = entry.isIntersecting;
 
-    // ResizeObserver on wrapper, the landing root, and illustrations.
-    // The standalone page observed document.body; inside the SPA the landing
-    // root is the equivalent subtree and keeps us out of the rest of the app.
+            this.rippleReveal?.setInView(isVis);
+
+            // FIX 1: When the demo section becomes 60% visible, start self-contained animation
+            if (isVis && ratio >= 0.6) {
+              if (!this.hasTriggeredLanding && this.landingState === 'scroll_driven') {
+                this.startSelfContainedLanding();
+              }
+            } else if (ratio < 0.25) {
+              // If user scrolls back up so section is less than 25% visible, cancel and reset
+              if (this.hasTriggeredLanding || this.landingState !== 'scroll_driven') {
+                this.cancelAndResetLanding();
+              }
+            }
+          });
+        },
+        { threshold: [0, 0.25, 0.6] }
+      );
+      this.sectionObserver.observe(sec6);
+    }
+
     if ('ResizeObserver' in window) {
       const ro = new ResizeObserver(() => {
         this.onLayoutChange();
@@ -168,8 +442,10 @@ export class FlightPathController {
       ro.observe(this.root);
       const illustrations = this.root.querySelectorAll('.role-illustration');
       illustrations.forEach((img) => ro.observe(img));
-      const card = this.root.querySelector('.nationwide-card');
-      if (card) ro.observe(card);
+      const screenArea = this.root.querySelector('#demo-screen-area');
+      if (screenArea) ro.observe(screenArea);
+      const frameEl = this.root.querySelector('#demo-browser-frame');
+      if (frameEl) ro.observe(frameEl);
     }
 
     // Recalculate after images finish loading
@@ -184,10 +460,6 @@ export class FlightPathController {
       }
     });
 
-    // The standalone page waited for window 'load' here. On a client-side
-    // navigation that event has already fired and never will again, which would
-    // leave the path laid out against stale geometry, so measure on the next
-    // frame instead.
     if (document.readyState === 'complete') {
       this.onLayoutChange();
     } else {
@@ -197,7 +469,6 @@ export class FlightPathController {
       );
     }
 
-    // Recalculate after fonts finish loading
     if ('fonts' in document) {
       document.fonts.ready.then(() => {
         if (this.isDestroyed) return;
@@ -205,7 +476,6 @@ export class FlightPathController {
       });
     }
 
-    // Recalculate when illustration entrance transitions end
     const wraps = this.root.querySelectorAll('.role-image-wrap');
     wraps.forEach((wrap) => {
       wrap.addEventListener('transitionend', this.onLayoutChange, { once: true });
@@ -213,61 +483,6 @@ export class FlightPathController {
         wrap.removeEventListener('transitionend', this.onLayoutChange)
       );
     });
-  }
-
-  private setupIntersectionObserver(): void {
-    const card = this.root.querySelector('.nationwide-card');
-    if (!card) return;
-
-    this.cardObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-            if (this.displayT < 1 && !this.isAnimatingFallback) {
-              this.startFallbackAnimation();
-            }
-          }
-        });
-      },
-      { threshold: [0.6] }
-    );
-    this.cardObserver.observe(card);
-  }
-
-  private startFallbackAnimation(): void {
-    if (this.displayT >= 1 || this.isAnimatingFallback) return;
-    this.isAnimatingFallback = true;
-    const startVal = this.displayT;
-    const startTime = performance.now();
-    const duration = 400;
-
-    const step = (now: number) => {
-      if (this.isDestroyed) return;
-      // If user scrolled back up above trigger, cancel fallback animation
-      if (this.targetT === 0) {
-        this.isAnimatingFallback = false;
-        this.fallbackRafId = null;
-        this.requestRender();
-        return;
-      }
-
-      const elapsed = now - startTime;
-      const p = Math.min(1, elapsed / duration);
-      // easeOutCubic: 1 - Math.pow(1 - p, 3)
-      const ease = 1 - Math.pow(1 - p, 3);
-      this.displayT = startVal + (1 - startVal) * ease;
-      this.render();
-
-      if (p < 1 && this.isAnimatingFallback) {
-        this.fallbackRafId = requestAnimationFrame(step);
-      } else {
-        this.fallbackRafId = null;
-        this.displayT = 1;
-        this.isAnimatingFallback = false;
-        this.render();
-      }
-    };
-    this.fallbackRafId = requestAnimationFrame(step);
   }
 
   private requestRender(): void {
@@ -279,7 +494,10 @@ export class FlightPathController {
   }
 
   private onScroll = (): void => {
-    this.requestRender();
+    // While self-contained landing animation or reveal is running, scrolling does NOT move plane
+    if (this.landingState === 'scroll_driven') {
+      this.requestRender();
+    }
   };
 
   private onRafFrame = (): void => {
@@ -287,13 +505,10 @@ export class FlightPathController {
     this.rafId = null;
     if (this.isDestroyed) return;
     this.render();
-    if (!this.prefersReducedMotion && (this.isAnimatingFallback || Math.abs(this.targetT - this.displayT) > 0.001)) {
-      this.requestRender();
-    }
   };
 
   /**
-   * Build strictly monotonic downward flight path through illustration centers to CTA card
+   * Build strictly monotonic downward flight path through illustration centers to demo video screen area
    */
   public updatePath(): void {
     if (!this.wrapper || !this.overlay || !this.basePath || !this.revealPath) return;
@@ -306,14 +521,16 @@ export class FlightPathController {
     const img1El = this.root.querySelector<HTMLElement>('#issuer .role-illustration');
     const img2El = this.root.querySelector<HTMLElement>('#owner .role-illustration');
     const img3El = this.root.querySelector<HTMLElement>('#verifier .role-illustration');
-    const cardEl = this.root.querySelector<HTMLElement>('.nationwide-card');
+    const screenEl = this.root.querySelector<HTMLElement>('#demo-screen-area') || this.root.querySelector<HTMLElement>('#nationwide .demo-browser-frame') || this.root.querySelector<HTMLElement>('#nationwide');
+    const frameEl = this.root.querySelector<HTMLElement>('#demo-browser-frame') || screenEl;
 
-    if (!img1El || !img2El || !img3El || !cardEl) return;
+    if (!img1El || !img2El || !img3El || !screenEl || !frameEl) return;
 
     const r1 = img1El.getBoundingClientRect();
     const r2 = img2El.getBoundingClientRect();
     const r3 = img3El.getBoundingClientRect();
-    const rCard = cardEl.getBoundingClientRect();
+    const rScreen = screenEl.getBoundingClientRect();
+    const rFrame = frameEl.getBoundingClientRect();
 
     const sec1 = this.root.querySelector<HTMLElement>('#issuer');
     const sec2 = this.root.querySelector<HTMLElement>('#owner');
@@ -328,124 +545,60 @@ export class FlightPathController {
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
 
-    // Helper: get un-transformed visual center
     const getCenter = (r: DOMRect, el: HTMLElement) => {
       const wrap = el.closest('.role-image-wrap');
-      const offset = (wrap && !wrap.classList.contains('is-visible')) ? -24 : 0;
+      const offset = wrap && !wrap.classList.contains('is-visible') ? -24 : 0;
       return {
         x: clampX(r.left + r.width * 0.5 - wrapperRect.left),
-        y: r.top + r.height * 0.5 - wrapperRect.top + offset
+        y: r.top + r.height * 0.5 - wrapperRect.top + offset,
       };
     };
 
     const c1 = getCenter(r1, img1El);
     const c2 = getCenter(r2, img2El);
     const c3 = getCenter(r3, img3El);
-    const cCard = {
-      x: clampX(rCard.left + rCard.width * 0.5 - wrapperRect.left),
-      y: rCard.top + rCard.height * 0.5 - wrapperRect.top
+
+    // End point: center of video screen area, at 46% of its height
+    const cScreen = {
+      x: clampX(rScreen.left + rScreen.width * 0.5 - wrapperRect.left),
+      y: rScreen.top + rScreen.height * 0.46 - wrapperRect.top,
     };
 
     let waypoints: Point[] = [];
 
     if (isMobile) {
-      // Mobile (<768px, stacked layout):
-      // Start: top of Section 3, slightly offset from center
       const w0: Point = {
         x: clampX(w * 0.5 - w * 0.15),
-        y: Math.max(0, s1Rect.top - wrapperRect.top)
+        y: Math.max(0, s1Rect.top - wrapperRect.top),
       };
-
-      // Cross behind Issuer illustration diagonally through its center
-      const w1: Point = {
-        x: c1.x,
-        y: c1.y
-      };
-
-      // Gap between Section 3 and 4: small S-curve (15% left of center)
+      const w1: Point = { x: c1.x, y: c1.y };
       const gap1Y = (s1Rect.bottom + s2Rect.top) * 0.5 - wrapperRect.top;
-      const w2: Point = {
-        x: clampX(w * 0.5 - w * 0.15),
-        y: gap1Y
-      };
-
-      // Cross behind Owner illustration through center
-      const w3: Point = {
-        x: c2.x,
-        y: c2.y
-      };
-
-      // Gap between Section 4 and 5: small S-curve (15% right of center)
+      const w2: Point = { x: clampX(w * 0.5 - w * 0.15), y: gap1Y };
+      const w3: Point = { x: c2.x, y: c2.y };
       const gap2Y = (s2Rect.bottom + s3Rect.top) * 0.5 - wrapperRect.top;
-      const w4: Point = {
-        x: clampX(w * 0.5 + w * 0.15),
-        y: gap2Y
-      };
-
-      // Cross behind Verifier illustration through center
-      const w5: Point = {
-        x: c3.x,
-        y: c3.y
-      };
-
-      // End: horizontal and vertical center of CTA card in Section 6
-      const w6: Point = {
-        x: cCard.x,
-        y: cCard.y
-      };
+      const w4: Point = { x: clampX(w * 0.5 + w * 0.15), y: gap2Y };
+      const w5: Point = { x: c3.x, y: c3.y };
+      const w6: Point = { x: cScreen.x, y: cScreen.y };
 
       waypoints = [w0, w1, w2, w3, w4, w5, w6];
     } else {
-      // Desktop (>= 1024px) & Tablet (768-1023px)
-      // W0: top of Section 3 on text-column side
       const textCol1 = this.root.querySelector<HTMLElement>('#issuer .role-text-col');
       const t1Rect = textCol1 ? textCol1.getBoundingClientRect() : null;
-      const startX = t1Rect ? (t1Rect.left + t1Rect.width * 0.5 - wrapperRect.left) : (w * 0.28);
+      const startX = t1Rect ? t1Rect.left + t1Rect.width * 0.5 - wrapperRect.left : w * 0.28;
       const w0: Point = {
         x: clampX(startX),
-        y: Math.max(0, s1Rect.top - wrapperRect.top)
+        y: Math.max(0, s1Rect.top - wrapperRect.top),
       };
-
-      // W1: pass behind Issuer illustration, crossing diagonally through its center
-      const w1: Point = {
-        x: c1.x,
-        y: c1.y
-      };
-
-      // W2: swing across the page in a wide gentle arc in gap between Sec 3 and 4
+      const w1: Point = { x: c1.x, y: c1.y };
       const gap1Y = (s1Rect.bottom + s2Rect.top) * 0.5 - wrapperRect.top;
-      // Arc width: desktop wide (~35% of w from left), tablet 60% width (~40% of w)
-      const arc1X = isTablet ? (w * 0.40) : (w * 0.35);
-      const w2: Point = {
-        x: clampX(arc1X),
-        y: gap1Y
-      };
-
-      // W3: pass behind Owner illustration, crossing through its center
-      const w3: Point = {
-        x: c2.x,
-        y: c2.y
-      };
-
-      // W4: wide gentle arc again in gap between Sec 4 and 5
+      const arc1X = isTablet ? w * 0.4 : w * 0.35;
+      const w2: Point = { x: clampX(arc1X), y: gap1Y };
+      const w3: Point = { x: c2.x, y: c2.y };
       const gap2Y = (s2Rect.bottom + s3Rect.top) * 0.5 - wrapperRect.top;
-      const arc2X = isTablet ? (w * 0.60) : (w * 0.65);
-      const w4: Point = {
-        x: clampX(arc2X),
-        y: gap2Y
-      };
-
-      // W5: pass behind Verifier illustration, crossing through its center
-      const w5: Point = {
-        x: c3.x,
-        y: c3.y
-      };
-
-      // W6: horizontal and vertical center of CTA card in Section 6
-      const w6: Point = {
-        x: cCard.x,
-        y: cCard.y
-      };
+      const arc2X = isTablet ? w * 0.6 : w * 0.65;
+      const w4: Point = { x: clampX(arc2X), y: gap2Y };
+      const w5: Point = { x: c3.x, y: c3.y };
+      const w6: Point = { x: cScreen.x, y: cScreen.y };
 
       waypoints = [w0, w1, w2, w3, w4, w5, w6];
     }
@@ -464,7 +617,7 @@ export class FlightPathController {
     this.totalLength = this.revealPath.getTotalLength();
     this.revealPath.style.strokeDasharray = `${this.totalLength} ${this.totalLength}`;
 
-    // Pre-sample the path into a lookup table of 600 points (length, x, y)
+    // Lookup table of 600 points for smooth navigation
     this.lookupTable = [];
     const NUM_SAMPLES = 600;
     for (let i = 0; i < NUM_SAMPLES; i++) {
@@ -473,40 +626,42 @@ export class FlightPathController {
       this.lookupTable.push({ s, x: pt.x, y: pt.y });
     }
 
-    // Reset cached lastPathPosition on layout updates
-    this.lastPathPosition = null;
+    // FIX 2: Path's visible stroke must stop at the top edge of the browser frame minus 40px
+    const frameTopY = rFrame.top - wrapperRect.top;
+    const lineCutoffY = frameTopY - 40;
+    const cutoffSample = this.getPointAtY(lineCutoffY);
+    this.maxStrokeLength = cutoffSample.s;
 
-    // Fade at both ends of the flight path:
-    // Vertical linearGradient in user space (gradientUnits="userSpaceOnUse", y1 = startY, y2 = endY)
+    // Fade out over the last 120px ending at lineCutoffY
     const startY = waypoints[0].y;
-    const endY = waypoints[waypoints.length - 1].y;
-    const pathHeight = endY - startY;
+    const visiblePathHeight = lineCutoffY - startY;
 
-    if (this.maskLinear && this.maskStop1 && this.maskStop2 && pathHeight > 0) {
+    if (this.maskLinear && this.maskStop1 && this.maskStop2 && visiblePathHeight > 0) {
       this.maskLinear.setAttribute('y1', startY.toFixed(1));
-      this.maskLinear.setAttribute('y2', endY.toFixed(1));
+      this.maskLinear.setAttribute('y2', lineCutoffY.toFixed(1));
 
-      // Start: opacity 0 -> 1 over first 15vh of path (offset = min(0.15 * innerHeight / pathHeight, 0.3))
-      const startFadeOffset = Math.min((0.15 * window.innerHeight) / pathHeight, 0.3);
-      // End: fully opaque until TOP EDGE of CTA card, fading to 0 at path end (CTA card center)
-      const ctaCardTop = rCard.top - wrapperRect.top;
-      const endFadeOffset = Math.max(0.5, Math.min(0.98, (ctaCardTop - startY) / pathHeight));
+      const startFadeOffset = Math.min((0.15 * window.innerHeight) / visiblePathHeight, 0.3);
+      const endFadeStartOffset = Math.max(0.4, (visiblePathHeight - 120) / visiblePathHeight);
 
       this.maskStop1.setAttribute('offset', `${(startFadeOffset * 100).toFixed(2)}%`);
-      this.maskStop2.setAttribute('offset', `${(endFadeOffset * 100).toFixed(2)}%`);
+      this.maskStop2.setAttribute('offset', `${(endFadeStartOffset * 100).toFixed(2)}%`);
     }
 
-    // Position credential and flash initially centered in nationwide-card
-    if (this.credential) {
-      this.credential.style.transform = 'translate(-50%, -50%) scale(0.7)';
-    }
-    if (this.flash) {
-      this.flash.style.transform = 'translate(-50%, -50%) scale(0.6)';
-    }
+    // Initial revealed stroke update
+    this.updateRevealedStroke(this.currentPlaneLength);
   }
 
   /**
-   * Helper: Binary search lookup table for targetY and interpolate x, y, s
+   * Updates revealed path stroke length, strictly capped at maxStrokeLength (frame top - 40px)
+   */
+  private updateRevealedStroke(planeLength: number): void {
+    if (!this.revealPath || this.totalLength <= 0) return;
+    const visibleLength = Math.min(planeLength, this.maxStrokeLength);
+    this.revealPath.style.strokeDashoffset = `${Math.max(0, this.totalLength - visibleLength)}`;
+  }
+
+  /**
+   * Helper: Binary search lookup table for targetY
    */
   private getPointAtY(targetY: number): { x: number; y: number; s: number } {
     const startPt = this.lookupTable[0];
@@ -531,230 +686,220 @@ export class FlightPathController {
     return {
       x: pA.x + tY * (pB.x - pA.x),
       y: targetY,
-      s: pA.s + tY * (pB.s - pA.s)
+      s: pA.s + tY * (pB.s - pA.s),
     };
   }
 
   /**
-   * Render frame: Anchor plane to viewport center line during Sections 3-5 (t = 0),
-   * and execute early homing flight and plane-to-credential transformation (t > 0).
+   * FIX 1: Self-contained landing animation triggered when demo section is 60% visible
+   * Runs over 1100ms with easeInOutCubic independent of scrolling
+   */
+  private startSelfContainedLanding(): void {
+    if (this.isDestroyed || this.landingState !== 'scroll_driven') return;
+
+    this.hasTriggeredLanding = true;
+    this.landingState = 'animating';
+
+    // Record plane's current path length s0 and angle
+    const s0 = this.currentPlaneLength;
+    const sTarget = this.totalLength;
+    const startTime = performance.now();
+    const duration = 1100; // 1100ms
+
+    if (this.landingAnimRafId !== null) {
+      cancelAnimationFrame(this.landingAnimRafId);
+      this.landingAnimRafId = null;
+    }
+
+    const step = (now: number) => {
+      if (this.isDestroyed || this.landingState !== 'animating') return;
+
+      const elapsed = now - startTime;
+      const p = Math.min(1, Math.max(0, elapsed / duration));
+      const easedP = easeInOutCubic(p);
+
+      const currentS = s0 + (sTarget - s0) * easedP;
+      this.currentPlaneLength = currentS;
+
+      const pt = this.revealPath ? this.revealPath.getPointAtLength(currentS) : { x: 0, y: 0 };
+      const remDist = Math.max(0, sTarget - currentS);
+
+      // Tangent angle from path
+      const sampleBehind = Math.max(0, currentS - 4);
+      const sampleAhead = Math.min(this.totalLength, currentS + 4);
+      const ptB = this.revealPath ? this.revealPath.getPointAtLength(sampleBehind) : pt;
+      const ptA = this.revealPath ? this.revealPath.getPointAtLength(sampleAhead) : pt;
+      const pathTangentDeg = Math.atan2(ptA.y - ptB.y, ptA.x - ptB.x) * (180 / Math.PI);
+
+      // Over the last 160px of path length, ease rotation toward -8° so it comes in level
+      let easeApproach = 0;
+      let targetHeadingDeg = pathTangentDeg;
+      if (remDist <= 160) {
+        const approachProgress = Math.max(0, (160 - remDist) / 160);
+        easeApproach = approachProgress * (2 - approachProgress);
+
+        let diff = -8 - pathTangentDeg;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+        targetHeadingDeg = pathTangentDeg + diff * easeApproach;
+      }
+
+      let angleDiff = targetHeadingDeg - this.currentHeadingDeg;
+      while (angleDiff > 180) angleDiff -= 360;
+      while (angleDiff < -180) angleDiff += 360;
+      this.currentHeadingDeg += angleDiff * 0.3;
+
+      const bankDeg =
+        Math.max(-20, Math.min(20, (targetHeadingDeg - this.currentHeadingDeg) * 1.5)) *
+        (1 - easeApproach);
+
+      if (this.plane) {
+        this.plane.classList.add('is-landing');
+        this.plane.style.transform = `translate3d(${pt.x.toFixed(1)}px, ${pt.y.toFixed(1)}px, 0) translate(-50%, -50%)`;
+      }
+
+      if (this.plane3D && !this.plane3D.isFallback) {
+        this.plane3D.updateOrientation(this.currentHeadingDeg, bankDeg, easeApproach);
+      }
+
+      // Stroke reveals up to frameTop - 40px
+      this.updateRevealedStroke(currentS);
+
+      if (this.maskHole) {
+        if (remDist < 5) {
+          this.maskHole.setAttribute('r', '0');
+        } else {
+          this.maskHole.setAttribute('cx', pt.x.toFixed(1));
+          this.maskHole.setAttribute('cy', pt.y.toFixed(1));
+          this.maskHole.setAttribute('r', '70');
+        }
+      }
+
+      if (p < 1) {
+        this.landingAnimRafId = requestAnimationFrame(step);
+      } else {
+        // Arrival: hold 380ms, fade plane out, then start ripple
+        this.landingAnimRafId = null;
+        this.landingState = 'holding';
+        if (this.plane3D && !this.plane3D.isFallback) {
+          this.plane3D.updateOrientation(-8, 0, 1);
+        }
+
+        this.tapTimer = window.setTimeout(() => {
+          this.tapTimer = null;
+          if (this.landingState === 'holding') {
+            this.landingState = 'revealed';
+            if (this.plane) {
+              this.plane.style.transition = 'opacity 0.25s ease';
+              this.plane.style.opacity = '0';
+            }
+            this.rippleReveal?.start();
+          }
+        }, 380);
+      }
+    };
+
+    this.landingAnimRafId = requestAnimationFrame(step);
+  }
+
+  /**
+   * Cancels self-contained landing and resets plane to scroll-driven mode
+   * Triggered when scrolling back up so section is less than 25% visible
+   */
+  private cancelAndResetLanding(): void {
+    if (this.landingAnimRafId !== null) {
+      cancelAnimationFrame(this.landingAnimRafId);
+      this.landingAnimRafId = null;
+    }
+    if (this.tapTimer !== null) {
+      window.clearTimeout(this.tapTimer);
+      this.tapTimer = null;
+    }
+
+    this.landingState = 'scroll_driven';
+    this.hasTriggeredLanding = false;
+
+    if (this.plane) {
+      this.plane.classList.remove('is-landing');
+      this.plane.style.transition = '';
+      this.plane.style.opacity = '1';
+    }
+
+    this.rippleReveal?.reset();
+    this.requestRender();
+  }
+
+  /**
+   * Scroll-driven render frame for Sections 3–5.
+   * When self-contained landing animation runs, scroll does not move plane.
    */
   private render(): void {
-    if (!this.wrapper || !this.revealPath || !this.plane || this.lookupTable.length < 2 || this.totalLength <= 0) return;
+    if (
+      !this.wrapper ||
+      !this.revealPath ||
+      !this.plane ||
+      this.lookupTable.length < 2 ||
+      this.totalLength <= 0
+    ) {
+      return;
+    }
+
+    // While self-contained landing animation or reveal runs, scrolling must NOT move plane
+    if (this.landingState !== 'scroll_driven') {
+      return;
+    }
 
     const wrapperRect = this.wrapper.getBoundingClientRect();
     const wrapperTopInDoc = wrapperRect.top + window.scrollY;
 
-    const startPt = this.lookupTable[0];
-    const endPt = this.lookupTable[this.lookupTable.length - 1];
+    const targetY = window.scrollY + window.innerHeight * 0.5 - wrapperTopInDoc;
+    const currentPt = this.getPointAtY(targetY);
+    const planeX = currentPt.x;
+    const planeY = currentPt.y;
+    const planeLength = currentPt.s;
+    this.currentPlaneLength = planeLength;
 
-    // 1. New trigger window (based on Section 6 top edge relative to viewport)
-    const sec6 = this.root.querySelector<HTMLElement>('#nationwide');
-    if (!sec6) return;
+    // Tangent heading angle from path
+    const sampleDistBehind = Math.max(0, planeLength - 4);
+    const sampleDistAhead = Math.min(this.totalLength, planeLength + 4);
+    const ptB = this.revealPath.getPointAtLength(sampleDistBehind);
+    const ptA = this.revealPath.getPointAtLength(sampleDistAhead);
 
-    const sec6Rect = sec6.getBoundingClientRect();
-    const top = sec6Rect.top;
-    const vh = window.innerHeight;
+    const dx = ptA.x - ptB.x;
+    const dy = ptA.y - ptB.y;
+    const pathHeadingDeg = Math.atan2(dy, dx) * (180 / Math.PI);
 
-    // t starts at 0 when CTA section top enters bottom 10% of viewport (top <= 0.9 * vh)
-    // t reaches 1 when CTA section top is at 35% of viewport height (top <= 0.35 * vh)
-    // Formula: t = clamp((0.9 * vh - top) / (0.9 * vh - 0.35 * vh), 0, 1)
-    let tFromTop = 0;
-    const denom = 0.9 * vh - 0.35 * vh; // 0.55 * vh
-    if (denom > 0) {
-      tFromTop = (0.9 * vh - top) / denom;
-    }
-    tFromTop = Math.max(0, Math.min(1, tFromTop));
-
-    // Safety: if the page cannot scroll far enough for top to reach 0.35 * vh, force t = 1 at maxScroll.
-    // Compute both and use whichever happens first.
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    let tFromScroll = 0;
-    const secTopInDoc = top + window.scrollY;
-    const startScroll = secTopInDoc - 0.9 * vh;
-
-    if (maxScroll > startScroll) {
-      tFromScroll = (window.scrollY - startScroll) / (maxScroll - startScroll);
-      tFromScroll = Math.max(0, Math.min(1, tFromScroll));
-    } else if (window.scrollY >= maxScroll && maxScroll > 0) {
-      tFromScroll = 1;
-    }
-
-    if (window.scrollY >= maxScroll - 2 && maxScroll > 0) {
-      tFromScroll = 1;
-    }
-
-    this.targetT = Math.max(tFromTop, tFromScroll);
-    this.targetT = Math.max(0, Math.min(1, this.targetT));
-
-    // Fast-scroll smoothing: displayT += (t - displayT) * 0.25 per frame
-    if (!this.isAnimatingFallback) {
-      if (Math.abs(this.targetT - this.displayT) < 0.002) {
-        this.displayT = this.targetT;
-      } else {
-        this.displayT += (this.targetT - this.displayT) * 0.25;
-      }
-    }
-
-    // 2. Homing flight (replaces center-line anchoring during transformation)
-    let planeX = startPt.x;
-    let planeY = startPt.y;
-    let planeLength = 0;
-
-    if (this.displayT > 0) {
-      // Homing to CTA card center (endPt)
-      if (!this.lastPathPosition) {
-        const triggerCenterY = (secTopInDoc - 0.4 * window.innerHeight) - wrapperTopInDoc;
-        this.lastPathPosition = this.getPointAtY(triggerCenterY);
-      }
-
-      // position = lerp(lastPathPosition, cardCenter, easeOutCubic(min(t / 0.4, 1)))
-      const normHomeT = Math.min(this.displayT / 0.40, 1);
-      const homeProg = 1 - Math.pow(1 - normHomeT, 3);
-
-      planeX = this.lastPathPosition.x + (endPt.x - this.lastPathPosition.x) * homeProg;
-      planeY = this.lastPathPosition.y + (endPt.y - this.lastPathPosition.y) * homeProg;
-      planeLength = this.lastPathPosition.s + (this.totalLength - this.lastPathPosition.s) * homeProg;
-
-      // Reveal path completes to end point during the same interval (0.00 - 0.40)
-      this.revealPath.style.strokeDashoffset = `${Math.max(0, this.totalLength - planeLength)}`;
-
-      // Rotate toward card center while homing in
-      const toDx = endPt.x - planeX;
-      const toDy = endPt.y - planeY;
-      if (Math.hypot(toDx, toDy) > 2) {
-        const homingAngleDeg = Math.atan2(toDy, toDx) * (180 / Math.PI);
-        let angleDiff = homingAngleDeg - this.currentHeadingDeg;
-        while (angleDiff > 180) angleDiff -= 360;
-        while (angleDiff < -180) angleDiff += 360;
-        this.currentHeadingDeg += angleDiff * 0.25;
-      }
+    if (!this.hasInitializedHeading) {
+      this.currentHeadingDeg = pathHeadingDeg;
+      this.hasInitializedHeading = true;
     } else {
-      // While t = 0, plane follows existing center-line logic
-      const targetY = window.scrollY + window.innerHeight * 0.5 - wrapperTopInDoc;
-      const currentPt = this.getPointAtY(targetY);
-      planeX = currentPt.x;
-      planeY = currentPt.y;
-      planeLength = currentPt.s;
-      this.lastPathPosition = { x: planeX, y: planeY, s: planeLength };
-
-      this.revealPath.style.strokeDashoffset = `${Math.max(0, this.totalLength - planeLength)}`;
-
-      // Heading tangent computed from points 4px behind and 4px ahead
-      const sampleDistBehind = Math.max(0, planeLength - 4);
-      const sampleDistAhead = Math.min(this.totalLength, planeLength + 4);
-      const ptB = this.revealPath.getPointAtLength(sampleDistBehind);
-      const ptA = this.revealPath.getPointAtLength(sampleDistAhead);
-
-      const dx = ptA.x - ptB.x;
-      const dy = ptA.y - ptB.y;
-      const targetHeadingDeg = Math.atan2(dy, dx) * (180 / Math.PI);
-
-      if (!this.hasInitializedHeading) {
-        this.currentHeadingDeg = targetHeadingDeg;
-        this.hasInitializedHeading = true;
-      } else {
-        let angleDiff = targetHeadingDeg - this.currentHeadingDeg;
-        while (angleDiff > 180) angleDiff -= 360;
-        while (angleDiff < -180) angleDiff += 360;
-        this.currentHeadingDeg += angleDiff * 0.2;
-      }
+      let angleDiff = pathHeadingDeg - this.currentHeadingDeg;
+      while (angleDiff > 180) angleDiff -= 360;
+      while (angleDiff < -180) angleDiff += 360;
+      this.currentHeadingDeg += angleDiff * 0.25;
     }
 
-    // Banking roll
-    const headingDelta = 0;
-    const bankDeg = Math.max(-20, Math.min(20, headingDelta * 1.5));
+    const bankDeg = Math.max(
+      -20,
+      Math.min(20, (pathHeadingDeg - this.currentHeadingDeg) * 1.5)
+    );
 
-    // 3. Faster, front-loaded timeline
-    // 0.00–0.40: plane homes to card center, turns to face camera, scales 1 → 0.6
-    let planeScale = 1;
-    if (this.displayT >= 0.40) {
-      planeScale = 0.6;
-    } else if (this.displayT > 0) {
-      planeScale = 1 - 0.4 * (this.displayT / 0.40);
-    }
-
-    // 0.25–0.45: plane fades out
-    let planeOpacity = 1;
-    if (this.displayT >= 0.45) {
-      planeOpacity = 0;
-    } else if (this.displayT > 0.25) {
-      planeOpacity = 1 - (this.displayT - 0.25) / (0.45 - 0.25);
-    }
-
-    this.plane.style.transform = `translate3d(${planeX.toFixed(1)}px, ${planeY.toFixed(1)}px, 0) translate(-50%, -50%) scale(${planeScale.toFixed(3)})`;
-    this.plane.style.opacity = planeOpacity.toFixed(3);
-
-    // Moving fade at the plane: radial hole centered on plane position, radius 70px
-    // Hide the hole (radius 0) once the plane has reached the end of the path
-    if (this.maskHole) {
-      if (this.displayT >= 1 || Math.hypot(endPt.x - planeX, endPt.y - planeY) < 5) {
-        this.maskHole.setAttribute('r', '0');
-      } else {
-        this.maskHole.setAttribute('cx', planeX.toFixed(1));
-        this.maskHole.setAttribute('cy', planeY.toFixed(1));
-        this.maskHole.setAttribute('r', '70');
-      }
-    }
+    // Plane is scroll-driven in sections 3-5
+    this.plane.classList.remove('is-landing');
+    this.plane.style.transform = `translate3d(${planeX.toFixed(1)}px, ${planeY.toFixed(1)}px, 0) translate(-50%, -50%)`;
 
     if (this.plane3D && !this.plane3D.isFallback) {
-      this.plane3D.updateOrientation(this.currentHeadingDeg, bankDeg, this.displayT, true);
+      this.plane3D.updateOrientation(this.currentHeadingDeg, bankDeg, 0);
     }
 
-    // 0.30: radial flash at card center (peak 0.8 at t = 0.30, gone by 0.50)
-    if (this.flash) {
-      let flashOpacity = 0;
-      let flashScale = 0.6;
-      if (this.displayT >= 0.15 && this.displayT <= 0.30) {
-        const riseProg = (this.displayT - 0.15) / 0.15;
-        flashOpacity = 0.8 * riseProg;
-        flashScale = 0.6 + 0.4 * riseProg;
-      } else if (this.displayT > 0.30 && this.displayT <= 0.50) {
-        const fadeProg = (this.displayT - 0.30) / 0.20;
-        flashOpacity = 0.8 * (1 - fadeProg);
-        flashScale = 1.0 + 0.3 * fadeProg;
-      }
-      this.flash.style.transform = `translate(-50%, -50%) scale(${flashScale.toFixed(3)})`;
-      this.flash.style.opacity = flashOpacity.toFixed(3);
-    }
+    // Update stroke reveal strictly stopping at frame top - 40px
+    this.updateRevealedStroke(planeLength);
 
-    // 0.30–0.65: credential scales 0.7 → 1.0 and fades 0 → final opacity (0.35)
-    let credScale = 0.7;
-    let credOpacity = 0;
-    if (this.displayT >= 0.65) {
-      credScale = 1.0;
-      credOpacity = 0.35;
-    } else if (this.displayT >= 0.30) {
-      const credProg = (this.displayT - 0.30) / 0.35;
-      credScale = 0.7 + 0.3 * credProg;
-      credOpacity = 0.35 * credProg;
-    }
-
-    // 0.45–0.75: checkmark draws itself (offset 45 -> 0)
-    if (this.checkPath) {
-      let checkProg = 0;
-      if (this.displayT >= 0.75) {
-        checkProg = 1;
-      } else if (this.displayT >= 0.45) {
-        checkProg = (this.displayT - 0.45) / 0.30;
-      }
-      const checkOffset = 45 * (1 - checkProg);
-      this.checkPath.style.strokeDashoffset = `${checkOffset.toFixed(2)}`;
-    }
-
-    // 0.75–1.00: hold the final state (slow float starts)
-    if (this.credential) {
-      if (this.displayT >= 0.75) {
-        this.credential.classList.add('is-resting');
-        this.credential.style.transform = '';
-        this.credential.style.opacity = '0.35';
-        this.credential.style.filter = 'blur(1px)';
-      } else {
-        this.credential.classList.remove('is-resting');
-        this.credential.style.transform = `translate(-50%, -50%) scale(${credScale.toFixed(3)})`;
-        this.credential.style.opacity = credOpacity.toFixed(3);
-        this.credential.style.filter = 'blur(1px)';
-      }
+    // Radial hole in SVG mask
+    if (this.maskHole) {
+      this.maskHole.setAttribute('cx', planeX.toFixed(1));
+      this.maskHole.setAttribute('cy', planeY.toFixed(1));
+      this.maskHole.setAttribute('r', '70');
     }
   }
 
@@ -775,17 +920,23 @@ export class FlightPathController {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    if (this.fallbackRafId !== null) {
-      cancelAnimationFrame(this.fallbackRafId);
-      this.fallbackRafId = null;
+    if (this.landingAnimRafId !== null) {
+      cancelAnimationFrame(this.landingAnimRafId);
+      this.landingAnimRafId = null;
+    }
+    if (this.tapTimer !== null) {
+      window.clearTimeout(this.tapTimer);
+      this.tapTimer = null;
     }
     this.isRafScheduled = false;
-    this.isAnimatingFallback = false;
 
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
-    this.cardObserver?.disconnect();
-    this.cardObserver = null;
+    this.sectionObserver?.disconnect();
+    this.sectionObserver = null;
+
+    this.rippleReveal?.destroy();
+    this.rippleReveal = null;
 
     this.plane3D?.destroy();
     this.plane3D = null;
