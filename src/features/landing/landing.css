@@ -3,14 +3,15 @@
    ========================================================================== */
 
 
-html.lucidex-landing-active, .lucidex-landing {
+html.lucidex-landing-active,
+.lucidex-landing {
   /* Color Palette */
   --bg-primary: #060911;
   --bg-secondary: #0c111e;
   --bg-card: rgba(16, 23, 38, 0.7);
   --bg-card-hover: rgba(22, 33, 56, 0.85);
   --bg-glass: rgba(12, 17, 30, 0.75);
-  
+
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(16, 185, 129, 0.4);
   --border-glow: rgba(59, 130, 246, 0.3);
@@ -18,7 +19,7 @@ html.lucidex-landing-active, .lucidex-landing {
   --accent-emerald: #10B981;
   --accent-emerald-light: #34D399;
   --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-  
+
   --accent-blue: #3B82F6;
   --accent-cyan: #06B6D4;
   --accent-amber: #F59E0B;
@@ -57,7 +58,10 @@ html.lucidex-landing-active, .lucidex-landing {
 }
 
 /* Base Resets */
-.lucidex-landing, .lucidex-landing *, .lucidex-landing *::before, .lucidex-landing *::after {
+.lucidex-landing,
+.lucidex-landing *,
+.lucidex-landing *::before,
+.lucidex-landing *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -216,7 +220,8 @@ html.lucidex-landing-active body {
   width: 100%;
   height: 100vh;
   min-height: 100vh;
-  background-color: #000000; /* 1. Base layer: solid background color #000000 */
+  background-color: #000000;
+  /* 1. Base layer: solid background color #000000 */
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -232,7 +237,8 @@ html.lucidex-landing-active body {
   height: 38vh;
   pointer-events: none;
   background: linear-gradient(to bottom, rgba(5, 10, 23, 0) 0%, rgba(5, 10, 23, 0.55) 45%, #060911 100%);
-  z-index: 4; /* Above hero media layers (z-index 1-3), below content (z-index 5) & CTAs (z-index 6) */
+  z-index: 4;
+  /* Above hero media layers (z-index 1-3), below content (z-index 5) & CTAs (z-index 6) */
 }
 
 /* Media layers container */
@@ -259,7 +265,8 @@ html.lucidex-landing-active body {
 
 /* 2. Background layer: lucidex-bg-blue.mp4 (initial opacity: 0, 1.5s cubic-bezier transition) */
 .lucidex-landing .hero-bg-video {
-  z-index: 2; /* Wave background video above giant word */
+  z-index: 2;
+  /* Wave background video above giant word */
   opacity: 0;
   transition: opacity 1.5s cubic-bezier(0.4, 0, 1, 1);
 }
@@ -280,12 +287,14 @@ html.lucidex-landing-active body {
   left: 0;
   width: 100%;
   transform: translateY(-50%);
-  z-index: 1; /* Giant word stays the lowest */
+  z-index: 1;
+  /* Giant word stays the lowest */
   padding-inline: clamp(24px, 5vw, 96px);
   box-sizing: border-box;
   pointer-events: none;
   user-select: none;
-  opacity: 1; /* Giant word opacity increased by 25% (0.8 -> 1.0) */
+  opacity: 1;
+  /* Giant word opacity increased by 25% (0.8 -> 1.0) */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -346,6 +355,7 @@ html.lucidex-landing-active body {
     opacity: 0;
     letter-spacing: 0.08em;
   }
+
   100% {
     opacity: 1;
     letter-spacing: 0.02em;
@@ -357,11 +367,11 @@ html.lucidex-landing-active body {
   z-index: 3;
   mix-blend-mode: screen;
   object-position: 50% 48%;
-  transform: scale(0.8);
+  transform: scale(0.60);
   transform-origin: 50% 48%;
   opacity: 1;
-  mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
-  -webkit-mask-image: radial-gradient(ellipse 46% 46% at 50% 48%, black 45%, transparent 92%);
+  mask-image: radial-gradient(ellipse 96% 96% at center, black 82%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 96% 96% at center, black 82%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
   border: none;
   outline: none;
   box-shadow: none;
@@ -429,34 +439,45 @@ html.lucidex-landing-active body {
 }
 
 @keyframes lx-hero-credential-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
   }
+
   25% {
     transform: translateY(-10px) rotate(0.8deg);
   }
+
   50% {
     transform: translateY(-14px) rotate(-0.4deg);
   }
+
   75% {
     transform: translateY(-6px) rotate(-0.8deg);
   }
 }
 
 @keyframes lx-hero-credential-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.35));
   }
+
   50% {
     filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.2));
   }
 }
 
 @keyframes lx-hero-credential-shadow {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(-50%, 0) scaleX(1);
     opacity: 1;
   }
+
   50% {
     transform: translate(-50%, 0) scaleX(0.82);
     opacity: 0.6;
@@ -567,7 +588,8 @@ html.lucidex-landing-active body {
   background: linear-gradient(90deg, #38BDF8 0%, #6366F1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: none; /* Prevent inherited dark text-shadow from occluding transparent text clip */
+  text-shadow: none;
+  /* Prevent inherited dark text-shadow from occluding transparent text clip */
   filter: var(--hero-halo-gradient);
   display: inline-block;
 }
@@ -707,12 +729,15 @@ html.lucidex-landing-active body {
     transform: translateY(0);
     opacity: 0;
   }
+
   20% {
     opacity: 1;
   }
+
   80% {
     opacity: 1;
   }
+
   100% {
     transform: translateY(40px);
     opacity: 0;
@@ -725,6 +750,7 @@ html.lucidex-landing-active body {
     opacity: 0;
     transform: translateY(16px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -854,7 +880,8 @@ html.lucidex-landing-active body {
   height: 100%;
   overflow: visible;
   pointer-events: none;
-  z-index: 1; /* SVG path layer goes BELOW the browser frame (frame z-index: 5) */
+  z-index: 1;
+  /* SVG path layer goes BELOW the browser frame (frame z-index: 5) */
 }
 
 .lucidex-landing .flight-path-base {
@@ -881,7 +908,8 @@ html.lucidex-landing-active body {
   width: clamp(64px, 8vw, 128px);
   height: clamp(64px, 8vw, 128px);
   pointer-events: none;
-  z-index: 1; /* In sections 3-5, flies under illustrations (z-index: 2) and text (z-index: 3) */
+  z-index: 1;
+  /* In sections 3-5, flies under illustrations (z-index: 2) and text (z-index: 3) */
   will-change: transform, opacity;
   transform-origin: center center;
   transform: translate3d(-1000px, -1000px, 0);
@@ -889,7 +917,8 @@ html.lucidex-landing-active body {
 }
 
 .lucidex-landing .flight-plane.is-landing {
-  z-index: 10; /* Plane layer stays ABOVE the browser frame (frame z-index: 5) and video */
+  z-index: 10;
+  /* Plane layer stays ABOVE the browser frame (frame z-index: 5) and video */
 }
 
 .lucidex-landing .flight-plane canvas {
@@ -956,7 +985,8 @@ html.lucidex-landing-active body {
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 3; /* Text blocks sit above flight path and plane */
+  z-index: 3;
+  /* Text blocks sit above flight path and plane */
 }
 
 .lucidex-landing .role-image-col {
@@ -965,7 +995,8 @@ html.lucidex-landing-active body {
   justify-content: center;
   align-items: center;
   position: relative;
-  z-index: 2; /* Illustrations sit ABOVE flight path and plane (z-index 1) */
+  z-index: 2;
+  /* Illustrations sit ABOVE flight path and plane (z-index 1) */
 }
 
 .lucidex-landing .role-label {
@@ -1120,9 +1151,12 @@ html.lucidex-landing-active body {
 }
 
 @keyframes lx-subtle-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -1186,7 +1220,8 @@ html.lucidex-landing-active body {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   position: relative;
-  z-index: 5; /* Layering: SVG path layer (z-index 1) sits below frame; plane (z-index 10) sits above */
+  z-index: 5;
+  /* Layering: SVG path layer (z-index 1) sits below frame; plane (z-index 10) sits above */
   transition: border-color 0.8s ease, box-shadow 0.8s ease;
 }
 
@@ -1295,6 +1330,7 @@ html.lucidex-landing-active body {
     height: auto;
     padding: 36px 5vw 44px;
   }
+
   .lucidex-landing .demo-section-container,
   .lucidex-landing .demo-browser-frame {
     max-width: 100%;
@@ -1323,8 +1359,6 @@ html.lucidex-landing-active body {
   .lucidex-landing .hero-main-video {
     object-position: center 26%;
     transform-origin: center 26%;
-    mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 85% at 50% 26%, black 55%, transparent 95%);
   }
 
   .lucidex-landing .hero-giant-word-container {
@@ -2028,6 +2062,7 @@ html.lucidex-landing-active body {
 }
 
 @media (max-width: 819px) {
+
   .lucidex-landing .site-header .nav-links,
   .lucidex-landing .site-header .nav-actions {
     display: none;
@@ -2081,14 +2116,12 @@ html.lucidex-landing-active body.lucidex-landing-menu-open {
   right: 0;
   pointer-events: none;
   z-index: 1;
-  background: linear-gradient(
-    to bottom,
-    #070d1c 0%,
-    #070d1c 74%,
-    rgba(7, 13, 28, 0.85) 85.7%,
-    rgba(7, 13, 28, 0.45) 93.5%,
-    rgba(7, 13, 28, 0) 100%
-  );
+  background: linear-gradient(to bottom,
+      #070d1c 0%,
+      #070d1c 74%,
+      rgba(7, 13, 28, 0.85) 85.7%,
+      rgba(7, 13, 28, 0.45) 93.5%,
+      rgba(7, 13, 28, 0) 100%);
 }
 
 .lucidex-landing .footer-container {
