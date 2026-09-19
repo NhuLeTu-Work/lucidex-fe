@@ -19,12 +19,9 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
   return (
     <div>
       {/* Hiển thị Tên tổ chức thật từ API */}
-      <h1 className="font-display text-2xl mb-2">
+      <h1 className="font-display text-2xl mb-8">
         {t('welcomeIssuer')} {userProfile?.organization_name || ''}
       </h1>
-      <p className="text-sm mb-8" style={{ color: 'var(--ct-text-secondary)' }}>
-        {userProfile?.email} — {t('phase1Label')}
-      </p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label={t('verificationsThisMonth')} value="58" icon={<TrendingUp size={20} />} onClick={() => onTabChange('analytics')} />
@@ -33,7 +30,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
       </div>
 
       {/* Mini Chart */}
-      <div className="p-6 rounded-2xl border mb-8" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="portal-panel p-6 rounded-2xl border mb-8" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <h3 className="font-semibold mb-4">{t('verifyTrends')}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={monthlyVerifications}>
@@ -53,7 +50,7 @@ export function IssuerDashboard({ t, pendingCount, onTabChange, userProfile }: I
       </div>
 
       {/* Recent Activity */}
-      <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
 
         {pendingCount === 0 ? (
           <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>{t('noReviewItems')}</p>

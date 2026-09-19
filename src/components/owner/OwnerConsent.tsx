@@ -222,7 +222,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
           </div>
         )}
 
-        <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <h3 className="font-semibold mb-4">{t('autoApproveFor')}</h3>
 
           {selectedOrgIds.length > 0 && (
@@ -328,8 +328,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-6 py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
-            style={{ background: '#000' }}
+            className="portal-cta px-6 py-3 text-sm font-semibold rounded-xl transition-all hover:opacity-80 disabled:opacity-50"
           >
             {isSaving ? '...' : t('save')}
           </button>

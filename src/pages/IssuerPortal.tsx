@@ -3,6 +3,7 @@ import { useIssuerPortal } from '../hooks/issuer/userIssuerRequests';
 import { useEffect } from 'react';
 import { useAuthMe } from '@/hooks/auth/useAuthMe';
 // Components
+import { PortalWatermark } from '../components/app/PortalWatermark';
 import { IssuerSidebarDesktop, IssuerSidebarMobile } from '../components/issuer/IssuerSideBar';
 import { IssuerDashboard } from '../components/issuer/IssuerDashBoard';
 import { IssuerUpload } from '../components/issuer/IssuerUpload';
@@ -32,7 +33,9 @@ export function IssuerPortal() {
         userProfile={userProfile}
       />
 
-      <main className="flex-1 p-6 lg:p-10 overflow-auto">
+      <main className="relative isolate flex-1 p-6 lg:p-10 overflow-hidden">
+        <PortalWatermark role="issuer" />
+
         <IssuerSidebarMobile
           activeTab={activeTab}
           setActiveTab={setActiveTab}

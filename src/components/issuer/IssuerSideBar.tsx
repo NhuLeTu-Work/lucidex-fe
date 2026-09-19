@@ -1,4 +1,6 @@
-import { LayoutDashboard, Upload, ClipboardCheck, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Upload, ClipboardCheck, BarChart3, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import type { IssuerTab } from '../../types/issuer';
 import type { UserProfile } from '@/api/types/auth.types';
 
@@ -30,7 +32,7 @@ export function IssuerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }
     <aside className="w-64 flex-shrink-0 border-r hidden md:flex md:flex-col sticky top-16 h-[calc(100vh-64px)] overflow-y-auto" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
       <div className="p-6 border-b" style={{ borderColor: 'var(--ct-border)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: '#000' }}>
+          <div className="portal-avatar w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold">
             <BuildingIcon size={16} />
           </div>
           <div className="overflow-hidden"> {/* Thêm overflow-hidden để chống vỡ layout khi text quá dài */}
@@ -41,12 +43,20 @@ export function IssuerSidebarDesktop({ activeTab, setActiveTab, t, userProfile }
       </div>
       <nav className="p-3 space-y-1">
         {sidebarItems.map(item => (
-          <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === item.id ? 'text-white' : 'opacity-60 hover:opacity-100'}`} style={{ background: activeTab === item.id ? '#000' : 'transparent' }}>
+          <button key={item.id} onClick={() => setActiveTab(item.id)} className={`portal-navitem w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium ${activeTab === item.id ? 'is-active' : ''}`}>
             {item.icon}
             {item.label}
           </button>
         ))}
       </nav>
+      <div className="p-4 mt-auto border-t" style={{ borderColor: 'var(--ct-border)' }}>
+        <Button asChild variant="outline" size="sm" className="portal-backlink w-full justify-center">
+          <Link to="/">
+            <ArrowLeft size={14} />
+            {t('backToLanding')}
+          </Link>
+        </Button>
+      </div>
     </aside>
   );
 }
@@ -62,7 +72,7 @@ export function IssuerSidebarMobile({ activeTab, setActiveTab, t }: SidebarProps
   return (
     <div className="md:hidden flex gap-2 mb-6 overflow-x-auto pb-2">
       {sidebarItems.map(item => (
-        <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all ${activeTab === item.id ? 'text-white' : 'opacity-60'}`} style={{ background: activeTab === item.id ? '#000' : 'var(--ct-surface)' }}>
+        <button key={item.id} onClick={() => setActiveTab(item.id)} className={`portal-navitem portal-navitem--chip flex-shrink-0 px-3 py-2 text-xs font-medium ${activeTab === item.id ? 'is-active' : ''}`}>
           {item.icon}
         </button>
       ))}

@@ -2,6 +2,7 @@ import { useApp } from '../app/AppContext';
 import { useOwnerPortal } from '../hooks/owner/useOwnerPortal';
 import { useEffect } from 'react';
 import { useAuthMe } from '@/hooks/auth/useAuthMe';
+import { PortalWatermark } from '../components/app/PortalWatermark';
 import { OwnerSidebarDesktop, OwnerSidebarMobile } from '../components/owner/OwnerSidebar';
 import { OwnerDashboard } from '../components/owner/OwnerDashboard';
 import { OwnerCredentials } from '../components/owner/OwnerCredentials';
@@ -31,7 +32,9 @@ export function OwnerPortal() {
         userProfile={userProfile}
       />
 
-      <main className="flex-1 p-6 lg:p-10 overflow-auto">
+      <main className="relative isolate flex-1 p-6 lg:p-10 overflow-hidden">
+        <PortalWatermark role="owner" />
+
         <OwnerSidebarMobile
           activeTab={activeTab} setActiveTab={setActiveTab} t={t}
           userProfile={userProfile}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucidex — portal identity prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{
+  --font:'Inter',system-ui,sans-serif;
+  /* shared with the landing page */
+  --brand-a:#38BDF8; --brand-b:#6366F1;
+  /* role accents */
+  --issuer:#38BDF8;  --issuer-2:#0EA5E9;
+  --owner:#A78BFA;   --owner-2:#7C3AED;
+  --verifier:#2DD4BF;--verifier-2:#14B8A6;
+}
+html[data-theme="dark"]{--bg:#070d1c;--surface:#0c1428;--surface-2:#111c36;--line:rgba(255,255,255,.09);
+  --text:#F1F5FB;--muted:rgba(241,245,251,.6);--input:#060b18}
+html[data-theme="light"]{--bg:#F6F8FC;--surface:#fff;--surface-2:#F0F4FA;--line:rgba(10,20,40,.1);
+  --text:#0B1220;--muted:rgba(11,18,32,.6);--input:#fff}
+body{background:var(--bg);color:var(--text);font:400 15px/1.55 var(--font);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+
+/* role theming: one variable drives everything */
+body[data-role="issuer"]{--accent:var(--issuer);--accent-2:var(--issuer-2);--role-name:"Issuer"}
+body[data-role="owner"]{--accent:var(--owner);--accent-2:var(--owner-2)}
+body[data-role="verifier"]{--accent:var(--verifier);--accent-2:var(--verifier-2)}
+
+.app{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+/* accent rail across the very top — instant signal of which portal you are in */
+.railtop{position:fixed;inset:0 0 auto 0;height:3px;z-index:20;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+/* sidebar */
+.side{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 16px;gap:22px;position:relative}
+.brand{display:flex;align-items:center;gap:10px;font:800 19px var(--font);padding:0 6px}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand-a),var(--brand-b));
+  display:grid;place-items:center;color:#fff;font-size:15px;font-weight:700}
+.rolecard{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:
+  linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%)}
+.rolecard .top{display:flex;align-items:center;gap:10px}
+.rolecard .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;
+  background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.rolecard b{font:600 15px var(--font);display:block}
+.rolecard small{color:var(--muted);font-size:12px}
+.who{display:flex;align-items:center;gap:10px;padding:0 6px}
+.who .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.who small{display:block;color:var(--muted);font-size:12px}
+nav{display:grid;gap:4px}
+nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;color:var(--muted);font-weight:500}
+nav a:hover{background:var(--surface-2);color:var(--text)}
+nav a.on{color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 30%,transparent)}
+nav a svg{width:18px;height:18px;flex:none}
+.quota{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;font-size:12px;color:var(--muted)}
+.quota .bar{height:4px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin:8px 0 6px}
+.quota .bar i{display:block;height:100%;width:70%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.backlink{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);padding:0 6px}
+.backlink:hover{color:var(--accent)}
+
+/* header */
+.main{display:flex;flex-direction:column;min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid var(--line);background:var(--surface)}
+.portalpill{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:99px;font-weight:600;font-size:14px;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 38%,transparent)}
+.tools{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+.tools button{background:none;border:1px solid var(--line);color:inherit;border-radius:10px;padding:7px 11px}
+.tools .logout{border-color:color-mix(in srgb,var(--accent) 40%,transparent);color:var(--accent)}
+
+/* content */
+.content{padding:30px 28px;position:relative;flex:1;overflow:hidden}
+.wm{position:absolute;right:-40px;bottom:-60px;width:380px;opacity:.05;color:var(--accent);pointer-events:none}
+h1{font:700 30px/1.15 var(--font);letter-spacing:-.02em;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:760px;position:relative}
+.panel::before{content:"";position:absolute;left:22px;right:22px;top:0;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),transparent)}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin:-4px -22px 20px;padding:0 22px}
+.tabs span{padding:10px 2px;color:var(--muted);font-weight:500;font-size:14px;border-bottom:2px solid transparent}
+.tabs span.on{color:var(--text);border-color:var(--accent)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+input[type=text]{flex:1;min-width:240px;background:var(--input);border:1px solid var(--line);border-radius:11px;
+  padding:13px 15px;color:var(--text);font:500 14px var(--font);letter-spacing:.06em}
+input::placeholder{color:var(--muted);letter-spacing:.04em}
+.cta{padding:13px 26px;border-radius:11px;border:0;color:#fff;font-weight:600;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 28%,transparent)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;max-width:760px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat b{display:block;font:700 24px var(--font)}
+.stat small{color:var(--muted);font-size:12px}
+
+/* switcher */
+.switch{position:fixed;right:16px;bottom:16px;z-index:30;display:flex;gap:4px;padding:4px;border-radius:12px;
+  background:rgba(8,16,34,.94);border:1px solid rgba(255,255,255,.12)}
+.switch button{font:500 12px var(--font);color:rgba(241,245,251,.7);background:none;border:0;padding:8px 13px;border-radius:9px}
+.switch button[aria-pressed="true"]{color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.note{position:fixed;left:16px;bottom:16px;z-index:30;font-size:12px;color:rgba(241,245,251,.6);background:rgba(8,16,34,.94);
+  padding:7px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.12)}
+@media (max-width:900px){ .app{grid-template-columns:1fr} .side{display:none} .cards{grid-template-columns:1fr} }
+</style>
+</head>
+<body data-role="verifier">
+<div class="railtop"></div>
+<div class="app">
+  <aside class="side">
+    <a class="brand" href="#"><span class="mark">✦</span>Lucidex</a>
+
+    <div class="rolecard">
+      <div class="top">
+        <span class="ico" id="roleIco"></span>
+        <span><b id="roleName">Verifier</b><small id="roleDesc">Check a credential</small></span>
+      </div>
+    </div>
+
+    <div class="who"><span class="av" id="avatar">D</span><span><b style="font-size:14px">DNC</b><small>khoabc007@gmail.com</small></span></div>
+
+    <nav id="nav"></nav>
+
+    <div class="quota">
+      <span id="planName">Free Tier</span>
+      <div class="bar"><i id="quotaBar"></i></div>
+      <span id="quotaTxt">14/20 used</span>
+    </div>
+    <a class="backlink" href="#">← Back to lucidex.vn</a>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <span class="portalpill"><span id="pillIco"></span><span id="pillName">Verifier Portal</span></span>
+      <div class="tools">
+        <button>EN</button><button id="themeBtn">Dark</button><button>⊞</button><button class="logout">Logout</button>
+      </div>
+    </header>
+    <div class="content">
+      <svg class="wm" id="wm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"></svg>
+      <h1 id="title">Verify Credential</h1>
+      <p class="sub" id="subtitle">Enter a share code to confirm a degree at the source.</p>
+      <div class="panel" id="panel"></div>
+      <div class="cards" id="stats"></div>
+    </div>
+  </div>
+</div>
+
+<div class="note">Prototype: three portals, one design system</div>
+<div class="switch" role="group" aria-label="Portal">
+  <button data-r="issuer">Issuer</button>
+  <button data-r="owner">Owner</button>
+  <button data-r="verifier" aria-pressed="true">Verifier</button>
+</div>
+
+<script>
+const I={
+  issuer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0-12 4 4m-4-4-4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
+  owner:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M5.5 16c.8-1.6 2-2.4 3.5-2.4s2.7.8 3.5 2.4"/></svg>',
+  verifier:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 11l2 2 4-4"/></svg>'
+};
+const CFG={
+  issuer:{name:'Issuer',desc:'Issue and manage records',pill:'Issuer Portal',title:'Issue Credentials',
+    sub:'Upload graduate records once — they stay verifiable at the source.',
+    nav:['Dashboard','Issue credentials','Batch upload','Templates','Organization'],
+    tabs:['Single record','Batch upload (CSV)'],ph:'Graduate ID or record…',cta:'Create',
+    plan:'Institution plan',quota:'1,240 / 5,000 records',bar:25,
+    stats:[['1,240','Records issued'],['98%','Claimed by graduates'],['312','Verified this month']]},
+  owner:{name:'Owner',desc:'Your credentials',pill:'Owner Portal',title:'My Credentials',
+    sub:'Claim your degrees and decide who can see each one.',
+    nav:['Dashboard','My credentials','Share codes','Activity','Profile'],
+    tabs:['My credentials','Share codes'],ph:'Search your credentials…',cta:'Share',
+    plan:'Personal',quota:'3 credentials · 2 active codes',bar:60,
+    stats:[['3','Credentials'],['2','Active share codes'],['11','Times verified']]},
+  verifier:{name:'Verifier',desc:'Check a credential',pill:'Verifier Portal',title:'Verify Credential',
+    sub:'Enter a share code to confirm a degree at the source.',
+    nav:['Dashboard','Verify credential','Verify history','Quota & Plan','Organization Registration'],
+    tabs:['Single check','Batch check (CSV)'],ph:'Enter share code…',cta:'Check',
+    plan:'Free Tier',quota:'14 / 20 used',bar:70,
+    stats:[['14','Checks this month'],['12','Valid results'],['6','Institutions reached']]}
+};
+const $=id=>document.getElementById(id);
+function render(r){
+  const c=CFG[r];document.body.dataset.role=r;
+  $('roleIco').innerHTML=I[r];$('pillIco').innerHTML=I[r];$('wm').outerHTML=`<svg class="wm" id="wm" viewBox="0 0 24 24">${I[r]}</svg>`;
+  $('roleName').textContent=c.name;$('roleDesc').textContent=c.desc;$('pillName').textContent=c.pill;
+  $('title').textContent=c.title;$('subtitle').textContent=c.sub;
+  $('nav').innerHTML=c.nav.map((n,i)=>`<a href="#" class="${i===1?'on':''}">${I[r].replace('<svg','<svg ')}${n}</a>`).join('');
+  $('panel').innerHTML=`<div class="tabs"><span class="on">${c.tabs[0]}</span><span>${c.tabs[1]}</span></div>
+    <div class="row"><input type="text" placeholder="${c.ph}"><button class="cta">${c.cta}</button></div>`;
+  $('stats').innerHTML=c.stats.map(s=>`<div class="stat"><b>${s[0]}</b><small>${s[1]}</small></div>`).join('');
+  $('planName').textContent=c.plan;$('quotaTxt').textContent=c.quota;$('quotaBar').style.width=c.bar+'%';
+  document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.r===r));
+}
+document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>render(b.dataset.r)));
+$('themeBtn').addEventListener('click',()=>{
+  const h=document.documentElement,next=h.dataset.theme==='dark'?'light':'dark';
+  h.dataset.theme=next;$('themeBtn').textContent=next==='dark'?'Dark':'Light';});
+render('verifier');
+</script>
+</body>
+</html>

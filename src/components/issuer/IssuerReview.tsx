@@ -43,7 +43,7 @@ export function IssuerReview({ t, items, onApprove, onReject }: IssuerReviewProp
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => onApprove(item.id)} className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white rounded-lg bg-black hover:opacity-80 transition-opacity">
+                  <button onClick={() => onApprove(item.id)} className="portal-cta flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg hover:opacity-80 transition-opacity">
                     <CheckCircle size={12} /> {t('approve')}
                   </button>
                   <button onClick={() => onReject(item.id)} className="flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors">

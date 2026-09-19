@@ -36,19 +36,19 @@ export function IssuerCredentialList() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ct-text-secondary)' }}>
             {t('totalCredentials')}
           </p>
           <p className="text-2xl font-bold mt-1">{data?.summary?.total_credentials ?? 0}</p>
         </div>
-        <div className="p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ct-text-secondary)' }}>
             {t('totalClaimed')}
           </p>
           <p className="text-2xl font-bold text-green-600 mt-1">{data?.summary?.total_claimed ?? 0}</p>
         </div>
-        <div className="p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+        <div className="portal-panel p-4 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ct-text-secondary)' }}>
             {t('totalUnclaimed')}
           </p>
@@ -57,7 +57,7 @@ export function IssuerCredentialList() {
       </div>
 
       {/* Filters Bar */}
-      <div className="p-6 rounded-2xl border mb-8" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="portal-panel p-6 rounded-2xl border mb-8" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <div className="flex flex-wrap gap-4 items-end">
           <div className="space-y-2 flex-1 min-w-[200px]">
             <label className="text-xs font-semibold" style={{ color: 'var(--ct-text-secondary)' }}>{t('searchGeneral')}</label>
@@ -134,7 +134,7 @@ export function IssuerCredentialList() {
       </div>
 
       {/* Table Data */}
-      <div className="rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+      <div className="portal-panel rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader style={{ background: 'var(--ct-bg)' }}>

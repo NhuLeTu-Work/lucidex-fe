@@ -21,7 +21,7 @@ export function VerifierRegister({ t }: { t: (k: string) => string }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
-          <div className="p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
+          <div className="portal-panel p-6 rounded-2xl border" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('orgName')}</label>
@@ -41,7 +41,7 @@ export function VerifierRegister({ t }: { t: (k: string) => string }) {
               </div>
             </div>
           </div>
-          <button type="submit" className="w-full py-3 text-sm font-semibold text-white rounded-xl transition-all hover:opacity-80" style={{ background: '#000' }}>
+          <button type="submit" className="portal-cta w-full py-3 text-sm font-semibold rounded-xl transition-all hover:opacity-80">
             <Shield size={16} className="inline mr-2" />
             {t('submitForApproval')}
           </button>

@@ -302,8 +302,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
                 type="button"
                 onClick={handleBulkVerify}
                 disabled={isLoading}
-                className="px-6 py-2 text-xs font-semibold text-white rounded-xl shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center gap-2"
-                style={{ background: '#000' }}
+                className="portal-cta px-6 py-2 text-xs font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center gap-2"
               >
                 {isLoading ? <Loader2 size={15} className="animate-spin" /> : <UploadCloud size={15} />}
                 <span>Xác thực hàng loạt</span>
