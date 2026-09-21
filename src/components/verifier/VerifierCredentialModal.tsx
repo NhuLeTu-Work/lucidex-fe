@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@/app/AppContext';
 import { mapOwnerCredentialToCertificateData } from '../certificates/ctuGraduation/certificateData';
 import GraduationCertificate from '../certificates/ctuGraduation/GraduationCertificate';
 import { CredentialCoverReveal } from '../certificates/CredentialCoverReveal';
