@@ -1,5 +1,6 @@
 import { Mail, Lock, EyeOff, Eye, ShieldAlert, UserPlus, User } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import { useApp } from '@/app/AppContext';
 
 export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
   const {
@@ -9,6 +10,7 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
     isLoading, handleOwnerRegister, handleGoogleAuth,
     t
   } = hookProps;
+  const { lang } = useApp();
 
   return (
     <form onSubmit={handleOwnerRegister} className="flex flex-col gap-4 animate-in fade-in">
@@ -102,6 +104,7 @@ export function OwnerRegisterForm({ hookProps }: { hookProps: any }) {
 
       <div className="flex justify-center w-full">
         <GoogleLogin
+          key={lang}
           onSuccess={(credentialResponse) => {
             if (credentialResponse.credential) {
               handleGoogleAuth(credentialResponse.credential);

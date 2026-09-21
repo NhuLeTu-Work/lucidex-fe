@@ -7,7 +7,7 @@ import type {
 } from '@/api/types/owner.types';
 
 export function useGetVerifiedLinks(initialParams?: GetVerifiedLinksQueryParams) {
-  const { showToast } = useApp();
+  const { showToast, t } = useApp();
   const [params, setParams] = useState<GetVerifiedLinksQueryParams>(
     initialParams || { page: 1, page_size: 20 }
   );
@@ -25,13 +25,13 @@ export function useGetVerifiedLinks(initialParams?: GetVerifiedLinksQueryParams)
       }
     } catch (err: any) {
       console.error('Failed to fetch verified codes:', err);
-      const msg = err?.response?.data?.message || 'Không thể tải danh sách mã chia sẻ';
-      showToast('error', msg);
+      const msg = err?.response?.data?.message || t('errFetchVerifiedLinks');
+      showToast('error', t(msg) || msg);
       setData(null);
     } finally {
       setIsLoading(false);
     }
-  }, [params, showToast]);
+  }, [params, showToast, t]);
 
   useEffect(() => {
     fetchLinks();

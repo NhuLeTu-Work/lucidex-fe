@@ -7,7 +7,7 @@ import type {
 } from '@/api/types/owner.types';
 
 export function useCreateVerifiedLink() {
-  const { showToast } = useApp();
+  const { showToast, t } = useApp();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdData, setCreatedData] = useState<VerifiedLinkData | null>(null);
 
@@ -20,25 +20,25 @@ export function useCreateVerifiedLink() {
           setCreatedData(res.data);
           return res.data;
         }
-        showToast('error', res.message || 'Không thể tạo mã chia sẻ văn bằng');
+        showToast('error', res.message ? (t(res.message) || res.message) : t('errCreateLinkFailed'));
         return null;
       } catch (err: any) {
         const errorCode = err?.response?.data?.error_code;
         const backendMessage = err?.response?.data?.message;
 
-        let msg = 'Không thể tạo mã chia sẻ văn bằng';
+        let msg = t('errCreateLinkFailed');
         if (errorCode === 'CREDENTIAL_NOT_FOUND') {
-          msg = 'Văn bằng không tồn tại hoặc bạn không có quyền sở hữu';
+          msg = t('errCredentialNotFound');
         } else if (errorCode === 'CREDENTIAL_NOT_CLAIMED') {
-          msg = 'Văn bằng chưa ở trạng thái đã nhận (claimed)';
+          msg = t('errCredentialNotClaimed');
         } else if (errorCode === 'INVALID_EXPIRATION') {
-          msg = 'Thời gian hết hạn phải ở trong tương lai';
+          msg = t('errInvalidExpiration');
         } else if (errorCode === 'INVALID_ACCESS_COUNT') {
-          msg = 'Số lần truy cập tối đa phải lớn hơn hoặc bằng 1';
+          msg = t('errInvalidAccessCount');
         } else if (errorCode === 'INVALID_ORG_ID') {
-          msg = 'ID tổ chức xác thực không hợp lệ';
+          msg = t('errInvalidOrgId');
         } else if (backendMessage) {
-          msg = backendMessage;
+          msg = t(backendMessage) || backendMessage;
         }
 
         showToast('error', msg);
@@ -47,7 +47,7 @@ export function useCreateVerifiedLink() {
         setIsSubmitting(false);
       }
     },
-    [showToast]
+    [showToast, t]
   );
 
   return {

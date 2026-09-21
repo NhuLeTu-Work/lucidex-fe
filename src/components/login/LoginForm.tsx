@@ -1,6 +1,7 @@
 import { Lock, AlertCircle, Mail, EyeOff, Eye, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { GoogleLogin } from '@react-oauth/google';
+import { useApp } from '@/app/AppContext';
 
 export function LoginForm({ hookProps }: { hookProps: any }) {
   const { 
@@ -8,7 +9,8 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
     handleLogin, showPassword, setShowPassword, t, 
     handleGoogleAuth
   } = hookProps;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { lang } = useApp();
 
   return (
     <>
@@ -63,24 +65,25 @@ export function LoginForm({ hookProps }: { hookProps: any }) {
       </div>
 
       <div className="relative flex items-center py-2">
-            <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
-            <span className="shrink-0 px-3 text-xs font-semibold uppercase tracking-wider opacity-40" style={{ color: 'var(--ct-text)' }}>{t('or') || 'or'}</span>
-            <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
-          </div>
+        <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
+        <span className="shrink-0 px-3 text-xs font-semibold uppercase tracking-wider opacity-40" style={{ color: 'var(--ct-text)' }}>{t('or') || 'or'}</span>
+        <div className="flex-grow border-t" style={{ borderColor: 'var(--ct-border)' }}></div>
+      </div>
 
-          <div className="flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (credentialResponse.credential) {
-                  handleGoogleAuth(credentialResponse.credential);
-                }
-              }}
-              onError={() => {
-                console.log('Login Failed');
-              }}
-              useOneTap
-            />
-          </div>
+      <div className="flex justify-center w-full">
+        <GoogleLogin
+          key={lang}
+          onSuccess={(credentialResponse) => {
+            if (credentialResponse.credential) {
+              handleGoogleAuth(credentialResponse.credential);
+            }
+          }}
+          onError={() => {
+            console.log('Login Failed');
+          }}
+          useOneTap
+        />
+      </div>
     </>
   );
 }
