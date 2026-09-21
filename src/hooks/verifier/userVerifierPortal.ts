@@ -4,7 +4,10 @@ import type { VerifierTab, VerifyResultState, VerifiedData } from '../../types/v
 
 import { verifyCodeApi } from '../../api/endpoints/verifier/verifyCodeApi';
 
-export function useVerifierPortal(showToast?: (type: 'success' | 'error' | 'warning', msg: string) => void) {
+export function useVerifierPortal(
+  showToast?: (type: 'success' | 'error' | 'warning', msg: string) => void,
+  t?: (key: string) => string
+) {
   const [activeTab, setActiveTab] = useState<VerifierTab>('dashboard');
   const [quotaUsed, setQuotaUsed] = useState(currentVerifier.quotaUsed);
   const [verifyResult, setVerifyResult] = useState<VerifyResultState>('idle');
@@ -38,12 +41,12 @@ export function useVerifierPortal(showToast?: (type: 'success' | 'error' | 'warn
         });
         setVerifyResult('valid');
         setQuotaUsed(prev => Math.min(prev + 1, 20));
-        showToast?.('success', 'Xác thực mã chia sẻ thành công!');
+        showToast?.('success', t ? t('verifySuccessToast') : 'Xác thực mã chia sẻ thành công!');
       } else {
         setVerifiedData(null);
         setRawCredentialData(null);
         setVerifyResult('invalid');
-        showToast?.('error', response.message || 'Mã xác thực không hợp lệ!');
+        showToast?.('error', response.message || (t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ!'));
       }
     } catch {
       // Direct API call fallback for mock/offline testing environment
@@ -85,14 +88,14 @@ export function useVerifierPortal(showToast?: (type: 'success' | 'error' | 'warn
           });
           setVerifyResult('valid');
           setQuotaUsed(prev => Math.min(prev + 1, 20));
-          showToast?.('success', 'Xác thực mã chia sẻ thành công!');
+          showToast?.('success', t ? t('verifySuccessToast') : 'Xác thực mã chia sẻ thành công!');
           return;
         }
       }
       setVerifiedData(null);
       setRawCredentialData(null);
       setVerifyResult('invalid');
-      showToast?.('error', 'Mã xác thực không hợp lệ hoặc đã hết hạn!');
+      showToast?.('error', t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!');
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Download, UploadCloud, CheckCircle, XCircle, AlertTriangle, ShieldAlert, Eye, Loader2 } from 'lucide-react';
+import { useApp } from '@/app/AppContext';
 import { bulkVerifyApi } from '../../api/endpoints/verifier/bulkVerifyApi';
 import { verifyCodeApi } from '../../api/endpoints/verifier/verifyCodeApi';
 import type { BulkVerifySuccessData, BulkVerifyResultItem } from '../../api/types/verifier.types';
@@ -22,7 +23,10 @@ export function downloadBulkVerifyTemplateCSV() {
   document.body.removeChild(link);
 }
 
-export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
+export function VerifierBulkVerify({ showToast: propShowToast }: VerifierBulkVerifyProps) {
+  const { t, showToast: appShowToast } = useApp();
+  const showToast = propShowToast || appShowToast;
+
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [batchData, setBatchData] = useState<BulkVerifySuccessData | null>(null);
@@ -45,14 +49,14 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
       if (droppedFile.name.endsWith('.csv')) {
         setFile(droppedFile);
       } else {
-        showToast?.('error', 'Vui lòng chỉ tải lên tệp định dạng .csv');
+        showToast?.('error', t('errOnlyCsv'));
       }
     }
   };
 
   const handleBulkVerify = async () => {
     if (!file) {
-      showToast?.('error', 'Vui lòng chọn tệp CSV trước khi xác thực!');
+      showToast?.('error', t('errSelectCsvFirst'));
       return;
     }
 
@@ -80,9 +84,12 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
         setBatchData(response.data);
         const activeCount = response.data.summary.active;
         const total = response.data.total;
-        showToast?.('success', `Xác thực hàng loạt hoàn tất! Đã xác thực thành công ${activeCount}/${total} mã.`);
+        const successMsg = t('bulkVerifySuccessToast')
+          .replace('{active}', String(activeCount))
+          .replace('{total}', String(total));
+        showToast?.('success', successMsg);
       } else {
-        showToast?.('error', response.message || 'Xác thực hàng loạt thất bại!');
+        showToast?.('error', response.message || t('bulkVerifyFailedToast'));
       }
     } catch {
       // Fallback parser cho môi trường offline test
@@ -94,13 +101,13 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
         const codes = hasHeader ? lines.slice(1) : lines;
 
         if (codes.length === 0) {
-          showToast?.('error', 'Tệp CSV không chứa dữ liệu mã xác thực!');
+          showToast?.('error', t('errCsvNoCodes'));
           setIsLoading(false);
           return;
         }
 
         if (codes.length > 500) {
-          showToast?.('error', 'Tệp CSV vượt quá giới hạn 500 mã!');
+          showToast?.('error', t('errCsvOver500'));
           setIsLoading(false);
           return;
         }
@@ -178,9 +185,12 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
         };
 
         setBatchData(mockData);
-        showToast?.('success', `Xác thực hàng loạt hoàn tất! Đã xác thực thành công ${summary.active}/${results.length} mã.`);
+        const successMsg = t('bulkVerifySuccessToast')
+          .replace('{active}', String(summary.active))
+          .replace('{total}', String(results.length));
+        showToast?.('success', successMsg);
       } catch {
-        showToast?.('error', 'Đã xảy ra lỗi khi xử lý tệp CSV!');
+        showToast?.('error', t('errProcessCsv'));
       }
     } finally {
       setIsLoading(false);
@@ -238,18 +248,18 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
 
   const getReasonText = (item: BulkVerifyResultItem) => {
     if (item.status === 'active' && item.is_restricted) {
-      return 'Bị giới hạn tổ chức Verifier (Tổ chức của bạn không nằm trong danh sách Trusted Organizations)';
+      return t('reasonRestrictedOrg');
     }
     if (item.status === 'expired') {
-      return 'Mã đã hết hạn sử dụng hoặc đã vượt quá số lần truy cập tối đa quy định';
+      return t('reasonExpired');
     }
     if (item.status === 'revoked') {
-      return 'Mã xác minh hoặc văn bằng này đã bị thu hồi bởi Chủ sở hữu / Đơn vị cấp phát';
+      return t('reasonRevoked');
     }
     if (item.status === 'not_found') {
-      return 'Không tìm thấy mã xác nhận trên hệ thống (Mã sai hoặc không tồn tại)';
+      return t('reasonNotFound');
     }
-    return 'Không hợp lệ';
+    return t('reasonInvalid');
   };
 
   return (
@@ -263,10 +273,10 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
           style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
         >
           <Download size={18} />
-          <span>Tải tệp CSV mẫu</span>
+          <span>{t('downloadTemplateCsv')}</span>
         </button>
         <p className="text-sm opacity-70" style={{ color: 'var(--ct-text)' }}>
-          Tệp CSV có thể hỗ trợ tối đa 500 mã/lần gửi file.
+          {t('bulkCsvLimitNote')}
         </p>
       </div>
 
@@ -284,16 +294,16 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
 
           <div>
             <p className="text-sm font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
-              {file ? file.name : 'Kéo thả tệp .csv vào đây hoặc chọn từ máy tính'}
+              {file ? file.name : t('dragDropBulkCsv')}
             </p>
             <p className="text-xs opacity-60" style={{ color: 'var(--ct-text)' }}>
-              {file ? `${(file.size / 1024).toFixed(1)} KB` : 'Định dạng .csv, tối đa 500 mã'}
+              {file ? `${(file.size / 1024).toFixed(1)} KB` : t('bulkCsvFormatNote')}
             </p>
           </div>
 
           <div className="flex items-center gap-3 mt-2">
             <label className="cursor-pointer px-4 py-2 text-xs font-semibold rounded-xl border transition-all hover:opacity-80 active:scale-95" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
-              <span>{file ? 'Đổi tệp CSV' : 'Chọn tệp CSV'}</span>
+              <span>{file ? t('changeCsvFile') : t('selectCsvFile')}</span>
               <input type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
             </label>
 
@@ -305,7 +315,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
                 className="portal-cta px-6 py-2 text-xs font-semibold rounded-xl shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center gap-2"
               >
                 {isLoading ? <Loader2 size={15} className="animate-spin" /> : <UploadCloud size={15} />}
-                <span>Xác thực hàng loạt</span>
+                <span>{t('startBulkVerify')}</span>
               </button>
             )}
           </div>
@@ -318,7 +328,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
           {/* Header kết quả + Nút chọn tệp khác */}
           <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--ct-border)' }}>
             <h3 className="font-semibold text-base" style={{ color: 'var(--ct-text)' }}>
-              Kết quả xác thực ({batchData.results.length} mã)
+              {t('bulkVerifyResultsTitle').replace('{count}', String(batchData.results.length))}
             </h3>
             <button
               type="button"
@@ -326,7 +336,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
               className="px-4 py-2 text-sm font-semibold rounded-xl border transition-all hover:opacity-80 active:scale-95 shadow-sm"
               style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
             >
-              Tải lên tệp CSV khác
+              {t('uploadOtherCsv')}
             </button>
           </div>
 
@@ -352,36 +362,36 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
                         <span className="font-mono font-bold text-base tracking-wide">{item.code}</span>
                         {isSuccess ? (
                           <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-md bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/30">
-                            <CheckCircle size={12} /> Hợp lệ
+                            <CheckCircle size={12} /> {t('statusValidBadge')}
                           </span>
                         ) : item.status === 'active' && item.is_restricted ? (
                           <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30">
-                            <ShieldAlert size={12} /> Bị giới hạn tổ chức
+                            <ShieldAlert size={12} /> {t('statusRestrictedOrg')}
                           </span>
                         ) : item.status === 'expired' ? (
                           <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-                            <AlertTriangle size={12} /> Hết hạn
+                            <AlertTriangle size={12} /> {t('expired')}
                           </span>
                         ) : item.status === 'revoked' ? (
                           <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30">
-                            <XCircle size={12} /> Đã thu hồi
+                            <XCircle size={12} /> {t('revoked')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-0.5 rounded-md bg-neutral-500/20 text-neutral-700 dark:text-neutral-400 border border-neutral-500/30">
-                            <XCircle size={12} /> Không tìm thấy
+                            <XCircle size={12} /> {t('statusNotFound')}
                           </span>
                         )}
                       </div>
 
                       {isSuccess ? (
                         <div className="flex items-center gap-3 text-xs opacity-90 flex-wrap mt-0.5">
-                          <span className="font-semibold">{item.credential_type || 'Bằng tốt nghiệp đại học'}</span>
+                          <span className="font-semibold">{item.credential_type || t('degreeClassification')}</span>
                           <span>•</span>
-                          <span>Chủ sở hữu: <strong>{item.owner_name}</strong></span>
+                          <span>{t('ownerLabel')}: <strong>{item.owner_name}</strong></span>
                           <span>•</span>
-                          <span>Đơn vị cấp: <strong>{item.issuer_name || 'Trường Đại học Cần Thơ'}</strong></span>
+                          <span>{t('issuerLabel')}: <strong>{item.issuer_name || t('defaultIssuerName')}</strong></span>
                           <span>•</span>
-                          <span>Năm cấp: <strong>{item.graduation_year || 2026}</strong></span>
+                          <span>{t('issuedYearLabel')}: <strong>{item.graduation_year || 2026}</strong></span>
                         </div>
                       ) : (
                         <p className="text-xs opacity-80 mt-0.5 text-balance">{getReasonText(item)}</p>
@@ -396,7 +406,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
                       className="px-3.5 py-1.5 text-xs font-semibold text-white rounded-xl bg-green-600 hover:bg-green-700 transition-all shadow-sm active:scale-95 flex items-center gap-1.5 shrink-0"
                     >
                       <Eye size={14} />
-                      <span>Xem chi tiết</span>
+                      <span>{t('viewDetails')}</span>
                     </button>
                   )}
                 </div>
@@ -422,7 +432,7 @@ export function VerifierBulkVerify({ showToast }: VerifierBulkVerifyProps) {
               {detailLoading || !certData ? (
                 <div className="flex flex-col items-center gap-3 text-amber-400">
                   <Loader2 className="animate-spin" size={36} />
-                  <span>Đang tải dữ liệu bằng cấp...</span>
+                  <span>{t('loadingCredentialData')}</span>
                 </div>
               ) : (
                 <GraduationCertificate data={certData} />

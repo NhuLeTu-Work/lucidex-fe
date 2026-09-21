@@ -15,7 +15,7 @@ const FONT_MARKER = 'data-lucidex-landing-font';
 const FONT_HREF =
   'https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;700;800;900&family=Michroma&display=swap';
 
-const PAGE_TITLE = 'Vietnamese credentials. Trusted worldwide.';
+const PAGE_TITLE = 'Vietnamese credentials. Trusted worldwide';
 const PAGE_DESCRIPTION = 'Verify any Vietnamese degree directly from the institution that issued it.';
 
 interface Disposable {

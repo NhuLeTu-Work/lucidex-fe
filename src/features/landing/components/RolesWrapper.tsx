@@ -53,7 +53,7 @@ export function RolesWrapper() {
       <RoleSection
         id="issuer"
         label="Issuer"
-        title="Upload once. Stay the source of truth."
+        title="Upload once. Stay the source of truth"
         points={[
           'Institutions upload graduate records once.',
           'Every record comes directly from the issuing institution.',
@@ -65,7 +65,7 @@ export function RolesWrapper() {
       <RoleSection
         id="owner"
         label="Owner"
-        title="Claim your credentials. Control who sees them."
+        title="Claim your credentials. Control who sees them"
         points={[
           'Graduates confirm their identity and claim their credentials.',
           'Graduates decide who can see each credential.',
@@ -79,7 +79,7 @@ export function RolesWrapper() {
       <RoleSection
         id="verifier"
         label="Verifier"
-        title="Enter a code. Know it is real."
+        title="Enter a code. Know it is real"
         points={[
           'Employers use a share code to confirm authenticity in seconds.',
           'Every verification is recorded with who checked it and when.',

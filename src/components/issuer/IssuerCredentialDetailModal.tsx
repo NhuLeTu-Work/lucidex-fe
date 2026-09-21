@@ -84,7 +84,7 @@ export function IssuerCredentialDetailModal({ id, onClose }: CredentialDetailMod
               <Button
                 variant="destructive"
                 className="flex items-center gap-2"
-                onClick={() => showToast('warning', t('confirmDeleteTitle') || 'Delete')}
+                onClick={() => showToast('warning', t('confirmDeleteTitle'))}
               >
                 <Trash2 size={16} />
                 {t('deleteBtn')}
@@ -92,7 +92,7 @@ export function IssuerCredentialDetailModal({ id, onClose }: CredentialDetailMod
               <Button
                 variant="outline"
                 className="flex items-center gap-2"
-                onClick={() => showToast('warning', t('editBtn') || 'Edit')}
+                onClick={() => showToast('warning', t('editBtn'))}
               >
                 <Edit2 size={16} />
                 {t('editBtn')}

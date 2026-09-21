@@ -40,7 +40,7 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
             subTab === 'single' ? 'opacity-100 border-[var(--ct-text)]' : 'border-transparent opacity-50 hover:opacity-80'
           }`}
         >
-          Xác thực đơn
+          {t('singleVerify')}
         </button>
 
         <button
@@ -50,11 +50,11 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
             subTab === 'bulk' ? 'opacity-100 border-[var(--ct-text)]' : 'border-transparent opacity-50 hover:opacity-80'
           }`}
         >
-          Xác thực hàng loạt (CSV)
+          {t('bulkVerify')}
         </button>
       </div>
 
-      {/* TAB 1: SINGLE VERIFY CODE - KHÔNG THAY ĐỔI GÌ HẾT */}
+      {/* TAB 1: SINGLE VERIFY CODE */}
       {subTab === 'single' && (
         <>
           {/* Form nhập mã */}
@@ -64,7 +64,7 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
                 type="text"
                 value={code}
                 onChange={e => setCode(e.target.value)}
-                placeholder="Nhập mã chia sẻ..."
+                placeholder={t('enterShareCodePlaceholder')}
                 className="flex-1 px-4 py-3 rounded-xl border text-sm font-mono outline-none"
                 style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}
               />

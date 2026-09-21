@@ -10,7 +10,7 @@ export function NationwideSection() {
     <section className="demo-section" id="nationwide">
       <div className="demo-section-container">
         <h2 className="demo-section-heading">
-          Enter a code. <span className="demo-gradient-text">Get an answer.</span>
+          Enter a code. <span className="demo-gradient-text">Get an answer</span>
         </h2>
 
         {/* Browser-style frame */}

@@ -63,7 +63,7 @@ function SearchCombobox({
     if (!hasGroup) return { default: options };
     const res: Record<string, typeof options> = {};
     options.forEach((o) => {
-      const g = o.group || 'Khác';
+      const g = o.group || t('other');
       if (!res[g]) res[g] = [];
       res[g].push(o);
     });
@@ -255,38 +255,38 @@ export function IssuerManualImportModal({
 
     // 1. Check required mandatory fields
     if (!sId || !fName || !dobVal || !cId) {
-      showToast('error', t('errFillAllFields') || 'Vui lòng điền đầy đủ các trường bắt buộc');
+      showToast('error', t('errFillAllFields'));
       return;
     }
 
     // 2. Strict format validations
     // MSSV / Mã SV: 2 - 15 ký tự (Chữ, số, -, _)
     if (!CODE_KEY_REGEX.test(sId)) {
-      showToast('error', t('errInvalidStudentId') ? t('errInvalidStudentId').replace('{val}', sId) : 'Mã SV không hợp lệ (2-15 ký tự chữ, số, -, _)');
+      showToast('error', t('errInvalidStudentId').replace('{val}', sId));
       return;
     }
 
     // Full Name: 2-200 chars, no special characters (@, #, $, %, etc.)
     if (fName.length < 2 || fName.length > 200 || !isValidGeneralText(fName, 2, 200)) {
-      showToast('error', t('errInvalidFullname') || 'Họ và tên không hợp lệ (2-200 ký tự, không chứa ký tự đặc biệt)');
+      showToast('error', t('errInvalidFullname'));
       return;
     }
 
     // DOB: dd/mm/yyyy
     if (!isValidDateDDMMYYYY(dobVal)) {
-      showToast('error', t('errFormatDobDetail') ? t('errFormatDobDetail').replace('{val}', dobVal) : 'Ngày sinh không hợp lệ');
+      showToast('error', t('errFormatDobDetail').replace('{val}', dobVal));
       return;
     }
 
     // Class ID / Lớp: 2-15 chars (Chữ, số, -, _)
     if (!CODE_KEY_REGEX.test(cId)) {
-      showToast('error', t('errInvalidClassId') ? t('errInvalidClassId').replace('{val}', cId) : 'Mã lớp không hợp lệ (2-15 ký tự)');
+      showToast('error', t('errInvalidClassId').replace('{val}', cId));
       return;
     }
 
     // CPA decimal check if provided
     if (cpaVal && !isValidDecimalNumber(cpaVal)) {
-      showToast('error', t('errInvalidCpa') || 'Điểm CPA phải là số thập phân');
+      showToast('error', t('errInvalidCpa'));
       return;
     }
 
@@ -295,24 +295,24 @@ export function IssuerManualImportModal({
     if (formData.graduation_year.trim()) {
       const gYr = parseInt(formData.graduation_year.trim(), 10);
       if (isNaN(gYr) || gYr < 1930 || gYr > maxYearAllowed) {
-        showToast('error', `Năm tốt nghiệp không hợp lệ (phải từ 1930 đến ${maxYearAllowed})`);
+        showToast('error', t('errGradYearRange').replace('{maxYear}', String(maxYearAllowed)));
         return;
       }
     }
 
     // Optional text fields format check
     const textCheckList: [string, string][] = [
-      ['Nơi sinh', placeBirth],
-      ['Khoa / Viện', fac],
-      ['Ngành học', maj],
-      ['Chuyên ngành', spec],
-      ['Số hiệu bằng', degNum],
-      ['Số vào sổ gốc', regNum],
+      [t('fieldPlaceOfBirth'), placeBirth],
+      [t('fieldFaculty'), fac],
+      [t('fieldMajor'), maj],
+      [t('fieldSpecialization'), spec],
+      [t('fieldDegreeNumber'), degNum],
+      [t('fieldRegisterNumber'), regNum],
     ];
 
     for (const [label, val] of textCheckList) {
       if (val && !isValidGeneralText(val, 2, 300)) {
-        showToast('error', `${label} không hợp lệ (chỉ chấp nhận chữ, số, -, / và không chứa ký tự đặc biệt @, #, $,...)`);
+        showToast('error', t('errFieldInvalidChars').replace('{field}', label));
         return;
       }
     }
@@ -351,21 +351,21 @@ export function IssuerManualImportModal({
           'success',
           response.message ||
           (response.data?.action === 'updated'
-            ? t('manualUpdateSuccess') || 'Cập nhật thành công'
-            : t('manualCreateSuccess') || 'Thêm thành công')
+            ? t('manualUpdateSuccess')
+            : t('manualCreateSuccess'))
         );
         handleReset();
         onClose();
         if (onSuccess) onSuccess();
       } else {
-        showToast('error', response.message || t('manualAddFailed') || 'Thêm thất bại');
+        showToast('error', response.message || t('manualAddFailed'));
       }
     } catch (err: any) {
       const apiErrCode = err?.response?.data?.error_code;
       const apiErrMessage = err?.response?.data?.message || err?.message || t('manualAddFailed');
 
       if (apiErrCode === 'CREDENTIAL_ALREADY_EXISTS') {
-        showToast('error', t('credentialAlreadyExistsMsg') || 'Dữ liệu đã tồn tại');
+        showToast('error', t('credentialAlreadyExistsMsg'));
       } else {
         showToast('error', apiErrMessage);
       }
@@ -380,10 +380,10 @@ export function IssuerManualImportModal({
         <DialogHeader className="shrink-0 border-b pb-4">
           <DialogTitle className="flex items-center gap-2.5 text-2xl font-bold">
             <UserPlus className="w-6 h-6 text-primary" />
-            {t('addManualCredentialTitle') || 'Nhập thủ công 1 bằng cấp'}
+            {t('addManualCredentialTitle')}
           </DialogTitle>
           <DialogDescription className="text-base text-muted-foreground mt-1">
-            {t('addManualCredentialDesc') || 'Điền đầy đủ các thông tin chi tiết dưới đây.'}
+            {t('addManualCredentialDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -401,7 +401,7 @@ export function IssuerManualImportModal({
                 </Label>
                 <Input
                   id="student_id"
-                  placeholder="VD: 20110345"
+                  placeholder={t('studentIdPlaceholder')}
                   value={formData.student_id}
                   onChange={(e) => handleChange('student_id', e.target.value)}
                   disabled={isSubmitting}
@@ -417,7 +417,7 @@ export function IssuerManualImportModal({
                 </Label>
                 <Input
                   id="full_name"
-                  placeholder="VD: Nguyễn Văn An"
+                  placeholder={t('fullNamePlaceholder')}
                   value={formData.full_name}
                   onChange={(e) => handleChange('full_name', e.target.value)}
                   disabled={isSubmitting}
@@ -481,7 +481,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="national_id" className="text-sm font-semibold">{t('nationalIdLabel')}</Label>
                 <Input
                   id="national_id"
-                  placeholder="VD: 079202012345"
+                  placeholder={t('nationalIdPlaceholder')}
                   value={formData.national_id}
                   onChange={(e) => handleChange('national_id', e.target.value)}
                   disabled={isSubmitting}
@@ -495,7 +495,7 @@ export function IssuerManualImportModal({
                 <Input
                   id="university_email"
                   type="email"
-                  placeholder="VD: an.nv20110345@student.ctu.edu.vn"
+                  placeholder={t('universityEmailPlaceholder')}
                   value={formData.university_email}
                   onChange={(e) => handleChange('university_email', e.target.value)}
                   disabled={isSubmitting}
@@ -517,7 +517,7 @@ export function IssuerManualImportModal({
                 </Label>
                 <Input
                   id="class_id"
-                  placeholder="VD: SP2201A1"
+                  placeholder={t('classIdPlaceholder')}
                   value={formData.class_id}
                   onChange={(e) => handleChange('class_id', e.target.value)}
                   disabled={isSubmitting}
@@ -531,7 +531,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="faculty" className="text-sm font-semibold">{t('facultyLabel')}</Label>
                 <Input
                   id="faculty"
-                  placeholder="VD: Công nghệ Thông tin"
+                  placeholder={t('facultyPlaceholder')}
                   value={formData.faculty}
                   onChange={(e) => handleChange('faculty', e.target.value)}
                   disabled={isSubmitting}
@@ -544,7 +544,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="major" className="text-sm font-semibold">{t('major')}</Label>
                 <Input
                   id="major"
-                  placeholder="VD: Kỹ thuật Phần mềm"
+                  placeholder={t('majorPlaceholder')}
                   value={formData.major}
                   onChange={(e) => handleChange('major', e.target.value)}
                   disabled={isSubmitting}
@@ -557,7 +557,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="specialization" className="text-sm font-semibold">{t('specializationLabel')}</Label>
                 <Input
                   id="specialization"
-                  placeholder="VD: Trí tuệ Nhân tạo"
+                  placeholder={t('specializationPlaceholder')}
                   value={formData.specialization}
                   onChange={(e) => handleChange('specialization', e.target.value)}
                   disabled={isSubmitting}
@@ -599,7 +599,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="cpa" className="text-sm font-semibold">{t('cpaLabel')}</Label>
                 <Input
                   id="cpa"
-                  placeholder="VD: 3.45"
+                  placeholder={t('cpaPlaceholder')}
                   value={formData.cpa}
                   onChange={(e) => handleChange('cpa', e.target.value)}
                   disabled={isSubmitting}
@@ -625,7 +625,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="degree_number" className="text-sm font-semibold">{t('degreeNumberLabel')}</Label>
                 <Input
                   id="degree_number"
-                  placeholder="VD: 012345"
+                  placeholder={t('degreeNumberPlaceholder')}
                   value={formData.degree_number}
                   onChange={(e) => handleChange('degree_number', e.target.value)}
                   disabled={isSubmitting}
@@ -638,7 +638,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="register_number" className="text-sm font-semibold">{t('registerNumberLabel')}</Label>
                 <Input
                   id="register_number"
-                  placeholder="VD: 152/2026/QĐ-ĐHCT"
+                  placeholder={t('registerNumberPlaceholder')}
                   value={formData.register_number}
                   onChange={(e) => handleChange('register_number', e.target.value)}
                   disabled={isSubmitting}
@@ -669,7 +669,7 @@ export function IssuerManualImportModal({
                 <Label htmlFor="graduation_year" className="text-sm font-semibold">{t('graduationYearLabel')}</Label>
                 <Input
                   id="graduation_year"
-                  placeholder="VD: 2026"
+                  placeholder={t('graduationYearPlaceholder')}
                   value={formData.graduation_year}
                   onChange={(e) => handleChange('graduation_year', e.target.value)}
                   disabled={isSubmitting}
@@ -688,7 +688,7 @@ export function IssuerManualImportModal({
               disabled={isSubmitting}
             />
             <Label htmlFor="manual-overwrite" className="text-sm font-medium leading-none cursor-pointer">
-              {t('manualOverwriteDesc') || 'Cho phép ghi đè nếu dữ liệu đã tồn tại'}
+              {t('manualOverwriteDesc')}
             </Label>
           </div>
         </form>
@@ -704,7 +704,7 @@ export function IssuerManualImportModal({
                 {t('processing')}
               </>
             ) : (
-              t('submitManualCredential') || 'Nhập bằng cấp'
+              t('submitManualCredential')
             )}
           </Button>
         </DialogFooter>

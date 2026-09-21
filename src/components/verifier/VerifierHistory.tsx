@@ -27,7 +27,7 @@ export function VerifierHistory({ t }: { t: (k: string) => string }) {
                   <td className="px-4 py-3 text-xs">{h.institution}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${h.result === 'valid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {h.result === 'valid' ? 'Valid' : 'Invalid'}
+                      {h.result === 'valid' ? t('statusValidBadge') : t('statusFailed')}
                     </span>
                   </td>
                   <td className="px-4 py-3">

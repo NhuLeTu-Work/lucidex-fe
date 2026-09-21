@@ -122,7 +122,7 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
     if (!createdData?.code) return;
     navigator.clipboard.writeText(createdData.code);
     setIsCopied(true);
-    showToast('success', t('codeCopied') || 'Đã sao chép mã chia sẻ!');
+    showToast('success', t('codeCopied'));
     setTimeout(() => setIsCopied(false), 2000);
   };
 
@@ -142,7 +142,7 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
         maxAccessCount: consentType === 'time_bound' ? null : calculatedAccessCount,
         expireHours: consentType === 'access_number' ? null : expireHours,
       });
-      showToast('success', t('updateSuccess') || 'Đã cập nhật cấu hình mã chia sẻ!');
+      showToast('success', t('updateSuccess'));
     }
   };
 
@@ -181,12 +181,12 @@ export function OwnerShareCodeWidget({ credentialId, className }: OwnerShareCode
               {isCopied ? (
                 <>
                   <Check size={13} className="text-green-600" />
-                  <span>{t('copied') || 'Đã chép'}</span>
+                  <span>{t('copied')}</span>
                 </>
               ) : (
                 <>
                   <Copy size={13} />
-                  <span>{t('copy') || 'Sao chép'}</span>
+                  <span>{t('copy')}</span>
                 </>
               )}
             </Button>

@@ -17,7 +17,7 @@ export function VerifierRegister({ t }: { t: (k: string) => string }) {
         <div className="max-w-lg p-8 rounded-2xl border text-center" style={{ borderColor: '#22c55e', background: 'var(--ct-accent-green)' }}>
           <CheckCircle size={48} className="mx-auto mb-4 text-green-600" />
           <h3 className="font-display text-xl mb-2">{t('regSuccess')}</h3>
-          <p className="text-sm opacity-60">Status: {t('pending')}</p>
+          <p className="text-sm opacity-60">{t('status')}: {t('pending')}</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
@@ -25,11 +25,11 @@ export function VerifierRegister({ t }: { t: (k: string) => string }) {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('orgName')}</label>
-                <input type="text" required placeholder="Cong ty TNHH ABC" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
+                <input type="text" required placeholder={t('companyNamePlaceholder')} className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('taxId')}</label>
-                <input type="text" required placeholder="0123456789" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none font-mono" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
+                <input type="text" required placeholder={t('taxIdPlaceholder')} className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none font-mono" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">{t('businessLicense')}</label>

@@ -29,7 +29,7 @@ export function VerifierDashboard({ t, quotaUsed, onTabChange, userProfile }: Da
       <div className="portal-panel p-6 rounded-2xl border mb-8" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)' }}>
         <h3 className="font-semibold mb-4">{t('verifyCredential')}</h3>
         <div className="flex gap-3">
-          <input type="text" placeholder="abc123" className="flex-1 px-4 py-3 rounded-xl border text-sm font-mono outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
+          <input type="text" placeholder={t('enterShareCodePlaceholder')} className="flex-1 px-4 py-3 rounded-xl border text-sm font-mono outline-none" style={{ background: 'var(--ct-bg)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }} />
           <button onClick={() => onTabChange('verify')} className="portal-cta px-6 py-3 text-sm font-semibold rounded-xl transition-all hover:opacity-80">
             <ArrowRight size={16} />
           </button>

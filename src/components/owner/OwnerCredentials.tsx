@@ -131,7 +131,7 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
           {claimedItems.map((cred) => (
             <CredSnippet
               key={cred.id}
-              name={cred.full_name ? `${cred.full_name} (${cred.graduation_year})` : 'Graduation Certificate'}
+              name={cred.full_name ? `${cred.full_name} (${cred.graduation_year})` : t('graduationCertificate')}
               logoPath="/ctuGraduation/ctuLogo.png"
               onClick={() => setOpenedCredId(cred.id)}
             />
@@ -163,7 +163,7 @@ export function OwnerCredentials({ t, onTabChange }: OwnerCredentialsProps) {
               {isDetailLoading || !certificateData ? (
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <Loader2 className="animate-spin" size={36} />
-                  <span>Loading credential details...</span>
+                  <span>{t('loadingCredentialDetails')}</span>
                 </div>
               ) : (
                 <GraduationCertificate data={certificateData} />

@@ -19,7 +19,7 @@ export function VerifierPortal() {
     verifiedData,
     rawCredentialData,
     handleVerify
-  } = useVerifierPortal(showToast);
+  } = useVerifierPortal(showToast, t);
   const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
 
   useEffect(() => {

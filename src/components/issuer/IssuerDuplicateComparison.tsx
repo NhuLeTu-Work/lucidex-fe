@@ -59,44 +59,44 @@ export function IssuerDuplicateComparison({
     {
       key: 'studentId',
       altKeys: ['student_id', 'studentId'],
-      label: t('studentIdLabel') || 'Mã SV / MSSV',
+      label: t('studentId'),
       getValueFromRecord: () => currentRecord.studentId,
     },
     {
       key: 'classCode',
       altKeys: ['class_code', 'class_id', 'classCode'],
-      label: t('classId') || 'Lớp',
+      label: t('classId'),
       getValueFromRecord: () => currentRecord.classCode,
     },
     {
       key: 'fullName',
       altKeys: ['full_name', 'fullName'],
-      label: t('fullName') || 'Họ và tên',
+      label: t('fullName'),
     },
     {
       key: 'dob',
       altKeys: ['dob', 'date_of_birth'],
-      label: t('dob') || 'Ngày sinh',
+      label: t('dob'),
     },
     {
       key: 'modeStudy',
       altKeys: ['mode_of_study_vi', 'mode_of_study', 'modeStudy'],
-      label: t('modeOfStudy') || 'Hình thức đào tạo',
+      label: t('modeOfStudy'),
     },
     {
       key: 'classification',
       altKeys: ['graduation_classification_vi', 'classification', 'graduation_classification'],
-      label: t('classification') || 'Xếp loại tốt nghiệp',
+      label: t('classification'),
     },
     {
       key: 'major',
       altKeys: ['major_vi', 'major', 'major_en'],
-      label: t('major') || 'Ngành học',
+      label: t('major'),
     },
     {
       key: 'gradYear',
       altKeys: ['graduation_year', 'gradYear'],
-      label: t('gradYear') || 'Năm tốt nghiệp',
+      label: t('gradYear'),
     },
   ];
 
@@ -141,9 +141,9 @@ export function IssuerDuplicateComparison({
                 {t('duplicateDetected')}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                {t('duplicateDesc')} ({t('studentId') || 'Mã SV'}:{' '}
+                {t('duplicateDesc')} ({t('studentId')}:{' '}
                 <span className="font-bold text-foreground">{currentRecord.studentId}</span>
-                {currentRecord.classCode ? `, ${t('classId') || 'Lớp'}: ${currentRecord.classCode}` : ''})
+                {currentRecord.classCode ? `, ${t('classId')}: ${currentRecord.classCode}` : ''})
               </DialogDescription>
             </DialogHeader>
 
@@ -178,7 +178,7 @@ export function IssuerDuplicateComparison({
                     </TableCell>
                     {displayFields.map((field) => (
                       <TableCell key={field.key} className="text-xs font-mono font-medium">
-                        {getFieldValue(currentRecord.incoming, field) || '(Trống)'}
+                        {getFieldValue(currentRecord.incoming, field) || t('empty')}
                       </TableCell>
                     ))}
                   </TableRow>

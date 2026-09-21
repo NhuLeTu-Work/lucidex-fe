@@ -242,7 +242,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                     type="button"
                     onClick={() => toggleOrg(orgId)}
                     className="hover:opacity-75 focus:outline-none p-0.5 rounded-full"
-                    title="Remove"
+                    title={t('remove')}
                   >
                     <X size={12} />
                   </button>
@@ -258,7 +258,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
               style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-bg)' }}
             >
               <span className="text-sm opacity-60" style={{ color: 'var(--ct-text)' }}>
-                {isVerifiersLoading ? 'Loading verifiers...' : 'Select trusted organizations...'}
+                {isVerifiersLoading ? t('loadingVerifiersList') : t('selectTrustedOrgs')}
               </span>
               <div className="opacity-60 flex items-center gap-2">
                 {isVerifiersLoading && <Loader2 size={16} className="animate-spin" />}
@@ -277,7 +277,7 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search organizations..."
+                    placeholder={t('searchOrgsPlaceholder')}
                     className="w-full text-sm bg-transparent focus:outline-none"
                     style={{ color: 'var(--ct-text)' }}
                     autoFocus
@@ -292,10 +292,10 @@ export function OwnerConsent({ t }: { t: (k: string) => string }) {
                 <div className="max-h-56 overflow-y-auto p-1.5 space-y-1">
                   {isVerifiersLoading ? (
                     <div className="p-4 text-center text-xs opacity-50 flex items-center justify-center gap-2">
-                      <Loader2 size={14} className="animate-spin" /> Loading verifiers list...
+                      <Loader2 size={14} className="animate-spin" /> {t('loadingVerifiersList')}
                     </div>
                   ) : filteredVerifiers.length === 0 ? (
-                    <div className="p-3 text-xs text-center opacity-50">No organizations found</div>
+                    <div className="p-3 text-xs text-center opacity-50">{t('noOrgsFound')}</div>
                   ) : (
                     filteredVerifiers.map(v => {
                       const isSelected = selectedOrgIds.includes(v.id);

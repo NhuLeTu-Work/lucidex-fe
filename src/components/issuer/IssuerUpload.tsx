@@ -46,11 +46,11 @@ export function IssuerUpload() {
 
     // 1. Kiểm tra định dạng & dung lượng file gốc
     if (!isCsv && !isXlsx) {
-      showToast('error', t('errNotCsv') || 'Định dạng file phải là .csv hoặc .xlsx');
+      showToast('error', t('errNotCsv'));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      showToast('error', t('errSizeLimit') || 'Kích thước file vượt quá 10MB');
+      showToast('error', t('errSizeLimit'));
       return;
     }
 
@@ -61,9 +61,7 @@ export function IssuerUpload() {
       // Kiểm tra thiếu column
       if (!validationResult.headersValid) {
         const missingStr = validationResult.missingColumns.join(', ');
-        const headerErrMsg = t('errInvalidHeader')
-          ? t('errInvalidHeader').replace('{missing}', missingStr)
-          : `định dạng không hợp lệ, thiếu những trường: ${missingStr}`;
+        const headerErrMsg = t('errInvalidHeader').replace('{missing}', missingStr);
         showToast('error', headerErrMsg);
         return;
       }
@@ -91,7 +89,7 @@ export function IssuerUpload() {
       // Nếu header hợp lệ -> Tiến hành bật IssuerScanModal để đọc & validate dữ liệu
       setIsScanning(true);
     } catch (err: any) {
-      showToast('error', t('errNoFileContent') || 'Không thể đọc nội dung file');
+      showToast('error', t('errNoFileContent'));
     }
   };
 
@@ -250,7 +248,7 @@ export function IssuerUpload() {
     setCsvErrors([]);
     setDuplicateRecords([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
-    showToast('warning', t('uploadCancelled') || 'Đã hủy tải file');
+    showToast('warning', t('uploadCancelled'));
   };
 
   const handleComparisonComplete = async (action: 'overwrite' | 'skip') => {

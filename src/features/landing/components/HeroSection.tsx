@@ -67,8 +67,8 @@ export function HeroSection() {
         {/* Top-Left Block */}
         <div className="hero-top-left">
           <h1 className="hero-title">
-            <span className="hero-title-top">Vietnamese credentials.</span>
-            <span className="sr-only"> Trusted worldwide.</span>
+            <span className="hero-title-top">Vietnamese credentials</span>
+            <span className="sr-only"> Trusted worldwide</span>
           </h1>
           <div className="hero-divider"></div>
           <p className="hero-sub">
@@ -79,7 +79,7 @@ export function HeroSection() {
         {/* Bottom-Right Block */}
         <div className="hero-bottom-right" aria-hidden="true">
           <div className="hero-title-bottom">
-            <span className="gradient-trusted">Trusted</span> worldwide.
+            <span className="gradient-trusted">Trusted</span> worldwide
           </div>
         </div>
 

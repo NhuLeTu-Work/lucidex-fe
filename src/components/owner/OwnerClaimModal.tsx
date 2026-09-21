@@ -46,7 +46,7 @@ export function OwnerClaimModal({
       const ok = await claimSingleCredential(item.id);
       if (ok) {
         setClaimedIds((prev) => ({ ...prev, [item.id]: true }));
-        showToast('success', `${t('claimSuccess') || 'Nhận văn bằng thành công!'} (${item.full_name})`);
+        showToast('success', `${t('claimSuccess')} (${item.full_name})`);
         onSuccessClaim();
       }
     } finally {
@@ -88,7 +88,7 @@ export function OwnerClaimModal({
           <div className="flex items-center gap-3">
             <Award className="w-5 h-5 text-amber-500" />
             <DialogTitle className="font-display text-xl">
-              {t('claimCredentialsTitle') || 'Danh sách Văn bằng Chờ Nhận'}
+              {t('claimCredentialsTitle')}
             </DialogTitle>
           </div>
         </DialogHeader>
@@ -97,7 +97,7 @@ export function OwnerClaimModal({
           {unclaimedItems.length === 0 || !currentItem ? (
             <div className="py-12 text-center space-y-3" style={{ color: 'var(--ct-text-secondary)' }}>
               <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto opacity-80" />
-              <p className="font-medium text-base">{t('noUnclaimedCredentials') || 'Không có văn bằng nào cần nhận.'}</p>
+              <p className="font-medium text-base">{t('noUnclaimedCredentials')}</p>
             </div>
           ) : isDetailLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
@@ -111,29 +111,29 @@ export function OwnerClaimModal({
           ) : (
             <div className="space-y-6 p-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FieldItem label={t('studentId') || 'Mã SV'} value={detailData?.student_id || currentItem.student_id} />
-                <FieldItem label={t('fullName') || 'Họ và tên'} value={detailData?.full_name || currentItem.full_name} />
-                <FieldItem label={t('classId') || 'Lớp'} value={detailData?.class_id || currentItem.class_id} />
-                <FieldItem label={t('gradYear') || 'Năm tốt nghiệp'} value={detailData?.graduation_year || currentItem.graduation_year} />
-                <FieldItem label={t('dob') || 'Ngày sinh'} value={formatDateDDMMYYYY(detailData?.dob)} />
-                <FieldItem label={t('major') || 'Chuyên ngành'} value={major} />
-                <FieldItem label={t('degreeType') || 'Loại văn bằng'} value={detailData?.degree_type || 'Bằng tốt nghiệp đại học'} />
-                <FieldItem label={t('classification') || 'Xếp loại'} value={classification} />
-                <FieldItem label={t('modeOfStudy') || 'Hình thức đào tạo'} value={modeOfStudy} />
-                <FieldItem label={t('universityEmail') || 'Email trường'} value={detailData?.university_email} />
-                <FieldItem label={t('issuer') || 'Đơn vị cấp bằng'} value={detailData?.issuer?.name} />
+                <FieldItem label={t('studentId')} value={detailData?.student_id || currentItem.student_id} />
+                <FieldItem label={t('fullName')} value={detailData?.full_name || currentItem.full_name} />
+                <FieldItem label={t('classId')} value={detailData?.class_id || currentItem.class_id} />
+                <FieldItem label={t('gradYear')} value={detailData?.graduation_year || currentItem.graduation_year} />
+                <FieldItem label={t('dob')} value={formatDateDDMMYYYY(detailData?.dob)} />
+                <FieldItem label={t('major')} value={major} />
+                <FieldItem label={t('degreeType')} value={detailData?.degree_type || t('bachelorDegree')} />
+                <FieldItem label={t('classification')} value={classification} />
+                <FieldItem label={t('modeOfStudy')} value={modeOfStudy} />
+                <FieldItem label={t('universityEmail')} value={detailData?.university_email} />
+                <FieldItem label={t('issuer')} value={detailData?.issuer?.name} />
                 <div className="space-y-1">
                   <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ct-text-secondary)' }}>
-                    {t('status') || 'Trạng thái'}
+                    {t('status')}
                   </label>
                   <div>
                     {isClaimed ? (
                       <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                        {t('statusClaimed') || 'Đã nhận'}
+                        {t('statusClaimed')}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                        {t('statusUnclaimed') || 'Chưa nhận'}
+                        {t('statusUnclaimed')}
                       </Badge>
                     )}
                   </div>
@@ -154,7 +154,7 @@ export function OwnerClaimModal({
                 className="gap-1"
               >
                 <ChevronLeft size={16} />
-                <span>{t('prev') || 'Trước'}</span>
+                <span>{t('prev')}</span>
               </Button>
 
               <span className="text-xs font-medium px-2" style={{ color: 'var(--ct-text-secondary)' }}>
@@ -168,7 +168,7 @@ export function OwnerClaimModal({
                 onClick={() => setCurrentIndex((prev) => Math.min(unclaimedItems.length - 1, prev + 1))}
                 className="gap-1"
               >
-                <span>{t('next') || 'Sau'}</span>
+                <span>{t('next')}</span>
                 <ChevronRight size={16} />
               </Button>
             </div>
@@ -185,12 +185,12 @@ export function OwnerClaimModal({
                 {isClaiming ? (
                   <>
                     <Loader2 className="animate-spin" size={16} />
-                    <span>{t('claiming') || 'Đang nhận...'}</span>
+                    <span>{t('claiming')}</span>
                   </>
                 ) : (
                   <>
                     <Award size={16} />
-                    <span>{t('claimNow') || 'Nhận bằng này'}</span>
+                    <span>{t('claimNow')}</span>
                   </>
                 )}
               </Button>
@@ -199,13 +199,13 @@ export function OwnerClaimModal({
             {currentItem && isClaimed && (
               <Button variant="outline" disabled className="border-green-200 text-green-700 gap-1.5">
                 <CheckCircle2 size={16} />
-                <span>{t('claimed') || 'Đã Nhận'}</span>
+                <span>{t('claimed')}</span>
               </Button>
             )}
 
             <Button variant="outline" onClick={onClose} className="gap-2">
               <X size={16} />
-              {t('cancelBtn') || 'Đóng'}
+              {t('cancelBtn')}
             </Button>
           </div>
         </DialogFooter>

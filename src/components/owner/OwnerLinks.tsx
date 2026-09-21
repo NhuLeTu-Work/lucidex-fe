@@ -34,7 +34,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
   const handleCopyCode = (id: string, code: string) => {
     navigator.clipboard?.writeText(code);
     setCopiedId(id);
-    showToast('success', t('codeCopied') || 'Đã sao chép mã chia sẻ!');
+    showToast('success', t('codeCopied'));
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -81,7 +81,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
           />
           <Input
             type="text"
-            placeholder={t('searchCodePlaceholder') || 'Search verification code or credential...'}
+            placeholder={t('searchCodePlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 h-9 text-sm"
@@ -98,7 +98,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                 : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            {t('active') || 'Hoạt động'}
+            {t('active')}
           </button>
 
           <button
@@ -109,7 +109,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                 : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            {t('inactive') || 'Ngưng hoạt động'}
+            {t('inactive')}
           </button>
         </div>
       </div>
@@ -120,16 +120,16 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
           <TableHeader className="bg-muted/40">
             <TableRow>
               <TableHead className="w-[240px] font-bold text-sm text-muted-foreground py-4 px-6">
-                {t('verificationCode') || 'Verification Code'}
+                {t('verificationCode')}
               </TableHead>
               <TableHead className="font-bold text-sm text-muted-foreground py-4 px-6">
-                {t('credentialName') || 'Credential Name'}
+                {t('credentialName')}
               </TableHead>
               <TableHead className="w-[140px] font-bold text-sm text-muted-foreground py-4 px-6">
-                {t('status') || 'Status'}
+                {t('status')}
               </TableHead>
               <TableHead className="w-[160px] text-right font-bold text-sm text-muted-foreground py-4 px-6">
-                {t('actions') || 'Actions'}
+                {t('actions')}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -155,8 +155,8 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
               <TableRow>
                 <TableCell colSpan={4} className="h-40 text-center text-muted-foreground text-base px-6">
                   {searchQuery
-                    ? t('noMatchingCodes') || 'No matching verification codes found.'
-                    : t('noLinks') || 'No verification codes created yet.'}
+                    ? t('noMatchingCodes')
+                    : t('noLinks')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -181,7 +181,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                             <button
                               onClick={() => handleCopyCode(item.id, item.code)}
                               className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
-                              title={t('copy') || 'Copy Code'}
+                              title={t('copy')}
                             >
                               {isCopied ? (
                                 <Check size={16} className="text-emerald-600" />
@@ -209,15 +209,15 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                       <TableCell className="py-5 px-6">
                         {status === 'active' ? (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                            {t('active') || 'Active'}
+                            {t('active')}
                           </span>
                         ) : isExpired ? (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                            {t('expired') || 'Expired'}
+                            {t('expired')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
-                            {t('revoked') || 'Revoked'}
+                            {t('revoked')}
                           </span>
                         )}
                       </TableCell>
@@ -228,9 +228,9 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                           <button
                             onClick={() => setRevokingId(revokingId === item.id ? null : item.id)}
                             className="px-4 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm"
-                            title={t('revokeLink') || 'Revoke'}
+                            title={t('revokeLink')}
                           >
-                            {t('revokeLink') || 'Revoke'}
+                            {t('revokeLink')}
                           </button>
                         )}
                       </TableCell>
@@ -245,7 +245,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                             style={{ borderColor: '#fecaca', background: 'var(--ct-accent-red)' }}
                           >
                             <p className="text-sm text-foreground font-medium">
-                              {t('revokeConfirm') || 'Bạn chắc chắn muốn thu hồi mã chia sẻ này?'}
+                              {t('revokeConfirm')}
                             </p>
                             <div className="flex gap-2">
                               <button
@@ -262,7 +262,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                                 }}
                                 className="px-4 py-1.5 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50"
                               >
-                                {isRevoking ? '...' : (t('confirm') || 'Xác nhận')}
+                                {isRevoking ? '...' : t('confirm')}
                               </button>
                               <button
                                 disabled={isRevoking}
@@ -270,7 +270,7 @@ export function OwnerLinks({ t, onRevoke }: OwnerLinksProps) {
                                 className="px-4 py-1.5 text-sm font-medium rounded-lg border bg-background transition-opacity hover:opacity-80 disabled:opacity-50"
                                 style={{ borderColor: 'var(--ct-border)' }}
                               >
-                                {t('cancel') || 'Hủy'}
+                                {t('cancel')}
                               </button>
                             </div>
                           </div>

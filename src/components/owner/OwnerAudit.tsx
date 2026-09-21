@@ -25,7 +25,7 @@ export function OwnerAudit({ t }: { t: (k: string) => string }) {
                   <td className="px-4 py-3">{entry.verifiedBy}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${entry.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {entry.status === 'success' ? 'Success' : 'Failed'}
+                      {entry.status === 'success' ? t('statusSuccess') : t('statusFailed')}
                     </span>
                   </td>
                 </tr>

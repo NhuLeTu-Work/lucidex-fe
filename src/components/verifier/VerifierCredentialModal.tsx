@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 import { mapOwnerCredentialToCertificateData } from '../certificates/ctuGraduation/certificateData';
 import GraduationCertificate from '../certificates/ctuGraduation/GraduationCertificate';
 import { CredentialCoverReveal } from '../certificates/CredentialCoverReveal';
@@ -11,6 +12,7 @@ interface VerifierCredentialModalProps {
 }
 
 export function VerifierCredentialModal({ isOpen, onClose, rawCredentialData }: VerifierCredentialModalProps) {
+  const { t } = useApp();
   const [activeLang, setActiveLang] = useState<'vi' | 'en'>('vi');
 
   if (!isOpen || !rawCredentialData) return null;
@@ -30,8 +32,8 @@ export function VerifierCredentialModal({ isOpen, onClose, rawCredentialData }: 
               <FileText size={18} />
             </div>
             <div>
-              <h3 className="font-semibold text-base text-white">Chi tiết Văn bằng</h3>
-              <p className="text-xs text-white/60">{data.vi.fullName} - MSSV: {rawCredentialData.student_id || rawCredentialData.studentId || 'N/A'}</p>
+              <h3 className="font-semibold text-base text-white">{t('credentialDetailTitle')}</h3>
+              <p className="text-xs text-white/60">{data.vi.fullName} - {t('studentId')}: {rawCredentialData.student_id || rawCredentialData.studentId || 'N/A'}</p>
             </div>
           </div>
           <button
@@ -73,7 +75,7 @@ export function VerifierCredentialModal({ isOpen, onClose, rawCredentialData }: 
               }`}
             >
               <ChevronLeft size={16} />
-              <span>Tiếng Anh</span>
+              <span>{t('english')}</span>
             </button>
 
             <span className="text-xs text-white/60 font-mono px-1">
@@ -87,7 +89,7 @@ export function VerifierCredentialModal({ isOpen, onClose, rawCredentialData }: 
                 activeLang === 'vi' ? 'opacity-30 cursor-not-allowed' : 'hover:bg-black/70 active:scale-95'
               }`}
             >
-              <span>Tiếng Việt</span>
+              <span>{t('vietnamese')}</span>
               <ChevronRight size={16} />
             </button>
           </div>
@@ -96,7 +98,7 @@ export function VerifierCredentialModal({ isOpen, onClose, rawCredentialData }: 
             onClick={onClose}
             className="px-5 py-2 text-xs font-semibold rounded-xl bg-white/10 hover:bg-white/20 transition-all active:scale-95"
           >
-            Đóng
+            {t('close')}
           </button>
         </div>
       </div>

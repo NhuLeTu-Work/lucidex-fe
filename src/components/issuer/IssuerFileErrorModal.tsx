@@ -30,7 +30,7 @@ function SearchCombobox({
     if (!hasGroup) return { default: options };
     const res: Record<string, typeof options> = {};
     options.forEach((o) => {
-      const g = o.group || 'Khác';
+      const g = o.group || t('other');
       if (!res[g]) res[g] = [];
       res[g].push(o);
     });
@@ -490,14 +490,14 @@ export function IssuerFileErrorModal({
           }}
         >
           <SelectTrigger className="h-8 text-xs w-full bg-amber-50 dark:bg-amber-950/40 border-amber-300">
-            <SelectValue placeholder="Chọn dòng giữ lại" />
+            <SelectValue placeholder={t('selectKeepRowPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="keep_first" className="text-xs">
-              Giữ dòng {prevRow || 1} (Mặc định)
+              {t('keepRowDefault').replace('{row}', String(prevRow || 1))}
             </SelectItem>
             <SelectItem value="keep_this" className="text-xs">
-              Giữ dòng {group.rowNumber} này
+              {t('keepRowThis').replace('{row}', String(group.rowNumber))}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -521,8 +521,8 @@ export function IssuerFileErrorModal({
           value={currentVal}
           onChange={(val) => handleFieldValueChange(group, err, val)}
           options={provinceOptions}
-          placeholder="Chọn Tỉnh/Thành"
-          searchPlaceholder="Tìm Tỉnh/Thành..."
+          placeholder={t('selectProvincePlaceholder')}
+          searchPlaceholder={t('searchProvincePlaceholder')}
         />
       );
     }
@@ -535,7 +535,7 @@ export function IssuerFileErrorModal({
           onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className={`w-full ${inputStyleClass}`}>
-            <SelectValue placeholder="Chọn Xếp loại" />
+            <SelectValue placeholder={t('selectClassificationPlaceholder')} />
           </SelectTrigger>
           <SelectContent className="max-h-48">
             {CLASSIFICATION_OPTIONS.map((c) => (
@@ -561,8 +561,8 @@ export function IssuerFileErrorModal({
           value={currentVal}
           onChange={(val) => handleFieldValueChange(group, err, val)}
           options={degreeOptions}
-          placeholder="Chọn Loại bằng / Chứng chỉ"
-          searchPlaceholder="Tìm loại bằng..."
+          placeholder={t('selectDegreeTypePlaceholder')}
+          searchPlaceholder={t('searchDegreeTypePlaceholder')}
         />
       );
     }
@@ -575,7 +575,7 @@ export function IssuerFileErrorModal({
           onValueChange={(val) => handleFieldValueChange(group, err, val)}
         >
           <SelectTrigger className={`w-full ${inputStyleClass}`}>
-            <SelectValue placeholder="Chọn Hình thức đào tạo" />
+            <SelectValue placeholder={t('selectModeOfStudyPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             {MODE_OF_STUDY_OPTIONS.map((m) => (
@@ -596,11 +596,11 @@ export function IssuerFileErrorModal({
           onValueChange={(val) => handleFieldValueChange(group, err, val === 'N' ? 'N' : '')}
         >
           <SelectTrigger className={`w-full ${inputStyleClass}`}>
-            <SelectValue placeholder="Chọn Giới tính" />
+            <SelectValue placeholder={t('selectGenderPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Nam" className="text-xs">Nam (để trống)</SelectItem>
-            <SelectItem value="N" className="text-xs">Nữ (N)</SelectItem>
+            <SelectItem value="Nam" className="text-xs">{t('genderMaleOption')}</SelectItem>
+            <SelectItem value="N" className="text-xs">{t('genderFemaleOption')}</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -645,7 +645,7 @@ export function IssuerFileErrorModal({
             const onlyDigits = e.target.value.replace(/\D/g, '').slice(0, 12);
             handleFieldValueChange(group, err, onlyDigits);
           }}
-          placeholder="079203012345 (12 số)"
+          placeholder={t('nationalIdPlaceholder')}
           className={`${inputStyleClass} font-mono`}
         />
       );
@@ -698,7 +698,7 @@ export function IssuerFileErrorModal({
                   <TableHead className="w-[140px]">{t('originalDataHeader')}</TableHead>
                   <TableHead className="w-[200px]">{t('directEditHeader')}</TableHead>
                   <TableHead className="min-w-[240px]">{t('issueDetail')}</TableHead>
-                  <TableHead className="w-[100px] text-center">{t('actions') || 'Hành động'}</TableHead>
+                  <TableHead className="w-[100px] text-center">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -739,12 +739,12 @@ export function IssuerFileErrorModal({
 
                       {/* Cột Trường thông tin */}
                       <TableCell className="w-[140px] font-medium text-xs py-2">
-                        {err.fieldName || 'Dữ liệu'}
+                        {err.fieldName || t('data')}
                       </TableCell>
 
                       {/* Cột Dữ liệu gốc */}
                       <TableCell className="w-[140px] text-xs text-muted-foreground bg-muted/30 font-mono py-2 truncate max-w-[140px]">
-                        {err.oldValue !== undefined && err.oldValue !== '' ? err.oldValue : '(Trống)'}
+                        {err.oldValue !== undefined && err.oldValue !== '' ? err.oldValue : t('empty')}
                       </TableCell>
 
                       {/* Cột Sửa trực tiếp (Inline editing) */}
