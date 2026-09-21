@@ -347,22 +347,22 @@ export function IssuerManualImportModal({
       const response = await importManualCredentialApi(payload);
 
       if (response.success) {
-        showToast(
-          'success',
-          response.message ||
-          (response.data?.action === 'updated'
-            ? t('manualUpdateSuccess')
-            : t('manualCreateSuccess'))
-        );
+        const isUpdated = response.data?.action === 'updated';
+        const successMsg = isUpdated
+          ? t('manualUpdateSuccess')
+          : t('manualCreateSuccess');
+        showToast('success', successMsg);
         handleReset();
         onClose();
         if (onSuccess) onSuccess();
       } else {
-        showToast('error', response.message || t('manualAddFailed'));
+        const errorMsg = response.message ? (t(response.message) || response.message) : t('manualAddFailed');
+        showToast('error', errorMsg);
       }
     } catch (err: any) {
       const apiErrCode = err?.response?.data?.error_code;
-      const apiErrMessage = err?.response?.data?.message || err?.message || t('manualAddFailed');
+      const rawBackendMsg = err?.response?.data?.message || err?.message;
+      const apiErrMessage = rawBackendMsg ? (t(rawBackendMsg) || rawBackendMsg) : t('manualAddFailed');
 
       if (apiErrCode === 'CREDENTIAL_ALREADY_EXISTS') {
         showToast('error', t('credentialAlreadyExistsMsg'));

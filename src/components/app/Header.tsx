@@ -35,11 +35,23 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-70">
+          <button 
+            type="button" 
+            onClick={(e) => {
+              e.preventDefault();
+              setLang(lang === 'vi' ? 'en' : 'vi');
+            }} 
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-70"
+          >
             <Globe size={14} /> <span className="uppercase text-xs font-semibold">{lang}</span>
           </button>
           
-          <button onClick={toggleTheme} className="p-2 rounded-lg hover:opacity-70" title={theme === 'dark' ? t('switchLight') : t('switchDark')}>
+          <button 
+            type="button"
+            onClick={toggleTheme} 
+            className="p-2 rounded-lg hover:opacity-70" 
+            title={theme === 'dark' ? t('switchLight') : t('switchDark')}
+          >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           

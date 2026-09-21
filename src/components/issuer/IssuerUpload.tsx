@@ -119,13 +119,12 @@ export function IssuerUpload() {
       });
 
       if (response.success) {
-        const { created_count, updated_count, total_received } = response.data;
+        const { created_count, updated_count, total_received } = response.data || {};
         const totalSuccessful = (created_count || 0) + (updated_count || 0);
+        const total = total_received !== undefined ? total_received : totalSuccessful;
         const successMsg = t('importSuccess')
-          ? t('importSuccess')
-              .replace('{X}', String(totalSuccessful))
-              .replace('{Y}', String(total_received))
-          : response.message || 'Import successful';
+          .replace('{X}', String(totalSuccessful))
+          .replace('{Y}', String(total));
 
         showToast('success', successMsg);
 
@@ -134,10 +133,12 @@ export function IssuerUpload() {
         setDuplicateRecords([]);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        showToast('error', response.message || t('importFailed'));
+        const errorMsg = response.message ? (t(response.message) || response.message) : t('importFailed');
+        showToast('error', errorMsg);
       }
     } catch (err: any) {
-      const apiErrMessage = err?.response?.data?.message || err?.message || t('errorImportCredentials');
+      const rawMsg = err?.response?.data?.message || err?.message;
+      const apiErrMessage = rawMsg ? (t(rawMsg) || rawMsg) : t('errorImportCredentials');
       showToast('error', apiErrMessage);
     }
   };
