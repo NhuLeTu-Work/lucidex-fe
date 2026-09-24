@@ -10,26 +10,61 @@ export function VerifyLinkPage() {
   const [code, setCode] = useState('');
   const [result, setResult] = useState<'idle' | 'checking' | 'valid' | 'invalid' | 'consent_required'>('idle');
   const [verifiedData, setVerifiedData] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const getVerifyErrorMessage = (errCode?: string | null, backendMsg?: string | null): string => {
+    if (errCode === 'ACCESS_LIMIT_REACHED') {
+      return t('errAccessLimitReached');
+    }
+    if (errCode === 'LINK_EXPIRED') {
+      return t('errLinkExpired');
+    }
+    if (errCode === 'CREDENTIAL_REVOKED') {
+      return t('errCredentialRevoked');
+    }
+    if (errCode === 'LINK_REVOKED') {
+      return t('errLinkRevoked');
+    }
+    if (backendMsg) {
+      return t(backendMsg) || backendMsg;
+    }
+    return t('credentialInvalid');
+  };
 
   const handleCheck = () => {
     if (!code.trim()) return;
     setResult('checking');
+    setErrorMessage(null);
     setTimeout(() => {
+      const trimmed = code.trim();
       // Mock: "abc123" hoặc "def456" hoặc "jkl012" thì valid
-      if (['abc123', 'def456', 'jkl012', 'ghi789'].includes(code.trim())) {
+      if (['abc123', 'def456', 'jkl012', 'ghi789'].includes(trimmed)) {
         const cred = mockCredentials.find(c => {
-          if (code.trim() === 'abc123') return c.id === 'cred_001';
-          if (code.trim() === 'def456') return c.id === 'cred_001';
-          if (code.trim() === 'ghi789') return c.id === 'cred_002';
-          if (code.trim() === 'jkl012') return c.id === 'cred_004';
+          if (trimmed === 'abc123') return c.id === 'cred_001';
+          if (trimmed === 'def456') return c.id === 'cred_001';
+          if (trimmed === 'ghi789') return c.id === 'cred_002';
+          if (trimmed === 'jkl012') return c.id === 'cred_004';
           return false;
         });
         const owner = mockOwners.find(s => s.studentId === cred?.studentId);
         setVerifiedData({ ...cred, ownerName: owner?.name, major: owner?.major, graduationYear: owner?.graduationYear, gpa: owner?.gpa, honors: owner?.honors });
         setResult('valid');
-      } else if (code.trim() === 'no_consent') {
+      } else if (trimmed === 'no_consent') {
         setResult('consent_required');
+      } else if (trimmed === 'limit_reached' || trimmed === 'ACCESS_LIMIT_REACHED') {
+        setErrorMessage(getVerifyErrorMessage('ACCESS_LIMIT_REACHED'));
+        setResult('invalid');
+      } else if (trimmed === 'link_expired' || trimmed === 'LINK_EXPIRED') {
+        setErrorMessage(getVerifyErrorMessage('LINK_EXPIRED'));
+        setResult('invalid');
+      } else if (trimmed === 'cred_revoked' || trimmed === 'CREDENTIAL_REVOKED') {
+        setErrorMessage(getVerifyErrorMessage('CREDENTIAL_REVOKED'));
+        setResult('invalid');
+      } else if (trimmed === 'link_revoked' || trimmed === 'LINK_REVOKED') {
+        setErrorMessage(getVerifyErrorMessage('LINK_REVOKED'));
+        setResult('invalid');
       } else {
+        setErrorMessage(t('credentialInvalid'));
         setResult('invalid');
       }
     }, 1200);
@@ -66,9 +101,9 @@ export function VerifyLinkPage() {
         {/* Hint */}
         {result === 'idle' && (
           <div className="p-4 rounded-xl border text-xs" style={{ borderColor: 'var(--ct-border)', background: 'var(--ct-surface)', color: 'var(--ct-text-secondary)' }}>
-            <p className="mb-2 font-semibold">{lang === 'vi' ? 'Thu cac ma sau:' : 'Try these codes:'}</p>
+            <p className="mb-2 font-semibold">{lang === 'vi' ? 'Thử các mã sau:' : 'Try these codes:'}</p>
             <div className="flex flex-wrap gap-2">
-              {['abc123', 'def456', 'ghi789', 'jkl012', 'no_consent', 'invalid'].map(c => (
+              {['abc123', 'def456', 'ghi789', 'jkl012', 'limit_reached', 'link_expired', 'cred_revoked', 'link_revoked', 'no_consent', 'invalid'].map(c => (
                 <button key={c} onClick={() => setCode(c)} className="px-2 py-1 rounded border text-xs font-mono hover:opacity-70 transition-opacity" style={{ borderColor: 'var(--ct-border)' }}>{c}</button>
               ))}
             </div>
@@ -99,7 +134,7 @@ export function VerifyLinkPage() {
           <div className="rounded-2xl border p-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red)' }}>
             <div className="flex items-center gap-2">
               <XCircle size={20} className="text-red-600" />
-              <span className="font-semibold text-red-700">{t('credentialInvalid')}</span>
+              <span className="font-semibold text-red-700">{errorMessage || t('credentialInvalid')}</span>
             </div>
           </div>
         )}

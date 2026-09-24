@@ -11,12 +11,14 @@ interface VerifyProps {
   result: VerifyResultState;
   verifiedData: VerifiedData | null;
   rawCredentialData?: any;
+  errorMessage?: string | null;
+  errorCode?: string | null;
   onVerify: (code: string) => void;
   quotaUsed: number;
   showToast?: (type: 'success' | 'error' | 'warning', msg: string) => void;
 }
 
-export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUsed, showToast }: VerifyProps) {
+export function VerifierVerify({ t, result, rawCredentialData, errorMessage, errorCode, onVerify, quotaUsed, showToast }: VerifyProps) {
   const [code, setCode] = useState('');
   const [subTab, setSubTab] = useState<'single' | 'bulk'>('single');
 
@@ -81,9 +83,14 @@ export function VerifierVerify({ t, result, rawCredentialData, onVerify, quotaUs
           {/* Thất bại */}
           {result === 'invalid' && (
             <div className="p-6 rounded-2xl border animate-in fade-in" style={{ borderColor: '#ef4444', background: 'var(--ct-accent-red)' }}>
-              <div className="flex items-center gap-2">
-                <XCircle size={20} className="text-red-600" />
-                <span className="font-semibold text-red-700">{t('credentialInvalid')}</span>
+              <div className="flex items-center gap-3">
+                <XCircle size={22} className="text-red-600 shrink-0" />
+                <div className="flex flex-col">
+                  <span className="font-semibold text-red-700">{errorMessage || t('credentialInvalid')}</span>
+                  {errorCode && (
+                    <span className="text-xs font-mono text-red-600/80 mt-0.5">[{errorCode}]</span>
+                  )}
+                </div>
               </div>
             </div>
           )}
