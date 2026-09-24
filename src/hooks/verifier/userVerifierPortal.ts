@@ -17,20 +17,37 @@ export function useVerifierPortal(
   const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const getVerifyErrorMessage = (code?: string | null, backendMsg?: string | null): string => {
-    if (code === 'ACCESS_LIMIT_REACHED') {
+    let extractedCode = code;
+    let cleanedMsg = backendMsg ? backendMsg.replace(/^\[.*?\]\s*/, '').trim() : '';
+
+    if (backendMsg && !extractedCode) {
+      const match = backendMsg.match(/^\[(.*?)\]/);
+      if (match) {
+        extractedCode = match[1];
+      }
+    }
+
+    if (extractedCode === 'ACCESS_LIMIT_REACHED') {
       return t ? t('errAccessLimitReached') : 'Mã xác thực đã hết lượt sử dụng.';
     }
-    if (code === 'LINK_EXPIRED') {
+    if (extractedCode === 'LINK_EXPIRED') {
       return t ? t('errLinkExpired') : 'Liên kết xác thực đã hết hạn.';
     }
-    if (code === 'CREDENTIAL_REVOKED') {
+    if (extractedCode === 'CREDENTIAL_REVOKED') {
       return t ? t('errCredentialRevoked') : 'Văn bằng liên kết với mã này đã bị thu hồi.';
     }
-    if (code === 'LINK_REVOKED') {
+    if (extractedCode === 'LINK_REVOKED') {
       return t ? t('errLinkRevoked') : 'Quyền truy cập đã bị thu hồi.';
     }
-    if (backendMsg) {
-      return (t && t(backendMsg)) || backendMsg;
+    if (extractedCode === 'INVALID_CODE' || extractedCode === 'NOT_FOUND' || extractedCode === 'LINK_NOT_FOUND') {
+      return t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!';
+    }
+    if (cleanedMsg) {
+      if (t) {
+        const translated = t(cleanedMsg);
+        if (translated && translated !== cleanedMsg) return translated;
+      }
+      return cleanedMsg;
     }
     return t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!';
   };

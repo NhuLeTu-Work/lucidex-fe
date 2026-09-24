@@ -13,20 +13,32 @@ export function VerifyLinkPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const getVerifyErrorMessage = (errCode?: string | null, backendMsg?: string | null): string => {
-    if (errCode === 'ACCESS_LIMIT_REACHED') {
+    let extractedCode = errCode;
+    let cleanedMsg = backendMsg ? backendMsg.replace(/^\[.*?\]\s*/, '').trim() : '';
+
+    if (backendMsg && !extractedCode) {
+      const match = backendMsg.match(/^\[(.*?)\]/);
+      if (match) {
+        extractedCode = match[1];
+      }
+    }
+
+    if (extractedCode === 'ACCESS_LIMIT_REACHED') {
       return t('errAccessLimitReached');
     }
-    if (errCode === 'LINK_EXPIRED') {
+    if (extractedCode === 'LINK_EXPIRED') {
       return t('errLinkExpired');
     }
-    if (errCode === 'CREDENTIAL_REVOKED') {
+    if (extractedCode === 'CREDENTIAL_REVOKED') {
       return t('errCredentialRevoked');
     }
-    if (errCode === 'LINK_REVOKED') {
+    if (extractedCode === 'LINK_REVOKED') {
       return t('errLinkRevoked');
     }
-    if (backendMsg) {
-      return t(backendMsg) || backendMsg;
+    if (cleanedMsg) {
+      const translated = t(cleanedMsg);
+      if (translated && translated !== cleanedMsg) return translated;
+      return cleanedMsg;
     }
     return t('credentialInvalid');
   };

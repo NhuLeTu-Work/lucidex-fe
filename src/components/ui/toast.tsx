@@ -62,7 +62,10 @@ export function Toast({
     warning: t('toastDefaultWarning') || 'Có cảnh báo cần chú ý.',
   };
 
-  const displayMessage = message ? (t(message) || message) : defaultMessages[type];
+  const resolvedMsg = message ? (t(message) || message) : defaultMessages[type];
+  const displayMessage = typeof resolvedMsg === 'string'
+    ? (t(resolvedMsg.replace(/^\[.*?\]\s*/, '')) || resolvedMsg.replace(/^\[.*?\]\s*/, ''))
+    : resolvedMsg;
 
   const config = {
     success: {
