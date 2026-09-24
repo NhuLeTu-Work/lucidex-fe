@@ -5,7 +5,7 @@ import { useApp } from '../app/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 export function VerifyLinkPage() {
-  const { t, lang} = useApp();
+  const { t, lang } = useApp();
   const navigate = useNavigate();
   const [code, setCode] = useState('');
   const [result, setResult] = useState<'idle' | 'checking' | 'valid' | 'invalid' | 'consent_required'>('idle');

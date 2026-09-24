@@ -105,11 +105,11 @@ export function Toast({
 
   const currentConfig = config[type];
 
-  const positionClasses = position === 'top-right' 
-    ? 'top-6 right-6 slide-in-from-top-4 slide-in-from-right-4' 
+  const positionClasses = position === 'top-right'
+    ? 'top-6 right-6 slide-in-from-top-4 slide-in-from-right-4'
     : position === 'top-center'
-    ? 'top-6 left-1/2 -translate-x-1/2 slide-in-from-top-4'
-    : 'bottom-6 right-6 slide-in-from-bottom-4 slide-in-from-right-4';
+      ? 'top-6 left-1/2 -translate-x-1/2 slide-in-from-top-4'
+      : 'bottom-6 right-6 slide-in-from-bottom-4 slide-in-from-right-4';
 
   return (
     <div
