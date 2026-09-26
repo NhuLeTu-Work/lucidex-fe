@@ -1355,71 +1355,72 @@ html.lucidex-landing-active body {
   }
 }
 
-@media (max-width: 768px) {
-  .lucidex-landing .hero-main-video {
-    object-position: center 26%;
-    transform-origin: center 26%;
+@media (max-width: 767px) {
+  .lucidex-landing .hero-section {
+    position: relative;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: calc(var(--site-header-height, 60px) + 20px);
+    padding-bottom: clamp(20px, 3vh, 32px);
+    padding-inline: 20px;
+    box-sizing: border-box;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .lucidex-landing .hero-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(2, 6, 15, 0.6) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .lucidex-landing .hero-media-container {
+    display: contents;
+  }
+
+  /* Stacking order: wave bg (1) -> giant word (2) -> credential outer (5) -> text & buttons (10) */
+  .lucidex-landing .hero-bg-video {
+    z-index: 1;
   }
 
   .lucidex-landing .hero-giant-word-container {
-    top: 26%;
+    top: 38%;
+    z-index: 2;
   }
 
   .lucidex-landing .hero-giant-word-fallback {
     font-size: 20vw;
   }
 
-  .lucidex-landing .hero-top-left::before,
-  .lucidex-landing .hero-bottom-right::before {
-    display: none;
+  .lucidex-landing .hero-content-wrap {
+    display: contents;
   }
 
   .lucidex-landing .hero-content-wrap::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(2, 6, 15, 0.6) 0%, transparent 55%);
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  .lucidex-landing .hero-content-wrap {
-    height: 100vh;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding-top: calc(var(--site-header-height, 60px) + 28px);
-    padding-bottom: clamp(24px, 4vh, 36px);
-    pointer-events: none;
+    display: none;
   }
 
   .lucidex-landing .hero-top-left {
     position: static;
+    order: 1;
+    width: 100%;
     max-width: 100%;
     text-align: left;
     pointer-events: auto;
+    isolation: auto;
+    z-index: 10;
   }
 
-  .lucidex-landing .hero-bottom-right {
-    position: static;
-    max-width: 100%;
-    text-align: right;
-    margin-top: auto;
-    margin-bottom: 20px;
-    pointer-events: auto;
-  }
-
-  .lucidex-landing .hero-center-ctas {
-    position: static;
-    transform: none;
-    left: auto;
-    bottom: auto;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    pointer-events: auto;
-    white-space: normal;
+  .lucidex-landing .hero-top-left::before,
+  .lucidex-landing .hero-bottom-right::before {
+    display: none;
   }
 
   .lucidex-landing .hero-title-top,
@@ -1428,7 +1429,7 @@ html.lucidex-landing-active body {
   }
 
   .lucidex-landing .hero-divider {
-    margin: 16px 0 12px 0;
+    margin: 14px 0 10px 0;
   }
 
   .lucidex-landing .hero-sub {
@@ -1436,9 +1437,94 @@ html.lucidex-landing-active body {
     max-width: 100%;
   }
 
+  /* Credential outer: 30% larger width, height: auto, padding-top: 16px to allow 14px float travel inside edge mask */
+  .lucidex-landing .hero-credential-outer {
+    position: relative;
+    top: auto;
+    left: auto;
+    order: 2;
+    z-index: 5;
+    width: clamp(260px, 81vw, 390px);
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-inline: auto;
+    margin-top: 4px;
+    margin-bottom: 20px;
+    padding-top: 16px;
+    box-sizing: content-box;
+    transform: none;
+    pointer-events: none;
+    overflow: visible;
+    mask-image: radial-gradient(ellipse 80% 84% at 50% 50%, black 45%, rgba(0, 0, 0, 0.3) 72%, transparent 94%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 84% at 50% 50%, black 45%, rgba(0, 0, 0, 0.3) 72%, transparent 94%);
+  }
+
+  .lucidex-landing .hero-main-video {
+    object-position: center center;
+    transform: none;
+    transform-origin: center center;
+  }
+
+  .lucidex-landing .hero-credential-float {
+    width: 100%;
+    height: 100%;
+    transform-origin: center center;
+    overflow: visible;
+  }
+
+  .lucidex-landing .hero-credential-video {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    display: block;
+  }
+
+  .lucidex-landing .hero-credential-shadow {
+    top: calc(84% + 14px);
+    left: 50%;
+    width: clamp(220px, 70vw, 330px);
+    height: 24px;
+    transform: translate(-50%, 0) scaleX(1);
+    z-index: 1;
+  }
+
+  .lucidex-landing .hero-bottom-right {
+    position: static;
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    text-align: right;
+    pointer-events: auto;
+    margin-top: 0;
+    margin-bottom: 16px;
+    isolation: auto;
+    z-index: 10;
+  }
+
+  .lucidex-landing .hero-center-ctas {
+    position: static;
+    order: 4;
+    width: 100%;
+    transform: none;
+    left: auto;
+    bottom: auto;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+    white-space: normal;
+    z-index: 10;
+  }
+
   .lucidex-landing .hero-scroll-indicator {
     display: none !important;
   }
+}
+
+@media (max-width: 768px) {
 
   /* Role sections mobile layout: single column, image above text, max-width 480px, centered */
   .lucidex-landing .role-section {

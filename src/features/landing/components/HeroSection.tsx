@@ -72,7 +72,7 @@ export function HeroSection() {
           </h1>
           <div className="hero-divider"></div>
           <p className="hero-sub">
-            Verify any Vietnamese degree directly from the institution that issued it.
+            Verify any Vietnamese degree directly from the institution that issued it
           </p>
         </div>
 

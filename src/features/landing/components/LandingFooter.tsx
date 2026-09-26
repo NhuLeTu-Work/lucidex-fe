@@ -83,7 +83,7 @@ export function LandingFooter() {
               <img src="/landing/logo-icon-rev.png" alt="Lucidex Logo" className="brand-logo" width="28" height="28" />
               <span className="brand-text">Lucidex</span>
             </a>
-            <p className="footer-tagline">Verify Vietnamese credentials at the source.</p>
+            <p className="footer-tagline">Verify Vietnamese credentials at the source</p>
           </div>
 
           {/* Col 2: Product */}

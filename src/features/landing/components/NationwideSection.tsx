@@ -29,7 +29,7 @@ export function NationwideSection() {
             {/* Fallback placeholder text of the opening scene */}
             <div className="demo-screen-placeholder" aria-hidden="true">
               <div className="demo-placeholder-text">THE NEW STANDARD FOR DIGITAL CREDENTIALS</div>
-              <div className="demo-placeholder-sub">Secure. Instant. Auditable.</div>
+              <div className="demo-placeholder-sub">Secure. Instant. Auditable</div>
             </div>
 
             {/* Video element: muted, loop, playsinline, preload="auto", NOT autoplay */}

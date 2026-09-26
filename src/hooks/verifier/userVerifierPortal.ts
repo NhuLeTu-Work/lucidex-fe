@@ -13,12 +13,52 @@ export function useVerifierPortal(
   const [verifyResult, setVerifyResult] = useState<VerifyResultState>('idle');
   const [verifiedData, setVerifiedData] = useState<VerifiedData | null>(null);
   const [rawCredentialData, setRawCredentialData] = useState<any | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+
+  const getVerifyErrorMessage = (code?: string | null, backendMsg?: string | null): string => {
+    let extractedCode = code;
+    let cleanedMsg = backendMsg ? backendMsg.replace(/^\[.*?\]\s*/, '').trim() : '';
+
+    if (backendMsg && !extractedCode) {
+      const match = backendMsg.match(/^\[(.*?)\]/);
+      if (match) {
+        extractedCode = match[1];
+      }
+    }
+
+    if (extractedCode === 'ACCESS_LIMIT_REACHED') {
+      return t ? t('errAccessLimitReached') : 'Mã xác thực đã hết lượt sử dụng.';
+    }
+    if (extractedCode === 'LINK_EXPIRED') {
+      return t ? t('errLinkExpired') : 'Liên kết xác thực đã hết hạn.';
+    }
+    if (extractedCode === 'CREDENTIAL_REVOKED') {
+      return t ? t('errCredentialRevoked') : 'Văn bằng liên kết với mã này đã bị thu hồi.';
+    }
+    if (extractedCode === 'LINK_REVOKED') {
+      return t ? t('errLinkRevoked') : 'Quyền truy cập đã bị thu hồi.';
+    }
+    if (extractedCode === 'INVALID_CODE' || extractedCode === 'NOT_FOUND' || extractedCode === 'LINK_NOT_FOUND') {
+      return t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!';
+    }
+    if (cleanedMsg) {
+      if (t) {
+        const translated = t(cleanedMsg);
+        if (translated && translated !== cleanedMsg) return translated;
+      }
+      return cleanedMsg;
+    }
+    return t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!';
+  };
 
   const handleVerify = async (code: string) => {
     const trimmedCode = code.trim();
     if (!trimmedCode) return;
 
     setVerifyResult('checking');
+    setErrorMessage(null);
+    setErrorCode(null);
 
     try {
       const response = await verifyCodeApi({ code: trimmedCode });
@@ -46,9 +86,16 @@ export function useVerifierPortal(
         setVerifiedData(null);
         setRawCredentialData(null);
         setVerifyResult('invalid');
-        showToast?.('error', response.message || (t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ!'));
+        const errCode = response.error_code;
+        const msg = getVerifyErrorMessage(errCode, response.message);
+        setErrorCode(errCode);
+        setErrorMessage(msg);
+        showToast?.('error', msg);
       }
-    } catch {
+    } catch (err: any) {
+      const apiErrCode = err?.response?.data?.error_code;
+      const apiMessage = err?.response?.data?.message;
+
       // Direct API call fallback for mock/offline testing environment
       if (['abc123', 'def456', 'ghi789', 'jkl012'].includes(trimmedCode)) {
         const cred = mockCredentials.find(c => {
@@ -67,6 +114,7 @@ export function useVerifierPortal(
             full_name: owner?.name || 'Nguyễn Văn A',
             degree_type: cred.degreeType,
             major: owner?.major || 'Công nghệ thông tin',
+            graduationYear: owner?.graduationYear || 2026,
             graduation_year: owner?.graduationYear || 2026,
             gpa: owner?.gpa || 3.8,
             classification: owner?.honors || 'Xuất sắc',
@@ -92,10 +140,27 @@ export function useVerifierPortal(
           return;
         }
       }
+
+      // Offline mock codes for testing different error scenarios
+      let finalErrCode = apiErrCode;
+      let finalMsg = apiMessage;
+      if (trimmedCode === 'limit_reached' || trimmedCode === 'ACCESS_LIMIT_REACHED') {
+        finalErrCode = 'ACCESS_LIMIT_REACHED';
+      } else if (trimmedCode === 'link_expired' || trimmedCode === 'LINK_EXPIRED') {
+        finalErrCode = 'LINK_EXPIRED';
+      } else if (trimmedCode === 'cred_revoked' || trimmedCode === 'CREDENTIAL_REVOKED') {
+        finalErrCode = 'CREDENTIAL_REVOKED';
+      } else if (trimmedCode === 'link_revoked' || trimmedCode === 'LINK_REVOKED') {
+        finalErrCode = 'LINK_REVOKED';
+      }
+
       setVerifiedData(null);
       setRawCredentialData(null);
       setVerifyResult('invalid');
-      showToast?.('error', t ? t('verifyInvalidToast') : 'Mã xác thực không hợp lệ hoặc đã hết hạn!');
+      const msg = getVerifyErrorMessage(finalErrCode, finalMsg);
+      setErrorCode(finalErrCode);
+      setErrorMessage(msg);
+      showToast?.('error', msg);
     }
   };
 
@@ -105,6 +170,8 @@ export function useVerifierPortal(
     verifyResult,
     verifiedData,
     rawCredentialData,
+    errorMessage,
+    errorCode,
     handleVerify
   };
 }

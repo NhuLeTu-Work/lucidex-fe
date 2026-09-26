@@ -6,7 +6,7 @@ import { updateLinkSettingsApi } from '@/api/endpoints/owner/updateLinkSettingsA
 import type { UpdateLinkSettingsPayload } from '@/api/endpoints/owner/updateLinkSettingsApi';
 
 export function useLinkSettings() {
-  const { showToast } = useApp();
+  const { showToast, t } = useApp();
   const [settings, setSettings] = useState<DefaultLinkSettingsData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -31,16 +31,16 @@ export function useLinkSettings() {
       const res = await updateLinkSettingsApi(payload);
       if (res.success && res.data) {
         setSettings(res.data);
-        showToast('success', res.message || 'Đã cập nhật cài đặt mặc định.');
+        showToast('success', res.message ? (t(res.message) || res.message) : t('settingsUpdatedSuccess'));
         return true;
       } else {
-        showToast('error', res.message || 'Cập nhật cài đặt thất bại.');
+        showToast('error', res.message ? (t(res.message) || res.message) : t('settingsUpdatedFailed'));
         return false;
       }
     } catch (err: any) {
       console.error('Failed to update default link settings:', err);
-      const msg = err?.response?.data?.message || 'Không thể cập nhật cài đặt mặc định.';
-      showToast('error', msg);
+      const msg = err?.response?.data?.message || t('settingsUpdatedFailed');
+      showToast('error', t(msg) || msg);
       return false;
     } finally {
       setIsSaving(false);

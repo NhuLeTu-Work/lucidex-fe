@@ -55,8 +55,8 @@ export function RolesWrapper() {
         label="Issuer"
         title="Upload once. Stay the source of truth"
         points={[
-          'Institutions upload graduate records once.',
-          'Every record comes directly from the issuing institution.',
+          'Institutions upload graduate records once',
+          'Every record comes directly from the issuing institution',
         ]}
         image={{ src: '/landing/images/issuer.webp', alt: 'Institution uploading graduate records' }}
       />
@@ -67,9 +67,9 @@ export function RolesWrapper() {
         label="Owner"
         title="Claim your credentials. Control who sees them"
         points={[
-          'Graduates confirm their identity and claim their credentials.',
-          'Graduates decide who can see each credential.',
-          'Share codes follow NIST security standards.',
+          'Graduates confirm their identity and claim their credentials',
+          'Graduates decide who can see each credential',
+          'Share codes follow NIST security standards',
         ]}
         image={{ src: '/landing/images/owner.webp', alt: 'Graduate controlling who can see their credential' }}
         reverse
@@ -81,8 +81,8 @@ export function RolesWrapper() {
         label="Verifier"
         title="Enter a code. Know it is real"
         points={[
-          'Employers use a share code to confirm authenticity in seconds.',
-          'Every verification is recorded with who checked it and when.',
+          'Employers use a share code to confirm authenticity in seconds',
+          'Every verification is recorded with who checked it and when',
         ]}
         image={{ src: '/landing/images/verifier.webp', alt: 'Employer verifying a credential' }}
       />

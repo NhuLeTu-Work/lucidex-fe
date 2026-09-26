@@ -24,10 +24,10 @@ export function LandingHeader({ isAuthenticated, appHomePath }: LandingHeaderPro
   ) : (
     <>
       <Link to={LANDING_ROUTES.login} className="nav-auth-link">
-        Log in
+        Sign in
       </Link>
       <Link to={LANDING_ROUTES.register} className="nav-auth-link nav-auth-link-secondary">
-        Register
+        Sign up
       </Link>
     </>
   );

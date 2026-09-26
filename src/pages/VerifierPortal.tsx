@@ -18,6 +18,7 @@ export function VerifierPortal() {
     verifyResult,
     verifiedData,
     rawCredentialData,
+    errorMessage,
     handleVerify
   } = useVerifierPortal(showToast, t);
   const { userProfile, fetchProfile } = useAuthMe(showToast, logout);
@@ -53,6 +54,7 @@ export function VerifierPortal() {
           <VerifierVerify 
             t={t} result={verifyResult} verifiedData={verifiedData} 
             rawCredentialData={rawCredentialData}
+            errorMessage={errorMessage}
             onVerify={handleVerify} quotaUsed={quotaUsed} 
             showToast={showToast}
           />

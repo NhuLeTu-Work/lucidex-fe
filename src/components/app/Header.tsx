@@ -27,7 +27,7 @@ export function Header() {
               <NavBtn icon={<ShieldCheck size={16} />} label={t('verify') || 'Xác thực'} to="/verify" />
             </>
           )}
-          {role === 'owner' && <PortalBadge icon={<ROLE_IDENTITY.owner.Icon size={14} />} label={t('OwnerPortal') || 'Cổng Sinh viên'} />}
+          {role === 'owner' && <PortalBadge icon={<ROLE_IDENTITY.owner.Icon size={14} />} label={t('ownerPortal') || 'Cổng Sinh viên'} />}
           {role === 'issuer' && <PortalBadge icon={<ROLE_IDENTITY.issuer.Icon size={14} />} label={t('issuerPortal') || 'Cổng Cấp phát'} />}
           {role === 'verifier' && <PortalBadge icon={<ROLE_IDENTITY.verifier.Icon size={14} />} label={t('verifierPortal') || 'Cổng Doanh nghiệp'} />}
           {role === 'admin' && <PortalBadge icon={<ShieldCheck size={14} />} label={t('adminPortal') || 'Quản trị hệ thống'} />}
@@ -35,19 +35,31 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-70">
+          <button 
+            type="button" 
+            onClick={(e) => {
+              e.preventDefault();
+              setLang(lang === 'vi' ? 'en' : 'vi');
+            }} 
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-70"
+          >
             <Globe size={14} /> <span className="uppercase text-xs font-semibold">{lang}</span>
           </button>
           
-          <button onClick={toggleTheme} className="p-2 rounded-lg hover:opacity-70" title={theme === 'dark' ? t('switchLight') : t('switchDark')}>
+          <button 
+            type="button"
+            onClick={toggleTheme} 
+            className="p-2 rounded-lg hover:opacity-70" 
+            title={theme === 'dark' ? t('switchLight') : t('switchDark')}
+          >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           
           <div className="flex items-center gap-2 ml-2 pl-3 border-l" style={{ borderColor: 'var(--ct-border)' }}>
             {role === 'guest' ? (
               <>
-                <Link to="/login" className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-black/5 dark:hover:bg-white/5">{t('Sign In') || 'Đăng nhập'}</Link>
-                <Link to="/register" className="px-4 py-2 text-sm font-semibold rounded-xl shadow-md hover:opacity-90" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>{t('Sign Up') || 'Đăng ký'}</Link>
+                <Link to="/login" className="px-4 py-2 text-sm font-semibold rounded-xl hover:bg-black/5 dark:hover:bg-white/5">{t('signIn') || 'Đăng nhập'}</Link>
+                <Link to="/register" className="px-4 py-2 text-sm font-semibold rounded-xl shadow-md hover:opacity-90" style={{ background: 'var(--ct-text)', color: 'var(--ct-bg)' }}>{t('signUp') || 'Đăng ký'}</Link>
               </>
             ) : (
               <>

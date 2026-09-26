@@ -13,7 +13,7 @@ export function NationalSection() {
             <span className="national-title-line2">to all of Vietnam</span>
           </h2>
           <p className="national-body">
-            Lucidex starts in Can Tho. The aim is every institution in Vietnam that issues credentials, so any employer can verify any Vietnamese degree at the source.
+            Lucidex starts in Can Tho. The aim is every institution in Vietnam that issues credentials, so any employer can verify any Vietnamese degree at the source
           </p>
           <div className="national-stats">
             <div className="national-stat-item">
