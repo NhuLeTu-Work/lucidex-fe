@@ -85,7 +85,7 @@ export function VerifyLinkPage() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-lg">
-        <button onClick={() => navigate('/landing')} className="flex items-center gap-2 text-sm mb-8 transition-opacity hover:opacity-70" style={{ color: 'var(--ct-text-secondary)' }}>
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm mb-8 transition-opacity hover:opacity-70" style={{ color: 'var(--ct-text-secondary)' }}>
           <ArrowLeft size={16} />
           {t('cancel')}
         </button>
